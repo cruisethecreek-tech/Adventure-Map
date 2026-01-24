@@ -5,7 +5,11 @@
     <meta name="permissions-policy" content="geolocation=(self)">
     <title>Cruise the Creek | Mill Creek Park eBike Tours</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
-  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDfXXXXXXXXXXXXXXXXXXXXXXXX&callback=initMap&libraries=marker,places,geometry&v=weekly" defer></script>
+    
+    <script async
+        src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY_HERE&loading=async&callback=initMap&libraries=marker,places,geometry&v=weekly">
+    </script>
+
     <style>
         :root {
             --sage-green: #6B8E6F;
@@ -509,7 +513,6 @@
 
     <div class="container">
         
-        <!-- IFRAME DETECTION BANNER -->
         <div id="iframeWarning" style="display: none; background: linear-gradient(135deg, #3498db, #2980b9); color: white; padding: 20px; border-radius: 12px; margin-bottom: 30px; box-shadow: 0 8px 24px rgba(52, 152, 219, 0.3); text-align: center;">
             <h3 style="font-size: 1.3rem; margin-bottom: 10px;">📱 For GPS Audio Tours</h3>
             <p style="font-size: 1rem; line-height: 1.6;">
@@ -549,7 +552,6 @@
             </div>
         </div>
 
-        <!-- SEARCH BAR -->
         <div class="search-container">
             <h2 style="text-align: center; font-size: 1.8rem; margin-bottom: 15px; color: var(--text-dark);">
                 🔍 Search Locations
@@ -569,13 +571,11 @@
 
         <h2 style="text-align: center; font-size: 2rem; margin-bottom: 20px; color: var(--text-dark);">Filter by Category</h2>
         
-        <!-- Scenic Route Guide -->
         <div style="background: linear-gradient(135deg, #E8F5E9, #C8E6C9); border-radius: 12px; padding: 25px; margin-bottom: 30px; border: 3px solid var(--sage-green); box-shadow: var(--shadow);">
             <h3 style="color: var(--dark-sage); font-size: 1.5rem; margin-bottom: 15px; text-align: center;">
                 🌳 Scenic Trail Navigation Guide
             </h3>
             
-            <!-- Bears Den Road Warning -->
             <div style="background: #ffebee; border: 3px solid #e74c3c; border-radius: 10px; padding: 20px; margin-bottom: 20px; text-align: center;">
                 <h4 style="color: #c0392b; font-size: 1.3rem; margin-bottom: 10px;">
                     🚫 AVOID BEARS DEN ROAD 🚫
@@ -685,12 +685,10 @@
         <h2 style="text-align: center; font-size: 2rem; margin: 40px 0 20px; color: var(--text-dark);">Browse All Locations</h2>
         
         <div class="locations-grid" id="locationsGrid">
-            <!-- Populated by JavaScript -->
-        </div>
+            </div>
 
     </div>
 
-    <!-- AUDIO TOUR POPUP -->
     <div class="audio-popup" id="audioPopup">
         <div class="playing-icon"></div>
         <div class="popup-content">
@@ -885,13 +883,22 @@
             map.setCenter({ lat, lng });
             map.setZoom(16);
             
+            // Find marker by coordinates (approximate match due to float precision)
             const marker = markers.find(m => 
-                Math.abs(m.getPosition().lat() - lat) < 0.0001 && 
-                Math.abs(m.getPosition().lng() - lng) < 0.0001
+                m.position && 
+                Math.abs(m.position.lat - lat) < 0.000001 && 
+                Math.abs(m.position.lng - lng) < 0.000001
             );
             
             if (marker) {
-                google.maps.event.trigger(marker, 'click');
+                // For Advanced Marker, we can't just trigger 'click' via google.maps.event.trigger
+                // We need to check if a listener exists or simulate the info window open
+                // In our implementation, we added a listener. 
+                // However, programmatically triggering click on AdvancedMarkerElement is tricky.
+                // Best to manually find the data and open the info window.
+                
+                const locData = locations.find(l => l.name === name);
+                if(locData) openInfoWindowForLocation(marker, locData);
             }
             
             // Scroll to the map, not the top of the page
@@ -1049,7 +1056,7 @@
             window.speechSynthesis.cancel();
             
             if (userMarker) {
-                userMarker.setMap(null);
+                userMarker.map = null; // Correct way to remove AdvancedMarker
                 userMarker = null;
             }
             
@@ -1061,28 +1068,32 @@
             }
         }
 
-        function updateUserLocation(position) {
+        async function updateUserLocation(position) {
             const userLat = position.coords.latitude;
             const userLng = position.coords.longitude;
-            const userPos = new google.maps.LatLng(userLat, userLng);
             
+            // IMPORT MARKER LIBRARY FOR USER DOT
+            const { AdvancedMarkerElement, PinElement } = await google.maps.importLibrary("marker");
+
             if (!userMarker) {
-                userMarker = new google.maps.Marker({
+                // Create a blue dot for user
+                const userPin = new PinElement({
+                    background: "#4285F4",
+                    borderColor: "white",
+                    glyph: "",
+                    scale: 0.8
+                });
+
+                userMarker = new AdvancedMarkerElement({
                     map: map,
-                    icon: {
-                        path: google.maps.SymbolPath.CIRCLE,
-                        scale: 8,
-                        fillColor: "#4285F4",
-                        fillOpacity: 1,
-                        strokeColor: "white",
-                        strokeWeight: 3
-                    },
+                    position: { lat: userLat, lng: userLng },
                     title: "You are here",
+                    content: userPin.element,
                     zIndex: 1000
                 });
+            } else {
+                userMarker.position = { lat: userLat, lng: userLng };
             }
-            
-            userMarker.setPosition(userPos);
             
             // Only auto-center on first location or if user is far from current view
             const currentCenter = map.getCenter();
@@ -1093,7 +1104,7 @@
             
             // Auto-center if more than 500 meters from center
             if (distanceFromCenter > 500) {
-                map.panTo(userPos);
+                map.panTo({ lat: userLat, lng: userLng });
             }
             
             checkProximity(userLat, userLng);
@@ -1116,6 +1127,8 @@
         }
 
         function checkParkBoundaries(lat, lng) {
+            if(!parkBoundary) return;
+
             const userPoint = new google.maps.LatLng(lat, lng);
             const isInside = google.maps.geometry.poly.containsLocation(userPoint, parkBoundary);
             
@@ -1294,10 +1307,16 @@
         }
 
         // MAP INITIALIZATION
-        function initMap() {
-            map = new google.maps.Map(document.getElementById('map'), {
+        // ASYNC function required for importLibrary
+        async function initMap() {
+            // Import libraries
+            const { Map } = await google.maps.importLibrary("maps");
+            const { AdvancedMarkerElement, PinElement } = await google.maps.importLibrary("marker");
+
+            map = new Map(document.getElementById('map'), {
                 center: { lat: 41.070, lng: -80.685 },
                 zoom: 13,
+                mapId: "DEMO_MAP_ID", // FIX 3: Required for Advanced Markers
                 styles: [
                     { featureType: "poi", elementType: "labels", stylers: [{ visibility: "off" }] },
                     { featureType: "road", elementType: "geometry", stylers: [{ color: "#F5EFE6" }] },
@@ -1397,29 +1416,44 @@
             renderLocationCards();
         }
 
-        function loadAllMarkers() {
-            markers.forEach(m => m.setMap(null));
+        async function loadAllMarkers() {
+            // Needed for PinElement
+            const { AdvancedMarkerElement, PinElement } = await google.maps.importLibrary("marker");
+
+            markers.forEach(m => m.map = null);
             markers = [];
 
             locations.forEach(loc => {
-                const marker = new google.maps.Marker({
+                // FIX 2: Create PinElement with Emoji Icon
+                const pin = new PinElement({
+                    background: categoryColors[loc.category],
+                    borderColor: "white",
+                    glyph: loc.icon, // Puts the emoji inside the pin!
+                    scale: 1 
+                });
+
+                // FIX 2: Use AdvancedMarkerElement
+                const marker = new AdvancedMarkerElement({
                     position: { lat: loc.lat, lng: loc.lng },
                     map: map,
                     title: loc.name,
-                    animation: google.maps.Animation.DROP,
-                    icon: {
-                        path: google.maps.SymbolPath.CIRCLE,
-                        scale: 10,
-                        fillColor: categoryColors[loc.category],
-                        fillOpacity: 1,
-                        strokeColor: 'white',
-                        strokeWeight: 3
-                    },
-                    category: loc.category
+                    content: pin.element, // Pass the pin element here
+                    gmpClickable: true, // Optimizes for clicking
                 });
 
+                // Helper to open info window logic
                 marker.addListener('click', () => {
-                    const trailStyle = currentRouteMode === 'trail' 
+                   openInfoWindowForLocation(marker, loc);
+                });
+
+                // Store category for filtering
+                marker.category = loc.category;
+                markers.push(marker);
+            });
+        }
+        
+        function openInfoWindowForLocation(marker, loc) {
+             const trailStyle = currentRouteMode === 'trail' 
                         ? 'background:#27ae60; color:white; border:3px solid #FFD700;' 
                         : 'background:#6B8E6F; color:white;';
                     const bikeStyle = currentRouteMode === 'bike' 
@@ -1481,10 +1515,6 @@
                     `;
                     infoWindow.setContent(content);
                     infoWindow.open(map, marker);
-                });
-
-                markers.push(marker);
-            });
         }
 
         function toggleParkBoundary() {
@@ -1552,10 +1582,11 @@
             event.target.classList.add('active');
 
             markers.forEach(marker => {
+                // Advanced Marker uses 'map' property to show/hide
                 if (category === 'all' || marker.category === category) {
-                    marker.setMap(map);
+                    marker.map = map;
                 } else {
-                    marker.setMap(null);
+                    marker.map = null;
                 }
             });
 
@@ -1575,8 +1606,8 @@
             if (category !== 'all') {
                 const bounds = new google.maps.LatLngBounds();
                 markers.forEach(marker => {
-                    if (marker.getMap()) {
-                        bounds.extend(marker.getPosition());
+                    if (marker.map) {
+                        bounds.extend(marker.position);
                     }
                 });
                 if (!bounds.isEmpty()) {
@@ -1602,22 +1633,7 @@
                 `;
                 
                 card.onclick = () => {
-                    map.setCenter({ lat: loc.lat, lng: loc.lng });
-                    map.setZoom(16);
-                    
-                    const marker = markers.find(m => 
-                        m.getPosition().lat() === loc.lat && 
-                        m.getPosition().lng() === loc.lng
-                    );
-                    if (marker) {
-                        google.maps.event.trigger(marker, 'click');
-                    }
-                    
-                    // Scroll to the map, not the top of the page
-                    const mapWrapper = document.querySelector('.map-wrapper');
-                    if (mapWrapper) {
-                        mapWrapper.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                    }
+                    selectLocation(loc.lat, loc.lng, loc.name);
                 };
                 
                 grid.appendChild(card);
