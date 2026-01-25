@@ -209,20 +209,7 @@
             color: var(--sage-green);
         }
 
-        /* GENERIC ACCORDION STYLES */
-        .accordion-group {
-            background: transparent;
-            margin-top: 15px;
-        }
-
-        .guide-accordion {
-            background: white;
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-        }
-
-        /* CATEGORY SPECIFIC STYLES */
+        /* CATEGORY ACCORDION STYLES */
         .category-accordion-item {
             background: white;
             border-radius: 50px;
@@ -391,7 +378,7 @@
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            z-index: 9999; /* Forced high z-index to sit on top of map */
+            z-index: 1000; /* High z-index to sit on top of map */
             transition: transform 0.2s ease;
         }
         
@@ -469,7 +456,6 @@
             box-shadow: var(--shadow);
             overflow: hidden;
             margin-bottom: 40px;
-            /* Remove fixed height here to let children control it */
             position: relative;
         }
         
@@ -477,6 +463,7 @@
             position: relative;
             width: 100%;
             height: 700px; /* Default desktop height */
+            min-height: 400px; /* Prevent collapse */
         }
 
         .map-header {
@@ -531,6 +518,7 @@
         #map {
             width: 100%;
             height: 100%; /* Fill the container */
+            min-height: 400px; /* Safety measure */
         }
 
         footer {
@@ -554,7 +542,7 @@
             .tagline { font-size: 0.8rem; }
             
             /* Make map tall enough on mobile */
-            .map-frame-container { height: 70vh; }
+            .map-frame-container { height: 60vh; min-height: 400px; }
             
             .container { padding: 20px 15px; }
             
@@ -1380,6 +1368,15 @@
                 center: { lat: 41.070, lng: -80.685 },
                 zoom: 13,
                 mapId: "DEMO_MAP_ID", // FIX: Keep mapId but removed 'styles' array to prevent conflict
+            });
+
+            // SAFETY CHECK: If map drifts to (0,0), force reset
+            map.addListener('center_changed', () => {
+                const c = map.getCenter();
+                if (Math.abs(c.lat()) < 1 && Math.abs(c.lng()) < 1) {
+                    map.setCenter({ lat: 41.070, lng: -80.685 });
+                    map.setZoom(13);
+                }
             });
 
             infoWindow = new google.maps.InfoWindow();
