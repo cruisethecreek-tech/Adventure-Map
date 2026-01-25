@@ -213,7 +213,7 @@
         .category-accordion-item {
             background: white;
             border-radius: 50px;
-            margin-bottom: 12px;
+            margin-bottom: 12px; /* Spacing between bars */
             overflow: hidden;
             box-shadow: 0 4px 12px rgba(0,0,0,0.05);
             border: 2px solid var(--sage-green);
@@ -221,7 +221,7 @@
         }
 
         .category-accordion-item.active {
-            border-radius: 20px;
+            border-radius: 20px; /* Open state has less rounded corners */
             background: #fdfdfd;
         }
 
@@ -285,7 +285,7 @@
             background: white;
         }
 
-        /* Inner Grid for Category Items - DEFAULT DESKTOP */
+        /* Inner Grid for Category Items - DEFAULT DESKTOP (Grid) */
         .accordion-inner-grid {
             padding: 20px;
             display: grid;
@@ -328,6 +328,41 @@
             color: var(--text-dark);
         }
 
+        /* VIBE BADGE STYLES (NEW) */
+        .vibe-badge-container {
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap;
+            margin-bottom: 8px;
+        }
+        
+        .vibe-badge {
+            font-size: 0.75rem;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-weight: 600;
+            background: #eee;
+            color: #555;
+            display: inline-block;
+        }
+        
+        /* Badge Colors */
+        .badge-photo { background: #E1BEE7; color: #8E24AA; }
+        .badge-restroom { background: #BBDEFB; color: #1976D2; }
+        .badge-steep { background: #FFCDD2; color: #D32F2F; }
+        .badge-flat { background: #C8E6C9; color: #388E3C; }
+        .badge-family { background: #FFF9C4; color: #FBC02D; }
+
+        .time-stat {
+            font-size: 0.85rem;
+            color: #666;
+            margin-bottom: 8px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
         /* AUDIO TOUR BUTTON */
         .audio-btn {
             background: var(--accent-orange);
@@ -362,10 +397,10 @@
             100% { transform: scale(1); }
         }
 
-        /* FIND ME BUTTON (NEW) */
+        /* FIND ME BUTTON */
         .find-me-btn {
             position: absolute;
-            bottom: 25px;
+            bottom: 25px; 
             right: 10px;
             background: white;
             width: 50px;
@@ -530,6 +565,23 @@
         footer h3 {
             font-size: 1.8rem;
             margin-bottom: 15px;
+        }
+        
+        .donate-btn {
+            display: inline-block; 
+            margin-top: 15px; 
+            background: white; 
+            color: #2C3A2E; 
+            padding: 10px 20px; 
+            border-radius: 25px; 
+            text-decoration: none; 
+            font-weight: 700; 
+            font-size: 0.95rem;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+            transition: transform 0.2s;
+        }
+        .donate-btn:hover {
+            transform: translateY(-2px);
         }
 
         /* --- MOBILE OPTIMIZATION --- */
@@ -743,6 +795,11 @@
     <footer>
         <h3>Cruise the Creek</h3>
         <p>Youngstown's Premier eBike Rental & Tours</p>
+        
+        <a href="https://www.paypal.com/" class="donate-btn" target="_blank">
+            ☕ Support the Map
+        </a>
+
         <p style="margin-top: 15px; font-size: 0.85rem;">📍 Mill Creek MetroParks, Youngstown, Ohio</p>
     </footer>
 
@@ -795,84 +852,100 @@
         let isInsidePark = true;
         let hasLeftPark = false;
 
+        // --- LOCATIONS DATA WITH VIBE BADGES ---
         const locations = [
-            { name: "Cruise The Creek", category: "amenity", icon: "🚲", lat: 41.0720801, lng: -80.6918451, desc: "Welcome to Cruise The Creek, your starting point for an amazing eBike adventure through Mill Creek Park!" },
-            { name: "Mill Creek Metro Park", category: "nature", icon: "🌳", lat: 41.0862413, lng: -80.6926274, desc: "You're entering Mill Creek Metro Park, a beautiful 2,658-acre urban oasis. Ohio's first park district, established in 1891." },
+            { 
+                name: "Cruise The Creek", 
+                category: "amenity", 
+                icon: "🚲", 
+                lat: 41.0720801, 
+                lng: -80.6918451, 
+                desc: "Welcome to Cruise The Creek, your starting point for an amazing eBike adventure through Mill Creek Park!",
+                tags: ["🏁 Start Here", "🅿️ Parking", "ℹ️ Info"],
+                time: "0 mins"
+            },
+            { 
+                name: "Mill Creek Metro Park", 
+                category: "nature", 
+                icon: "🌳", 
+                lat: 41.0862413, 
+                lng: -80.6926274, 
+                desc: "You're entering Mill Creek Metro Park, a beautiful 2,658-acre urban oasis. Ohio's first park district, established in 1891.",
+                tags: ["🌲 Scenic", "📸 Photo Op"],
+                time: "Explore All Day"
+            },
             
-            // PLAYGROUNDS - Family Fun Areas
-            { name: "Wick Pavilion & Wet Playground", category: "playground", icon: "🛝", lat: 41.0867, lng: -80.6930, desc: "Wick Recreation Area features a wet playground! Perfect for kids to cool off and play during summer months. Pavilion available for family gatherings." },
-            { name: "Scholl Pavilion & Spray Basin", category: "playground", icon: "🛝", lat: 41.0724666, lng: -80.6916099, desc: "Scholl Recreation Area has a spray basin for summer fun! Great spot for picnics with playground facilities for the kids." },
-            { name: "Stitt Pavilion Playground", category: "playground", icon: "🛝", lat: 41.0424868, lng: -80.6880063, desc: "Stitt Pavilion on the south side offers playground facilities and pavilion space, perfect for family outings!" },
-            { name: "Chestnut Hill Pavilion Playground", category: "playground", icon: "🛝", lat: 41.0706959, lng: -80.6904977, desc: "Chestnut Hill Pavilion features hilltop playground with beautiful views. Great for kids to play while you enjoy the scenery!" },
-            { name: "Slippery Rock Pavilion Playground", category: "playground", icon: "🛝", lat: 41.0868053, lng: -80.6748662, desc: "Slippery Rock Pavilion on the east side has playground equipment and picnic facilities. Perfect family destination!" },
-            { name: "Volney Rogers Field Playground", category: "playground", icon: "🛝", lat: 41.0961547, lng: -80.6732859, desc: "Volney Rogers Field features playground equipment and sports facilities. Great for active kids and family activities!" },
-            { name: "Lower Bears Den Playground & Picnic Area", category: "playground", icon: "🛝", lat: 41.0837265, lng: -80.6879262, desc: "Lower Bears Den has playground equipment in a beautiful wooded setting. Perfect spot for kids to play and families to picnic!" },
-            { name: "Yellow Creek Park", category: "playground", icon: "🛝", lat: 41.0380, lng: -80.6440, desc: "Yellow Creek Park offers playground facilities and family recreation areas. Great destination for a full day of family fun!" },
+            // PLAYGROUNDS
+            { name: "Wick Pavilion & Wet Playground", category: "playground", icon: "🛝", lat: 41.0867, lng: -80.6930, desc: "Wick Recreation Area features a wet playground! Perfect for kids to cool off and play during summer months.", tags: ["👨‍👩‍👧‍👦 Family", "💦 Splash Pad", "🚽 Restroom"], time: "30-60 mins" },
+            { name: "Scholl Pavilion & Spray Basin", category: "playground", icon: "🛝", lat: 41.0724666, lng: -80.6916099, desc: "Scholl Recreation Area has a spray basin for summer fun! Great spot for picnics with playground facilities.", tags: ["👨‍👩‍👧‍👦 Family", "💦 Splash Pad", "🧺 Picnic"], time: "30 mins" },
+            { name: "Stitt Pavilion Playground", category: "playground", icon: "🛝", lat: 41.0424868, lng: -80.6880063, desc: "Stitt Pavilion on the south side offers playground facilities and pavilion space.", tags: ["👨‍👩‍👧‍👦 Family", "🧺 Picnic"], time: "20 mins" },
+            { name: "Chestnut Hill Pavilion Playground", category: "playground", icon: "🛝", lat: 41.0706959, lng: -80.6904977, desc: "Chestnut Hill Pavilion features hilltop playground with beautiful views.", tags: ["🌄 View", "👨‍👩‍👧‍👦 Family"], time: "20 mins" },
+            { name: "Slippery Rock Pavilion Playground", category: "playground", icon: "🛝", lat: 41.0868053, lng: -80.6748662, desc: "Slippery Rock Pavilion on the east side has playground equipment and picnic facilities.", tags: ["👨‍👩‍👧‍👦 Family", "🧺 Picnic"], time: "30 mins" },
+            { name: "Volney Rogers Field Playground", category: "playground", icon: "🛝", lat: 41.0961547, lng: -80.6732859, desc: "Volney Rogers Field features playground equipment and sports facilities.", tags: ["⚽ Sports", "👨‍👩‍👧‍👦 Family"], time: "30 mins" },
+            { name: "Lower Bears Den Playground", category: "playground", icon: "🛝", lat: 41.0837265, lng: -80.6879262, desc: "Lower Bears Den has playground equipment in a beautiful wooded setting.", tags: ["🌲 Wooded", "👨‍👩‍👧‍👦 Family"], time: "30 mins" },
+            { name: "Yellow Creek Park", category: "playground", icon: "🛝", lat: 41.0380, lng: -80.6440, desc: "Yellow Creek Park offers playground facilities and family recreation areas.", tags: ["👨‍👩‍👧‍👦 Family", "🌊 Creek"], time: "45 mins" },
             
             // TRAILS
-            { name: "Old Tree Trail", category: "trail", icon: "🥾", lat: 41.0975, lng: -80.6770, desc: "0.8 mile moderately difficult trail with panoramic views of Lake Glacier. Features steep steps at north trailhead." },
-            { name: "East Glacier Trail", category: "trail", icon: "🥾", lat: 41.0965, lng: -80.6755, desc: "0.8 mile moderate trail with hills. Great for wildlife viewing and features the historic Parapet Bridge." },
-            { name: "One Way Drive Trail", category: "trail", icon: "🥾", lat: 41.0945, lng: -80.6765, desc: "0.7 mile moderate trail offering panoramic views of Lily Pond and Lake Glacier." },
-            { name: "Lily Pond Circle Trail", category: "trail", icon: "🥾", lat: 41.0877647, lng: -80.6814132, desc: "Easy 0.25 mile loop around Lily Pond. Very scenic with excellent wildlife viewing opportunities!" },
-            { name: "Virginia J. Axtmann Nature Trail", category: "trail", icon: "🥾", lat: 41.0875, lng: -80.6820, desc: "Easy 0.1 mile paved trail with nature signage. Barrier-free access for all people!" },
-            { name: "Artists' Trail", category: "trail", icon: "🥾", lat: 41.0865, lng: -80.6805, desc: "Easy 0.2 mile trail named for its popularity with local artists. Features a historic WPA stone wall from the Great Depression." },
-            { name: "Slippery Rock Trail", category: "trail", icon: "🥾", lat: 41.0868, lng: -80.6795, desc: "Easy 0.4 mile trail with beautiful views of Mill Creek. Some steps near Old Furnace Road." },
-            { name: "East Cohasset Hike & Bike Trail", category: "trail", icon: "🚴", lat: 41.0785, lng: -80.6875, desc: "2 mile moderate to difficult paved trail, closed to vehicles. Popular with cyclists, joggers and walkers!" },
-            { name: "West Cohasset Trail", category: "trail", icon: "🥾", lat: 41.0795, lng: -80.6900, desc: "1 mile moderately difficult trail with stately hemlock trees and views of Lake Cohasset." },
-            { name: "East Cohasset Trail", category: "trail", icon: "🥾", lat: 41.0775, lng: -80.6860, desc: "1.2 mile moderately difficult trail with views of Lake Cohasset and the historic Suspension Bridge." },
-            { name: "West Gorge Trail", category: "trail", icon: "🥾", lat: 41.0705, lng: -80.6835, desc: "1.2 mile moderately difficult trail with sandstone outcroppings. These views inspired Volney Rogers to establish Mill Creek Park!" },
-            { name: "East Gorge Trail", category: "trail", icon: "🥾", lat: 41.0678, lng: -80.6818, desc: "0.5 mile moderately difficult trail with steps and boardwalk. Features scenic gorge, sandstone outcroppings including Umbrella Rock, and views of Lanterman's Falls!" },
-            { name: "West Newport Trail", category: "trail", icon: "🥾", lat: 41.0585, lng: -80.6780, desc: "1 mile moderately difficult trail with hills. Offers views of Lake Newport, wetlands, and excellent wildlife viewing." },
-            { name: "East Newport Hike & Bike Trail", category: "trail", icon: "🚴", lat: 41.0600, lng: -80.6750, desc: "Easy 1.75 mile paved trail open to one-way vehicles. Views of Lake Newport, wetlands, and spectacular Daffodil Meadow in spring!" },
-            { name: "Albert E. Davies Wetland Trail", category: "trail", icon: "🥾", lat: 41.0535, lng: -80.6770, desc: "Easy 0.25 mile asphalt trail to boardwalk through wetland habitat. Features interpretive signage and barrier-free access." },
-            { name: "East Channel and Islands Trail", category: "trail", icon: "🥾", lat: 41.0545, lng: -80.6755, desc: "1 mile fairly flat trail with spring wildflowers, horsetails, and wetland views." },
-            { name: "West Channel and Islands Trail", category: "trail", icon: "🥾", lat: 41.0550, lng: -80.6765, desc: "Easy 0.7 mile trail with slight grades. Features beautiful spring wildflowers but can be muddy." },
-            { name: "East Golf Hike & Bike Trail", category: "trail", icon: "🚴", lat: 41.0480, lng: -80.6850, desc: "Easy 1.5 mile paved trail, closed to vehicles. Heavily used by cyclists, joggers and walkers. Barrier-free access!" },
-            
-            // RECREATION (excluding playgrounds which now have their own category)
-            { name: "Mill Creek Golf Course", category: "recreation", icon: "⛳", lat: 41.0345702, lng: -80.6952989, desc: "This is Mill Creek Golf Course, an 18-hole Donald Ross designed course that's been challenging golfers since 1925." },
-            { name: "3 Par Golf Course", category: "recreation", icon: "⛳", lat: 41.0867287, lng: -80.6930365, desc: "You're at the 3 Par Golf Course in the Wick Recreation Area, a fun par 3 course for golfers of all skill levels." },
-            { name: "East Newport Boat Launch", category: "recreation", icon: "🚤", lat: 41.0600601, lng: -80.6741443, desc: "You're at the East Newport Boat Launch. From here, you can access Lake Newport by kayak or canoe." },
-            { name: "Lake Glacier Boating Center", category: "recreation", icon: "⛵", lat: 41.097517, lng: -80.6778914, desc: "You're at Lake Glacier Boating Center. This 44-acre lake is popular for kayaking, canoeing, and fishing." },
-            { name: "Lake Newport Boathouse", category: "recreation", icon: "🚣", lat: 41.0629656, lng: -80.6783145, desc: "You're at Lake Newport Boathouse, where you can rent kayaks and pedal boats to explore the lake." },
-            { name: "Pioneer Pavilion", category: "recreation", icon: "🏛️", lat: 41.083178, lng: -80.680273, desc: "This is Pioneer Pavilion, a historic pavilion dating back to 1821. One of the oldest structures in the park!" },
-            { name: "Kidston Pavilion", category: "recreation", icon: "⛺", lat: 41.0986398, lng: -80.6752008, desc: "Approaching Kidston Pavilion at Fellows Riverside Gardens, a beautiful venue for special occasions." },
+            { name: "East Gorge Trail", category: "trail", icon: "🥾", lat: 41.0678, lng: -80.6818, desc: "0.5 mile moderately difficult trail with steps and boardwalk. Features scenic gorge.", tags: ["⚠️ Steep Steps", "❌ No Bikes", "📸 Best View"], time: "30-45 mins" },
+            { name: "West Gorge Trail", category: "trail", icon: "🥾", lat: 41.0705, lng: -80.6835, desc: "1.2 mile moderately difficult trail with sandstone outcroppings.", tags: ["⚠️ Moderate", "❌ No Bikes", "🪨 Geology"], time: "45-60 mins" },
+            { name: "Lily Pond Circle Trail", category: "trail", icon: "🥾", lat: 41.0877647, lng: -80.6814132, desc: "Easy 0.25 mile loop around Lily Pond. Very scenic with excellent wildlife viewing!", tags: ["🟢 Easy/Flat", "🐢 Turtles", "♿ Accessible"], time: "15-20 mins" },
+            { name: "East Cohasset Hike & Bike Trail", category: "trail", icon: "🚴", lat: 41.0785, lng: -80.6875, desc: "2 mile moderate to difficult paved trail, closed to vehicles. Popular with cyclists!", tags: ["🚴 Bike Friendly", "🛣️ Paved", "⚠️ Hills"], time: "20-40 mins" },
+            { name: "Old Tree Trail", category: "trail", icon: "🥾", lat: 41.0975, lng: -80.6770, desc: "0.8 mile moderately difficult trail with panoramic views of Lake Glacier.", tags: ["⚠️ Steps", "🌊 Lake View"], time: "30 mins" },
+            { name: "East Glacier Trail", category: "trail", icon: "🥾", lat: 41.0965, lng: -80.6755, desc: "0.8 mile moderate trail with hills.", tags: ["⚠️ Hilly", "🌲 Woods"], time: "30 mins" },
+            { name: "One Way Drive Trail", category: "trail", icon: "🥾", lat: 41.0945, lng: -80.6765, desc: "0.7 mile moderate trail offering panoramic views.", tags: ["📸 View", "⚠️ Hilly"], time: "25 mins" },
+            { name: "Virginia J. Axtmann Nature Trail", category: "trail", icon: "🥾", lat: 41.0875, lng: -80.6820, desc: "Easy 0.1 mile paved trail with nature signage. Barrier-free access!", tags: ["🟢 Easy/Flat", "♿ Accessible"], time: "10 mins" },
+            { name: "Artists' Trail", category: "trail", icon: "🥾", lat: 41.0865, lng: -80.6805, desc: "Easy 0.2 mile trail named for its popularity with local artists.", tags: ["🟢 Easy", "🎨 Historic"], time: "15 mins" },
+            { name: "Slippery Rock Trail", category: "trail", icon: "🥾", lat: 41.0868, lng: -80.6795, desc: "Easy 0.4 mile trail with beautiful views of Mill Creek.", tags: ["🌊 Creek View", "🟢 Easy"], time: "20 mins" },
+            { name: "West Cohasset Trail", category: "trail", icon: "🥾", lat: 41.0795, lng: -80.6900, desc: "1 mile moderately difficult trail with stately hemlock trees.", tags: ["🌲 Hemlocks", "⚠️ Moderate"], time: "30-40 mins" },
+            { name: "East Cohasset Trail", category: "trail", icon: "🥾", lat: 41.0775, lng: -80.6860, desc: "1.2 mile moderately difficult trail with views of Lake Cohasset.", tags: ["🌊 Lake View", "⚠️ Moderate"], time: "40 mins" },
+            { name: "West Newport Trail", category: "trail", icon: "🥾", lat: 41.0585, lng: -80.6780, desc: "1 mile moderately difficult trail with hills. Offers views of Lake Newport.", tags: ["🌊 Lake View", "⚠️ Hilly"], time: "30-40 mins" },
+            { name: "East Newport Hike & Bike Trail", category: "trail", icon: "🚴", lat: 41.0600, lng: -80.6750, desc: "Easy 1.75 mile paved trail open to one-way vehicles. Views of Lake Newport.", tags: ["🚴 Bike Friendly", "🛣️ Paved", "🟢 Easy"], time: "30 mins" },
+            { name: "Albert E. Davies Wetland Trail", category: "trail", icon: "🥾", lat: 41.0535, lng: -80.6770, desc: "Easy 0.25 mile asphalt trail to boardwalk through wetland habitat.", tags: ["🦆 Wildlife", "🟢 Flat", "♿ Accessible"], time: "20 mins" },
+            { name: "East Channel and Islands Trail", category: "trail", icon: "🥾", lat: 41.0545, lng: -80.6755, desc: "1 mile fairly flat trail with spring wildflowers.", tags: ["🌸 Flowers", "🟢 Easy"], time: "30 mins" },
+            { name: "West Channel and Islands Trail", category: "trail", icon: "🥾", lat: 41.0550, lng: -80.6765, desc: "Easy 0.7 mile trail with slight grades.", tags: ["🌸 Flowers", "🟢 Easy"], time: "25 mins" },
+            { name: "East Golf Hike & Bike Trail", category: "trail", icon: "🚴", lat: 41.0480, lng: -80.6850, desc: "Easy 1.5 mile paved trail, closed to vehicles. Barrier-free access!", tags: ["🚴 Bike Friendly", "🛣️ Paved", "♿ Accessible"], time: "30-45 mins" },
             
             // WATERFALLS
-            { name: "Hole 55 Bar & Grill", category: "dining", icon: "🍴", lat: 41.0348804, lng: -80.695366, desc: "Approaching Hole 55 Bar and Grill. Perfect spot to grab a bite and refresh during your ride!" },
-            { name: "Newport Wetlands", category: "nature", icon: "🦆", lat: 41.0529021, lng: -80.6763854, desc: "You're entering Newport Wetlands, a 40-acre wetland habitat. Watch for herons, ducks, and other wildlife!" },
-            { name: "Waterfall (North)", category: "waterfall", icon: "💧", lat: 41.0979944, lng: -80.6745531, desc: "Listen carefully, you're approaching a beautiful waterfall in the northern section of the park. Take a moment to enjoy the cascading water!" },
-            { name: "Waterfall (Central)", category: "waterfall", icon: "💧", lat: 41.0820392, lng: -80.6807151, desc: "You're near a scenic waterfall in the central area. The sound of rushing water creates a peaceful atmosphere here." },
-            { name: "Waterfall (South)", category: "waterfall", icon: "💧", lat: 41.0645953, lng: -80.6782687, desc: "Approaching another beautiful waterfall feature in the southern section. Perfect photo opportunity!" },
-            { name: "Cascade Gorge Natural Pool", category: "waterfall", icon: "💦", lat: 41.0758765, lng: -80.6921399, desc: "You've reached Cascade Gorge Natural Pool, a stunning natural swimming area formed by the creek's waterfalls." },
-            { name: "Lanterman's Mill", category: "waterfall", icon: "💧", lat: 41.0668378, lng: -80.6821128, desc: "You've reached Lanterman's Mill, a historic 1845 gristmill with a spectacular 23-foot waterfall. This is one of the park's most photographed landmarks at 1001 Canfield Road!" },
+            { name: "Lanterman's Mill", category: "waterfall", icon: "💧", lat: 41.0668378, lng: -80.6821128, desc: "Historic 1845 gristmill with a spectacular 23-foot waterfall. A must-see!", tags: ["📸 Must See", "🍦 Snacks", "🚽 Restroom", "♿ Accessible"], time: "45-60 mins" },
+            { name: "Cascade Gorge Natural Pool", category: "waterfall", icon: "💦", lat: 41.0758765, lng: -80.6921399, desc: "Stunning natural swimming area formed by the creek's waterfalls.", tags: ["📸 Photo Op", "🌊 Natural Feature"], time: "15 mins" },
+            { name: "Waterfall (North)", category: "waterfall", icon: "💧", lat: 41.0979944, lng: -80.6745531, desc: "Beautiful waterfall in the northern section of the park.", tags: ["📸 Photo Op", "🌊 Waterfall"], time: "10 mins" },
+            { name: "Waterfall (Central)", category: "waterfall", icon: "💧", lat: 41.0820392, lng: -80.6807151, desc: "Scenic waterfall in the central area.", tags: ["📸 Photo Op"], time: "10 mins" },
+            { name: "Waterfall (South)", category: "waterfall", icon: "💧", lat: 41.0645953, lng: -80.6782687, desc: "Beautiful waterfall feature in the southern section.", tags: ["📸 Photo Op"], time: "10 mins" },
             
-            // NATURE
-            { name: "Daffodil Meadow", category: "nature", icon: "🌼", lat: 41.0552994, lng: -80.6765389, desc: "This is Daffodil Meadow. In spring, over 300,000 daffodils bloom here, creating an award-winning flower display!" },
-            { name: "Fellows Riverside Gardens", category: "nature", icon: "🌺", lat: 41.1009278, lng: -80.6757521, desc: "Welcome to Fellows Riverside Gardens, a stunning 12-acre public garden featuring beautiful roses and seasonal displays at 123 McKinley Avenue." },
-            { name: "Ford Nature Center", category: "nature", icon: "🦋", lat: 41.085579, lng: -80.678533, desc: "You're at Ford Nature Center, housed in a historic mansion. Inside you'll find nature exhibits and educational programs." },
-            { name: "Lake Newport", category: "nature", icon: "🏞️", lat: 41.0579891, lng: -80.6767662, desc: "This is Lake Newport, the largest lake in the park at 60 acres. A beautiful spot for reflection and wildlife watching." },
-            { name: "Mill Creek Flats", category: "nature", icon: "🌾", lat: 41.0722266, lng: -80.6899842, desc: "This is Mill Creek Flats, an open meadow area with playing fields, perfect for outdoor recreation." },
-            { name: "Mill Creek Park - North End", category: "nature", icon: "🌲", lat: 41.0994928, lng: -80.6735207, desc: "You're entering the northern section of Mill Creek Park. Enjoy the dense forests and peaceful trails." },
-            { name: "Mill Creek Park - South End", category: "nature", icon: "🌲", lat: 41.0275509, lng: -80.6950401, desc: "Welcome to the southern area of Mill Creek Park, featuring golf facilities and scenic landscapes." },
+            // NATURE & GARDENS
+            { name: "Fellows Riverside Gardens", category: "nature", icon: "🌺", lat: 41.1009278, lng: -80.6757521, desc: "Stunning 12-acre public garden featuring beautiful roses and seasonal displays.", tags: ["🌹 Gardens", "☕ Cafe", "🚽 Restroom", "♿ Accessible"], time: "60-90 mins" },
+            { name: "Daffodil Meadow", category: "nature", icon: "🌼", lat: 41.0552994, lng: -80.6765389, desc: "Over 300,000 daffodils bloom here in spring!", tags: ["📸 Seasonal", "🌸 Flowers"], time: "20 mins" },
+            { name: "Ford Nature Center", category: "nature", icon: "🦋", lat: 41.085579, lng: -80.678533, desc: "Housed in a historic mansion, featuring nature exhibits.", tags: ["🏛️ Historic", "ℹ️ Education", "🚽 Restroom"], time: "30-45 mins" },
+            { name: "Lake Newport", category: "nature", icon: "🏞️", lat: 41.0579891, lng: -80.6767662, desc: "Largest lake in the park at 60 acres.", tags: ["🌊 Lake View", "🛶 Boating"], time: "Varies" },
+            { name: "Newport Wetlands", category: "nature", icon: "🦆", lat: 41.0529021, lng: -80.6763854, desc: "40-acre wetland habitat. Watch for herons and ducks!", tags: ["🦆 Wildlife", "📸 Photo Op"], time: "30 mins" },
+            { name: "Mill Creek Flats", category: "nature", icon: "🌾", lat: 41.0722266, lng: -80.6899842, desc: "Open meadow area with playing fields.", tags: ["⚽ Sports", "🟢 Flat"], time: "Varies" },
             
             // HISTORIC
-            { name: "Idora Park (Historical)", category: "historic", icon: "🎢", lat: 41.0708398, lng: -80.6838387, desc: "This is the site of historic Idora Park, a beloved amusement park that operated from 1899 to 1984. Many cherished memories were made here!" },
-            { name: "Judge Morley Performing Arts Pavilion", category: "historic", icon: "🎭", lat: 41.0857914, lng: -80.6957623, desc: "Approaching Judge Morley Performing Arts Pavilion, an outdoor venue for concerts and cultural performances." },
-            { name: "Lanterman's Viewpoint", category: "historic", icon: "👁️", lat: 41.0669603, lng: -80.6844987, desc: "You're at Lanterman's Viewpoint, offering a stunning scenic overlook above the historic mill and waterfall." },
-            { name: "Volney Rogers Monument", category: "historic", icon: "⚱️", lat: 41.0912363, lng: -80.6722574, desc: "You're at the Volney Rogers Monument, a 1920 statue honoring the founder of Mill Creek Park. A true visionary!" },
-            { name: "Covered Bridge", category: "historic", icon: "🌉", lat: 41.0665675, lng: -80.6813407, desc: "Approaching the historic Covered Bridge, a wooden bridge behind the mill that was rebuilt in 1989." },
-            { name: "Suspension Bridge", category: "historic", icon: "🌉", lat: 41.0732836, lng: -80.6889887, desc: "You're at the beautiful Suspension Bridge, also known as the Cinderella Bridge. Built in 1895 and restored in 2007, it's a stunning example of Victorian engineering!" },
-            { name: "Mill Creek Furnace", category: "historic", icon: "🏭", lat: 41.083307, lng: -80.6806604, desc: "You're near Mill Creek Furnace, historic iron furnace ruins that tell the story of the area's industrial past." },
-            { name: "Old Log Cabin", category: "historic", icon: "🏚️", lat: 41.0985792, lng: -80.6761369, desc: "You're near the Old Log Cabin, a historic structure that represents early settlement in the area." },
+            { name: "Suspension Bridge", category: "historic", icon: "🌉", lat: 41.0732836, lng: -80.6889887, desc: "The Cinderella Bridge! Built in 1895, a stunning example of Victorian engineering.", tags: ["📸 Iconic", "🏰 Fairytale"], time: "15 mins" },
+            { name: "Idora Park (Historical)", category: "historic", icon: "🎢", lat: 41.0708398, lng: -80.6838387, desc: "Site of historic Idora Park amusement park (1899-1984).", tags: ["🏛️ Historic", "👻 Ruins"], time: "15 mins" },
+            { name: "Lanterman's Viewpoint", category: "historic", icon: "👁️", lat: 41.0669603, lng: -80.6844987, desc: "Stunning scenic overlook above the historic mill.", tags: ["📸 Best View", "🟢 Easy Access"], time: "10 mins" },
+            { name: "Covered Bridge", category: "historic", icon: "🌉", lat: 41.0665675, lng: -80.6813407, desc: "Historic wooden bridge behind the mill.", tags: ["📸 Photo Op"], time: "10 mins" },
+            { name: "Volney Rogers Monument", category: "historic", icon: "⚱️", lat: 41.0912363, lng: -80.6722574, desc: "Statue honoring the founder of Mill Creek Park.", tags: ["🏛️ Historic"], time: "5 mins" },
+            { name: "Old Log Cabin", category: "historic", icon: "🏚️", lat: 41.0985792, lng: -80.6761369, desc: "Historic structure representing early settlement.", tags: ["🏛️ Historic"], time: "10 mins" },
+            { name: "Mill Creek Furnace", category: "historic", icon: "🏭", lat: 41.083307, lng: -80.6806604, desc: "Historic iron furnace ruins.", tags: ["🏛️ Historic", "👻 Ruins"], time: "15 mins" },
+            { name: "Judge Morley Pavilion", category: "historic", icon: "🎭", lat: 41.0857914, lng: -80.6957623, desc: "Outdoor venue for concerts.", tags: ["🎵 Music", "🚽 Restroom"], time: "Varies" },
             
-            // AMENITIES
-            { name: "Birch Hill Cabin", category: "amenity", icon: "🏠", lat: 41.0867427, lng: -80.6816384, desc: "Approaching Birch Hill Cabin, a historic facility available for events and gatherings." },
-            { name: "Bears Den Cabin", category: "amenity", icon: "🏠", lat: 41.0840799, lng: -80.6952423, desc: "You're at Bears Den Cabin in the Bears Den area, available for rentals and events." },
-            { name: "Mill Creek Community Center", category: "amenity", icon: "🏢", lat: 41.0947685, lng: -80.6732177, desc: "Approaching Mill Creek Community Center, offering various recreational programs and facilities." },
-            { name: "Mill Creek Park Police Department", category: "amenity", icon: "👮", lat: 41.0917267, lng: -80.671335, desc: "This is Mill Creek Park Police headquarters. For emergencies, call 330-702-3000. Stay safe!" },
-            { name: "Restroom (Newport)", category: "amenity", icon: "🚻", lat: 41.0520417, lng: -80.6776516, desc: "Public restrooms available near Lake Newport." },
-            { name: "Restroom (East Newport)", category: "amenity", icon: "🚻", lat: 41.060637, lng: -80.6744331, desc: "Public restrooms available at East Newport area." }
+            // DINING
+            { name: "Hole 55 Bar & Grill", category: "dining", icon: "🍴", lat: 41.0348804, lng: -80.695366, desc: "Perfect spot to grab a bite and refresh during your ride!", tags: ["🍔 Food", "🍺 Drinks", "🚽 Restroom"], time: "45-60 mins" },
+            
+            // RECREATION & AMENITIES
+            { name: "Mill Creek Golf Course", category: "recreation", icon: "⛳", lat: 41.0345702, lng: -80.6952989, desc: "18-hole Donald Ross designed course.", tags: ["⛳ Golf", "🚽 Restroom"], time: "2-4 hours" },
+            { name: "3 Par Golf Course", category: "recreation", icon: "⛳", lat: 41.0867287, lng: -80.6930365, desc: "Fun par 3 course for all skill levels.", tags: ["⛳ Golf", "👨‍👩‍👧‍👦 Family"], time: "1-2 hours" },
+            { name: "Lake Glacier Boating", category: "recreation", icon: "⛵", lat: 41.097517, lng: -80.6778914, desc: "Kayak and canoe rentals available.", tags: ["🛶 Rentals", "🚽 Restroom"], time: "1 hour" },
+            { name: "Lake Newport Boathouse", category: "recreation", icon: "🚣", lat: 41.0629656, lng: -80.6783145, desc: "Rent kayaks and pedal boats.", tags: ["🛶 Rentals", "🚽 Restroom"], time: "1 hour" },
+            { name: "East Newport Boat Launch", category: "recreation", icon: "🚤", lat: 41.0600601, lng: -80.6741443, desc: "Access Lake Newport by kayak/canoe.", tags: ["🛶 Launch"], time: "Varies" },
+            { name: "Mill Creek Police Dept", category: "amenity", icon: "👮", lat: 41.0917267, lng: -80.671335, desc: "For emergencies, call 330-702-3000.", tags: ["🚑 Safety"], time: "N/A" },
+            { name: "Pioneer Pavilion", category: "recreation", icon: "🏛️", lat: 41.083178, lng: -80.680273, desc: "Historic pavilion for events.", tags: ["🎉 Events"], time: "N/A" },
+            { name: "Birch Hill Cabin", category: "amenity", icon: "🏠", lat: 41.0867427, lng: -80.6816384, desc: "Historic cabin for events.", tags: ["🎉 Events"], time: "N/A" },
+            { name: "Bears Den Cabin", category: "amenity", icon: "🏠", lat: 41.0840799, lng: -80.6952423, desc: "Cabin available for rentals.", tags: ["🎉 Events"], time: "N/A" },
+            { name: "Restroom (Newport)", category: "amenity", icon: "🚻", lat: 41.0520417, lng: -80.6776516, desc: "Public restrooms.", tags: ["🚽 Restroom"], time: "N/A" },
+            { name: "Restroom (East Newport)", category: "amenity", icon: "🚻", lat: 41.060637, lng: -80.6744331, desc: "Public restrooms.", tags: ["🚽 Restroom"], time: "N/A" },
+            { name: "Kidston Pavilion", category: "recreation", icon: "⛺", lat: 41.0986398, lng: -80.6752008, desc: "Beautiful venue for special occasions.", tags: ["🎉 Events"], time: "N/A" }
         ];
 
         // Define Category Order and Labels
@@ -1514,17 +1587,42 @@
                     const trailLabel = currentRouteMode === 'trail' ? '⭐ Recommended' : 'Scenic Trail';
                     const bikeLabel = currentRouteMode === 'bike' ? '⭐ Selected' : 'Bike Route';
                     
+                    // Generate Vibe Badges
+                    let badgeHTML = '';
+                    if(loc.tags) {
+                        badgeHTML = '<div class="vibe-badge-container">';
+                        loc.tags.forEach(tag => {
+                            let badgeClass = 'vibe-badge'; 
+                            // Add specific classes based on tag content for colors
+                            if(tag.includes('Restroom')) badgeClass += ' badge-restroom';
+                            if(tag.includes('Photo')) badgeClass += ' badge-photo';
+                            if(tag.includes('Steep') || tag.includes('Hilly') || tag.includes('Warning')) badgeClass += ' badge-steep';
+                            if(tag.includes('Easy') || tag.includes('Flat')) badgeClass += ' badge-flat';
+                            if(tag.includes('Family')) badgeClass += ' badge-family';
+                            
+                            badgeHTML += `<span class="${badgeClass}">${tag}</span>`;
+                        });
+                        badgeHTML += '</div>';
+                    }
+
+                    // Generate Time Stat
+                    let timeHTML = '';
+                    if(loc.time) {
+                        timeHTML = `<div class="time-stat">🕒 Time to Enjoy: ${loc.time}</div>`;
+                    }
+                    
                     const content = `
                         <div style="font-family:'Open Sans',sans-serif; padding:12px; max-width:320px;">
                             <h3 style="color:${categoryColors[loc.category]}; margin-bottom:8px; font-size:1.2rem;">
                                 ${loc.icon} ${loc.name}
                             </h3>
+                            
+                            ${badgeHTML}
+                            ${timeHTML}
+
                             <p style="font-size:0.95rem; color:#555; line-height:1.6; margin-bottom:12px;">
                                 ${loc.desc}
                             </p>
-                            <div style="font-size:0.8rem; color:#888; margin-bottom:12px; text-transform:uppercase;">
-                                ${loc.category}
-                            </div>
                             
                             <div style="margin-bottom: 8px; text-align: center; font-size: 0.85rem; color: #666; font-weight: 600;">
                                 Choose Your Route:
