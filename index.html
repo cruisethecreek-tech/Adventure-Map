@@ -375,6 +375,35 @@
             100% { transform: scale(1); }
         }
 
+        /* FIND ME BUTTON (NEW) */
+        .find-me-btn {
+            position: absolute;
+            bottom: 25px; /* Above the "Google" logo */
+            right: 10px;
+            background: white;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            border: none;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 50; /* Above the map */
+            transition: transform 0.2s ease;
+        }
+        
+        .find-me-btn:hover {
+            background: #f0f0f0;
+            transform: scale(1.1);
+        }
+        
+        .find-me-btn.active {
+            color: #4285F4;
+        }
+
         /* AUDIO POPUP ALERT */
         .audio-popup {
             position: fixed;
@@ -433,6 +462,7 @@
             box-shadow: var(--shadow);
             overflow: hidden;
             margin-bottom: 40px;
+            position: relative; /* Needed for Find Me button absolute positioning */
         }
 
         .map-header {
@@ -566,11 +596,13 @@
                 margin-right: 5px;
             }
             
+            /* TEXT WRAPPING ENABLED HERE */
             .mini-name {
                 font-size: 0.95rem;
-                white-space: nowrap;
-                overflow: hidden;
-                text-overflow: ellipsis; /* Prevent long text wrap */
+                white-space: normal; /* Allows text to wrap */
+                overflow: visible;   /* Shows all text */
+                text-overflow: clip; /* Removes ellipsis ... */
+                line-height: 1.3;
             }
             
             /* Accordion Button adjustments */
@@ -771,7 +803,13 @@
                     <span id="modeDescription">Most scenic routes through the park</span>
                 </div>
             </div>
-            <div id="map"></div>
+            
+            <div style="position: relative; width:100%; height:700px;">
+                <div id="map"></div>
+                <button class="find-me-btn" onclick="startGPS()" title="Find My Location">
+                    🎯
+                </button>
+            </div>
         </div>
 
     </div>
@@ -1082,66 +1120,53 @@
             alert(message);
         }
         
+        // SEPARATE GPS START FUNCTION
+        function startGPS() {
+            if (!navigator.geolocation) {
+                alert("GPS not supported");
+                return;
+            }
+            
+            // Only start watch if not already running
+            if (!watchId) {
+                watchId = navigator.geolocation.watchPosition(
+                    (position) => {
+                        // First successful GPS lock
+                        if (!gpsInitialized) {
+                            gpsInitialized = true;
+                            console.log("GPS locked successfully");
+                        }
+                        updateUserLocation(position);
+                    },
+                    (err) => {
+                        console.error("GPS Error:", err.code, err.message);
+                    },
+                    { 
+                        enableHighAccuracy: true,
+                        maximumAge: 0,
+                        timeout: 15000
+                    }
+                );
+                
+                // Visual feedback on the button
+                const btn = document.querySelector('.find-me-btn');
+                if(btn) btn.classList.add('active');
+            }
+        }
+
+        // MODIFIED AUDIO START
         function startAudioTourWithGPS(btn, isInIframe) {
-            // 1. Set state FIRST to prevent double-triggering
             audioEnabled = true;
-            gpsInitialized = false;
             
-            // 2. UI Feedback
+            // Start GPS if not already running
+            startGPS();
+            
+            // UI Feedback
             btn.classList.add('active');
-            btn.innerHTML = "📡 Initializing GPS...";
-            btn.style.background = "#f39c12";
+            btn.innerHTML = "📡 GPS Tracking Active";
+            btn.style.background = "#27ae60";
             
-            // 3. Start GPS Watch
-            watchId = navigator.geolocation.watchPosition(
-                (position) => {
-                    // First successful GPS lock
-                    if (!gpsInitialized) {
-                        gpsInitialized = true;
-                        btn.innerHTML = "📡 GPS Tracking Active";
-                        btn.style.background = "#27ae60";
-                        console.log("GPS locked successfully");
-                    }
-                    updateUserLocation(position);
-                },
-                (err) => {
-                    console.error("GPS Error:", err.code, err.message);
-                    
-                    // Only stop if we haven't gotten a GPS lock yet
-                    if (!gpsInitialized) {
-                        let errorMsg = "";
-                        
-                        if (err.code === 1) { // PERMISSION_DENIED
-                            showGPSPermissionHelp(isInIframe);
-                            stopAudioTour(false);
-                            return;
-                        } else if (err.code === 2) { // POSITION_UNAVAILABLE
-                            errorMsg = "GPS unavailable. Please ensure:\n";
-                            errorMsg += "• You're outdoors or near a window\n";
-                            errorMsg += "• GPS is enabled on your device\n";
-                            errorMsg += "• You have a clear view of the sky";
-                        } else if (err.code === 3) { // TIMEOUT
-                            errorMsg = "GPS timeout. Still searching...\n";
-                            errorMsg += "Please wait or move to an area with better GPS signal.";
-                            // Don't stop on timeout, just notify
-                            console.log(errorMsg);
-                            return;
-                        }
-                        
-                        if (errorMsg) {
-                            alert(errorMsg);
-                            stopAudioTour(false);
-                        }
-                    }
-                },
-                { 
-                    enableHighAccuracy: true,
-                    maximumAge: 0,
-                    timeout: 15000
-                }
-            );
-            
-            // 4. Trigger Welcome Message with delay
+            // Trigger Welcome Message
             setTimeout(() => {
                 if (audioEnabled) {
                     speak("Audio Tour Enabled. GPS tracking started. Enjoy your ride through Mill Creek Park!");
@@ -1154,12 +1179,8 @@
             const btn = document.getElementById('startAudioBtn');
             
             audioEnabled = false;
-            gpsInitialized = false;
-            
-            if (watchId !== null) {
-                navigator.geolocation.clearWatch(watchId);
-                watchId = null;
-            }
+            // Note: We do NOT stop GPS here anymore so "Find Me" still works
+            // gpsInitialized = false; 
             
             btn.classList.remove('active');
             btn.innerHTML = "🎧 Start Audio Tour";
@@ -1167,12 +1188,6 @@
             
             window.speechSynthesis.cancel();
             
-            if (userMarker) {
-                userMarker.map = null; // Correct way to remove AdvancedMarker
-                userMarker = null;
-            }
-            
-            // Only speak goodbye if user manually stopped (not on error)
             if (speakGoodbye) {
                 setTimeout(() => {
                     speak("Audio Tour ended. Thank you for riding with us!");
@@ -1207,19 +1222,21 @@
                 userMarker.position = { lat: userLat, lng: userLng };
             }
             
-            // Only auto-center on first location or if user is far from current view
+            // Auto-center if far away OR if this is the first update
             const currentCenter = map.getCenter();
             const distanceFromCenter = getDistanceFromLatLonInMeters(
                 userLat, userLng, 
                 currentCenter.lat(), currentCenter.lng()
             );
             
-            // Auto-center if more than 500 meters from center
             if (distanceFromCenter > 500) {
                 map.panTo({ lat: userLat, lng: userLng });
             }
             
-            checkProximity(userLat, userLng);
+            // Only trigger audio if enabled
+            if (audioEnabled) {
+                checkProximity(userLat, userLng);
+            }
         }
 
         function checkProximity(lat, lng) {
