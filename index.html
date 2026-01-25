@@ -213,7 +213,7 @@
         .category-accordion-item {
             background: white;
             border-radius: 50px;
-            margin-bottom: 12px; /* Spacing between bars */
+            margin-bottom: 12px;
             overflow: hidden;
             box-shadow: 0 4px 12px rgba(0,0,0,0.05);
             border: 2px solid var(--sage-green);
@@ -221,7 +221,7 @@
         }
 
         .category-accordion-item.active {
-            border-radius: 20px; /* Open state has less rounded corners */
+            border-radius: 20px;
             background: #fdfdfd;
         }
 
@@ -285,7 +285,7 @@
             background: white;
         }
 
-        /* Inner Grid for Category Items - DEFAULT DESKTOP (Grid) */
+        /* Inner Grid for Category Items - DEFAULT DESKTOP */
         .accordion-inner-grid {
             padding: 20px;
             display: grid;
@@ -365,7 +365,7 @@
         /* FIND ME BUTTON (NEW) */
         .find-me-btn {
             position: absolute;
-            bottom: 25px; /* Above the "Google" logo */
+            bottom: 25px;
             right: 10px;
             background: white;
             width: 50px;
@@ -378,7 +378,7 @@
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            z-index: 1000; /* High z-index to sit on top of map */
+            z-index: 1000;
             transition: transform 0.2s ease;
         }
         
@@ -449,7 +449,7 @@
             opacity: 0.9;
         }
 
-        /* MAP CONTAINER FIX */
+        /* MAP CONTAINER FIX - RESTORED FIXED HEIGHT */
         .map-wrapper {
             background: white;
             border-radius: 20px;
@@ -462,8 +462,7 @@
         .map-frame-container {
             position: relative;
             width: 100%;
-            height: 700px; /* Default desktop height */
-            min-height: 400px; /* Prevent collapse */
+            height: 700px; /* Fixed Desktop Height */
         }
 
         .map-header {
@@ -517,8 +516,7 @@
 
         #map {
             width: 100%;
-            height: 100%; /* Fill the container */
-            min-height: 400px; /* Safety measure */
+            height: 100%; /* Fills the fixed .map-frame-container height */
         }
 
         footer {
@@ -541,8 +539,8 @@
             h3 { font-size: 1.1rem; }
             .tagline { font-size: 0.8rem; }
             
-            /* Make map tall enough on mobile */
-            .map-frame-container { height: 60vh; min-height: 400px; }
+            /* RESTORED: Fixed height for Mobile */
+            .map-frame-container { height: 500px; }
             
             .container { padding: 20px 15px; }
             
@@ -580,7 +578,6 @@
             
             /* --- PILL SHAPED SINGLE COLUMN LAYOUT FOR MOBILE --- */
             .accordion-inner-grid {
-                /* Change from Grid to Single Column */
                 display: flex;
                 flex-direction: column;
                 gap: 10px;
@@ -589,7 +586,7 @@
             
             /* PILL SHAPED CARDS */
             .mini-card {
-                border-radius: 50px; /* Full pill shape */
+                border-radius: 50px; 
                 padding: 12px 20px;
                 box-shadow: 0 2px 6px rgba(0,0,0,0.08);
             }
@@ -599,12 +596,12 @@
                 margin-right: 5px;
             }
             
-            /* TEXT WRAPPING ENABLED HERE */
+            /* TEXT WRAPPING ENABLED */
             .mini-name {
                 font-size: 0.95rem;
-                white-space: normal; /* Allows text to wrap */
-                overflow: visible;   /* Shows all text */
-                text-overflow: clip; /* Removes ellipsis ... */
+                white-space: normal; 
+                overflow: visible;   
+                text-overflow: clip; 
                 line-height: 1.3;
             }
             
