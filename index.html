@@ -209,7 +209,20 @@
             color: var(--sage-green);
         }
 
-        /* CATEGORY ACCORDION STYLES */
+        /* GENERIC ACCORDION STYLES */
+        .accordion-group {
+            background: transparent;
+            margin-top: 15px;
+        }
+
+        .guide-accordion {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+
+        /* CATEGORY SPECIFIC STYLES */
         .category-accordion-item {
             background: white;
             border-radius: 50px;
@@ -368,17 +381,17 @@
             bottom: 25px; /* Above the "Google" logo */
             right: 10px;
             background: white;
-            width: 45px;
-            height: 45px;
+            width: 50px;
+            height: 50px;
             border-radius: 50%;
-            border: none;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+            border: 2px solid #ddd;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
             font-size: 1.5rem;
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            z-index: 50; /* Above the map */
+            z-index: 9999; /* Forced high z-index to sit on top of map */
             transition: transform 0.2s ease;
         }
         
@@ -387,8 +400,14 @@
             transform: scale(1.1);
         }
         
+        .find-me-btn:active {
+            background: #e0e0e0;
+            transform: scale(0.95);
+        }
+        
         .find-me-btn.active {
             color: #4285F4;
+            border-color: #4285F4;
         }
 
         /* AUDIO POPUP ALERT */
@@ -443,13 +462,21 @@
             opacity: 0.9;
         }
 
+        /* MAP CONTAINER FIX */
         .map-wrapper {
             background: white;
             border-radius: 20px;
             box-shadow: var(--shadow);
             overflow: hidden;
             margin-bottom: 40px;
-            position: relative; /* Needed for Find Me button absolute positioning */
+            /* Remove fixed height here to let children control it */
+            position: relative;
+        }
+        
+        .map-frame-container {
+            position: relative;
+            width: 100%;
+            height: 700px; /* Default desktop height */
         }
 
         .map-header {
@@ -503,7 +530,7 @@
 
         #map {
             width: 100%;
-            height: 700px;
+            height: 100%; /* Fill the container */
         }
 
         footer {
@@ -526,7 +553,8 @@
             h3 { font-size: 1.1rem; }
             .tagline { font-size: 0.8rem; }
             
-            #map { height: 500px; }
+            /* Make map tall enough on mobile */
+            .map-frame-container { height: 70vh; }
             
             .container { padding: 20px 15px; }
             
@@ -709,7 +737,7 @@
                 </div>
             </div>
             
-            <div style="position: relative; width:100%; height:700px;">
+            <div class="map-frame-container">
                 <div id="map"></div>
                 <button class="find-me-btn" onclick="startGPS()" title="Find My Location">
                     🎯
@@ -1045,6 +1073,7 @@
                     },
                     (err) => {
                         console.error("GPS Error:", err.code, err.message);
+                        alert("Could not get your location. Please ensure location services are enabled for this site.");
                     },
                     { 
                         enableHighAccuracy: true,
