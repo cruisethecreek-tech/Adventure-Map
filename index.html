@@ -209,7 +209,7 @@
             color: var(--sage-green);
         }
 
-        /* GENERIC ACCORDION STYLES (Used for Guide & Categories) */
+        /* GENERIC ACCORDION STYLES */
         .accordion-group {
             background: transparent;
             margin-top: 15px;
@@ -298,7 +298,7 @@
             background: white;
         }
 
-        /* Inner Grid for Category Items */
+        /* Inner Grid for Category Items - DEFAULT DESKTOP (Grid) */
         .accordion-inner-grid {
             padding: 20px;
             display: grid;
@@ -307,7 +307,7 @@
             background: #f9f9f9;
         }
 
-        /* Location Card Styles (Miniature for Dropdown) */
+        /* Location Card Styles */
         .mini-card {
             background: white;
             padding: 15px;
@@ -545,11 +545,32 @@
             #iframeWarning h3 { font-size: 1.1rem !important; }
             #iframeWarning p { font-size: 0.9rem !important; }
             
-            /* Mobile Grid for Accordion Items */
+            /* --- PILL SHAPED SINGLE COLUMN LAYOUT FOR MOBILE --- */
             .accordion-inner-grid {
-                grid-template-columns: repeat(2, 1fr); 
+                /* Change from Grid to Single Column */
+                display: flex;
+                flex-direction: column;
                 gap: 10px;
                 padding: 15px;
+            }
+            
+            /* PILL SHAPED CARDS */
+            .mini-card {
+                border-radius: 50px; /* Full pill shape */
+                padding: 12px 20px;
+                box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+            }
+            
+            .mini-icon {
+                font-size: 1.4rem;
+                margin-right: 5px;
+            }
+            
+            .mini-name {
+                font-size: 0.95rem;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis; /* Prevent long text wrap */
             }
             
             /* Accordion Button adjustments */
@@ -707,7 +728,7 @@
             </div>
         </div>
         
-        <div id="categoryContainer">
+        <div id="categoryContainer" style="margin-top: 30px;">
             </div>
 
         <div class="map-wrapper" style="margin-top: 40px;">
