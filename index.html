@@ -209,20 +209,7 @@
             color: var(--sage-green);
         }
 
-        /* GENERIC ACCORDION STYLES */
-        .accordion-group {
-            background: transparent;
-            margin-top: 15px;
-        }
-
-        .guide-accordion {
-            background: white;
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-        }
-
-        /* CATEGORY SPECIFIC STYLES */
+        /* CATEGORY ACCORDION STYLES */
         .category-accordion-item {
             background: white;
             border-radius: 50px;
@@ -679,86 +666,6 @@
         </div>
 
         <h2 style="text-align: center; font-size: 2rem; margin-bottom: 20px; color: var(--text-dark);">Explore by Category</h2>
-        
-        <div style="background: linear-gradient(135deg, #E8F5E9, #C8E6C9); border-radius: 12px; padding: 25px; margin-bottom: 30px; border: 3px solid var(--sage-green); box-shadow: var(--shadow);">
-            <h3 style="color: var(--dark-sage); font-size: 1.5rem; margin-bottom: 15px; text-align: center;">
-                🌳 Scenic Trail Navigation Guide
-            </h3>
-            
-            <div style="background: #ffebee; border: 3px solid #e74c3c; border-radius: 10px; padding: 20px; margin-bottom: 20px; text-align: center;">
-                <h4 style="color: #c0392b; font-size: 1.3rem; margin-bottom: 10px;">
-                    🚫 AVOID BEARS DEN ROAD 🚫
-                </h4>
-                <p style="color: #721c24; font-size: 1.05rem; font-weight: 600; line-height: 1.6;">
-                    Bears Den Road is a CITY STREET with traffic.<br>
-                    <strong style="font-size: 1.1rem;">DO NOT use this road for biking.</strong><br>
-                    Use park trails and internal park drives only.
-                </p>
-            </div>
-            
-            <div class="guide-accordion">
-                <div class="category-accordion-item" style="border: 1px solid #ddd; margin-bottom:0; border-radius:0;">
-                    <button class="accordion-btn" onclick="toggleAccordion(this)" style="color:var(--text-dark); background:white;">
-                        <span>✅ Do Use</span>
-                        <span class="arrow">▼</span>
-                    </button>
-                    <div class="accordion-content">
-                        <div class="accordion-inner">
-                            <ul style="color: #2C3A2E; font-weight: 500;">
-                                <li><strong>45 miles of park trails</strong></li>
-                                <li><strong>Internal park drives</strong></li>
-                                <li>Paved bike paths between locations</li>
-                                <li>Marked hiking/biking trail routes</li>
-                                <li>Scenic drives within green area</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="category-accordion-item" style="border: 1px solid #ddd; margin-bottom:0; border-radius:0; border-top:none;">
-                    <button class="accordion-btn" onclick="toggleAccordion(this)" style="color:var(--text-dark); background:white;">
-                        <span>⛔ Never Use</span>
-                        <span class="arrow">▼</span>
-                    </button>
-                    <div class="accordion-content">
-                        <div class="accordion-inner">
-                            <ul style="color: #c0392b; font-weight: 600;">
-                                <li>Bears Den Road (CITY STREET!)</li>
-                                <li>Any roads outside park boundary</li>
-                                <li>Canfield Rd, Shields Rd</li>
-                                <li>Routes leaving green areas</li>
-                                <li>Shortcuts through neighborhoods</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="category-accordion-item" style="border: 1px solid #ddd; margin-bottom:0; border-radius:0; border-top:none;">
-                    <button class="accordion-btn" onclick="toggleAccordion(this)" style="color:var(--text-dark); background:white;">
-                        <span>🗺️ Navigation Tips</span>
-                        <span class="arrow">▼</span>
-                    </button>
-                    <div class="accordion-content">
-                        <div class="accordion-inner">
-                            <ul style="color: var(--accent-orange); font-weight: 500;">
-                                <li>Follow the orange boundary line</li>
-                                <li>If route shows Bears Den Rd, find alternate</li>
-                                <li>Use East/West trail systems</li>
-                                <li>Stay on paths within green zone</li>
-                                <li>Ask park staff if unsure!</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div style="background: #FFF3CD; padding: 15px; border-radius: 8px; margin-top: 20px; text-align: center; border: 2px solid #FFD700;">
-                <strong style="font-size: 1.1rem; color: #856404;">📍 Pro Tip:</strong>
-                <span style="color: #856404; display: block; margin-top: 5px;">
-                    Click "Show Safe Riding Zone" to see the orange boundary. If Google Maps suggests Bears Den Road, IGNORE IT and use park trails instead!
-                </span>
-            </div>
-        </div>
         
         <div id="categoryContainer" style="margin-top: 30px;">
             </div>
