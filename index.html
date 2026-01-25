@@ -239,6 +239,72 @@
             color: var(--sage-green);
         }
 
+        /* ACCORDION (DROPDOWN MENU) STYLES */
+        .guide-accordion {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            margin-top: 15px;
+        }
+
+        .accordion-btn {
+            width: 100%;
+            background: white;
+            border: none;
+            padding: 18px 20px;
+            text-align: left;
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--text-dark);
+            cursor: pointer;
+            border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.2s ease;
+        }
+
+        .accordion-btn:hover {
+            background: var(--cream);
+        }
+
+        .accordion-btn .arrow {
+            transition: transform 0.3s ease;
+            font-size: 0.8rem;
+            color: #999;
+        }
+
+        .accordion-btn.active {
+            background: #E8F5E9;
+            color: var(--sage-green);
+        }
+
+        .accordion-btn.active .arrow {
+            transform: rotate(180deg);
+            color: var(--sage-green);
+        }
+
+        .accordion-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+            background: white;
+        }
+
+        .accordion-content.active {
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .accordion-inner {
+            padding: 20px;
+        }
+
+        .accordion-inner ul {
+            padding-left: 20px;
+            line-height: 1.8;
+            color: #555;
+        }
+
         /* AUDIO TOUR BUTTON */
         .audio-btn {
             background: var(--accent-orange);
@@ -662,38 +728,56 @@
                 </p>
             </div>
             
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-top: 20px;">
-                <div style="background: white; padding: 15px; border-radius: 8px;">
-                    <h4 style="color: var(--sage-green); margin-bottom: 10px; font-size: 1.1rem;">✅ Do Use:</h4>
-                    <ul style="line-height: 1.8; color: #555; margin-left: 20px;">
-                        <li><strong>45 miles of park trails</strong></li>
-                        <li><strong>Internal park drives</strong></li>
-                        <li>Paved bike paths between locations</li>
-                        <li>Marked hiking/biking trail routes</li>
-                        <li>Scenic drives within green area</li>
-                    </ul>
+            <div class="guide-accordion">
+                <button class="accordion-btn" onclick="toggleAccordion('doUse')">
+                    <span>✅ Do Use</span>
+                    <span class="arrow">▼</span>
+                </button>
+                <div id="doUse" class="accordion-content">
+                    <div class="accordion-inner">
+                        <ul style="color: #2C3A2E; font-weight: 500;">
+                            <li><strong>45 miles of park trails</strong></li>
+                            <li><strong>Internal park drives</strong></li>
+                            <li>Paved bike paths between locations</li>
+                            <li>Marked hiking/biking trail routes</li>
+                            <li>Scenic drives within green area</li>
+                        </ul>
+                    </div>
                 </div>
-                <div style="background: white; padding: 15px; border-radius: 8px;">
-                    <h4 style="color: #C44536; margin-bottom: 10px; font-size: 1.1rem;">⛔ Never Use:</h4>
-                    <ul style="line-height: 1.8; color: #555; margin-left: 20px;">
-                        <li><strong style="color: #e74c3c;">Bears Den Road (CITY STREET!)</strong></li>
-                        <li>Any roads outside park boundary</li>
-                        <li>Canfield Rd, Shields Rd</li>
-                        <li>Routes leaving green areas</li>
-                        <li>Shortcuts through neighborhoods</li>
-                    </ul>
+
+                <button class="accordion-btn" onclick="toggleAccordion('dontUse')">
+                    <span>⛔ Never Use</span>
+                    <span class="arrow">▼</span>
+                </button>
+                <div id="dontUse" class="accordion-content">
+                    <div class="accordion-inner">
+                        <ul style="color: #c0392b; font-weight: 600;">
+                            <li>Bears Den Road (CITY STREET!)</li>
+                            <li>Any roads outside park boundary</li>
+                            <li>Canfield Rd, Shields Rd</li>
+                            <li>Routes leaving green areas</li>
+                            <li>Shortcuts through neighborhoods</li>
+                        </ul>
+                    </div>
                 </div>
-                <div style="background: white; padding: 15px; border-radius: 8px;">
-                    <h4 style="color: var(--accent-orange); margin-bottom: 10px; font-size: 1.1rem;">🗺️ Navigation Tips:</h4>
-                    <ul style="line-height: 1.8; color: #555; margin-left: 20px;">
-                        <li>Follow the orange boundary line</li>
-                        <li>If route shows Bears Den Rd, find alternate</li>
-                        <li>Use East/West trail systems</li>
-                        <li>Stay on paths within green zone</li>
-                        <li>Ask park staff if unsure!</li>
-                    </ul>
+
+                <button class="accordion-btn" onclick="toggleAccordion('navTips')">
+                    <span>🗺️ Navigation Tips</span>
+                    <span class="arrow">▼</span>
+                </button>
+                <div id="navTips" class="accordion-content">
+                    <div class="accordion-inner">
+                        <ul style="color: var(--accent-orange); font-weight: 500;">
+                            <li>Follow the orange boundary line</li>
+                            <li>If route shows Bears Den Rd, find alternate</li>
+                            <li>Use East/West trail systems</li>
+                            <li>Stay on paths within green zone</li>
+                            <li>Ask park staff if unsure!</li>
+                        </ul>
+                    </div>
                 </div>
             </div>
+
             <div style="background: #FFF3CD; padding: 15px; border-radius: 8px; margin-top: 20px; text-align: center; border: 2px solid #FFD700;">
                 <strong style="font-size: 1.1rem; color: #856404;">📍 Pro Tip:</strong>
                 <span style="color: #856404; display: block; margin-top: 5px;">
@@ -798,6 +882,23 @@
         let parkBoundary = null;
         let boundaryVisible = false;
         let currentRouteMode = 'trail';
+
+        // ACCORDION TOGGLE
+        function toggleAccordion(id) {
+            const content = document.getElementById(id);
+            const btn = content.previousElementSibling;
+            
+            // Toggle active class
+            content.classList.toggle('active');
+            btn.classList.toggle('active');
+            
+            // Set max-height for animation
+            if (content.classList.contains('active')) {
+                content.style.maxHeight = content.scrollHeight + "px";
+            } else {
+                content.style.maxHeight = "0";
+            }
+        }
 
         // AUDIO TOUR VARIABLES
         let watchId = null;
