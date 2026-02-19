@@ -429,6 +429,43 @@
 
         footer h3 { font-size: 1.8rem; margin-bottom: 15px; }
 
+        .support-section {
+            margin-top: 20px;
+        }
+        .support-title {
+            font-size: 1rem;
+            font-weight: 700;
+            margin-bottom: 6px;
+            opacity: 0.9;
+        }
+        .support-subtitle {
+            font-size: 0.8rem;
+            opacity: 0.7;
+            margin-bottom: 14px;
+        }
+        .support-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+        }
+        .support-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            padding: 10px 18px;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 0.88rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            transition: transform 0.2s, box-shadow 0.2s;
+            white-space: nowrap;
+        }
+        .support-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(0,0,0,0.25); }
+        .support-btn.paypal { background: #003087; color: white; }
+        .support-btn.venmo  { background: #008CFF; color: white; }
+        .support-btn.cashapp { background: #00D64F; color: white; }
         .donate-btn {
             display: inline-block;
             margin-top: 15px;
@@ -442,7 +479,6 @@
             box-shadow: 0 4px 10px rgba(0,0,0,0.15);
             transition: transform 0.2s;
         }
-
         .donate-btn:hover { transform: translateY(-2px); }
 
         @media (max-width: 768px) {
@@ -556,7 +592,24 @@
     <footer>
         <h3>Cruise the Creek</h3>
         <p>Youngstown's Premier eBike Rental & Tours</p>
-        <a href="https://www.paypal.com/" class="donate-btn" target="_blank">☕ Support the Map</a>
+        <div class="support-section">
+            <div class="support-title">☕ Support the Tour</div>
+            <div class="support-subtitle">This audio tour is free forever. If you loved it, buy us a coffee!</div>
+            <div class="support-buttons">
+                <a href="https://paypal.me/cruisethecreek" class="support-btn paypal" target="_blank">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M7.076 21.337H2.47a.641.641 0 0 1-.633-.74L4.944.901C5.026.382 5.474 0 5.998 0h7.46c2.57 0 4.578.543 5.69 1.81 1.01 1.15 1.304 2.42 1.012 4.287-.023.143-.047.288-.077.437-.983 5.05-4.349 6.797-8.647 6.797h-2.19c-.524 0-.968.382-1.05.9l-1.12 7.106zm14.146-14.42a3.35 3.35 0 0 0-.607-.541c-.013.076-.026.175-.041.254-.93 4.778-4.005 7.201-9.138 7.201h-2.19a.563.563 0 0 0-.556.479l-1.187 7.527h-.506l-.24 1.516a.56.56 0 0 0 .554.647h3.882c.46 0 .85-.334.922-.788.06-.26.76-4.852.816-5.09a.932.932 0 0 1 .923-.788h.58c3.76 0 6.705-1.528 7.565-5.946.36-1.847.174-3.388-.777-4.471z"/></svg>
+                    PayPal
+                </a>
+                <a href="https://venmo.com/cruisethecreeksales" class="support-btn venmo" target="_blank">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M19.01 1.01c.56.93.81 1.89.81 3.11 0 3.87-3.3 8.9-5.99 12.43H7.68L5.09 2.03l6.07-.58 1.35 10.83c1.26-2.1 2.82-5.4 2.82-7.65 0-1.23-.21-2.07-.54-2.76l4.22-.86z"/></svg>
+                    Venmo
+                </a>
+                <a href="https://cash.app/$ctcsales" class="support-btn cashapp" target="_blank">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M23.59 3.48A11.96 11.96 0 0 0 20.52.41C18.94-.04 16.72 0 12 0S5.06-.04 3.48.41A11.96 11.96 0 0 0 .41 3.48C-.04 5.06 0 7.28 0 12s-.04 6.94.41 8.52a11.96 11.96 0 0 0 3.07 3.07C5.06 24.04 7.28 24 12 24s6.94.04 8.52-.41a11.96 11.96 0 0 0 3.07-3.07C24.04 18.94 24 16.72 24 12s.04-5.06-.41-8.52zM14.78 17.1l-.42 1.27a.45.45 0 0 1-.43.31h-.02a4.67 4.67 0 0 1-2.95-1.2l-.92.92a.45.45 0 0 1-.64 0l-.57-.57a.45.45 0 0 1 0-.64l.9-.9a4.68 4.68 0 0 1-.96-2.15.45.45 0 0 1 .44-.52h1.33c.22 0 .41.16.44.38.1.64.38 1.17.77 1.55l1.98-1.98c-.85-.44-2.59-1.01-2.59-2.74 0-1.37 1.01-2.51 2.48-2.84V7.6a.45.45 0 0 1 .45-.45h.8a.45.45 0 0 1 .45.45v.4c.77.13 1.45.46 1.96.95a.45.45 0 0 1 .01.64l-.9.9a.45.45 0 0 1-.6.02 2.1 2.1 0 0 0-1.35-.48l-1.74 1.74c.82.42 2.62.99 2.62 2.84 0 1.44-1.06 2.63-2.53 2.94v.43a.45.45 0 0 1-.45.45h-.8a.45.45 0 0 1-.45-.45v-.37a4.7 4.7 0 0 1-2.27-1.14.45.45 0 0 1-.01-.64l.9-.9a.45.45 0 0 1 .62-.01c.42.38.95.62 1.54.68l1.82-1.82c-.04-.02-.07-.04-.11-.05z"/></svg>
+                    Cash App
+                </a>
+            </div>
+        </div>
         <p style="margin-top: 15px; font-size: 0.85rem;">📍 Mill Creek MetroParks, Youngstown, Ohio</p>
     </footer>
 
