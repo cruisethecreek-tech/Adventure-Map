@@ -1509,7 +1509,7 @@
                            style="display:block; ${trailStyle} padding:12px 10px; border-radius:8px; text-decoration:none; font-weight:700; font-size:0.85rem; text-align:center; box-shadow: ${currentRouteMode === 'trail' ? '0 4px 12px rgba(39,174,96,0.3)' : 'none'};">
                             🚶<br>${trailLabel}
                         </a>
-                        <a href="https://www.komoot.com/plan?sport=touringbicycle&destination_lat=${loc.lat}&destination_lon=${loc.lng}"
+                        <a href="https://www.google.com/maps/dir/?api=1&destination=${loc.lat},${loc.lng}&travelmode=bicycling"
                            target="_blank"
                            style="display:block; ${bikeStyle} padding:12px 10px; border-radius:8px; text-decoration:none; font-weight:700; font-size:0.85rem; text-align:center; box-shadow: ${currentRouteMode === 'bike' ? '0 4px 12px rgba(230,126,34,0.3)' : 'none'};">
                             🚴<br>${bikeLabel}
@@ -1522,7 +1522,7 @@
                     <div style="margin-top:10px; padding:10px; background:#E8F5E9; border-left:3px solid #6B8E6F; border-radius:4px; font-size:0.8rem; color:#2C3A2E;">
                         <strong style="display:block; margin-bottom:5px;">🌳 Route Guidelines:</strong>
                         <strong style="color:#6B8E6F;">🚶 Trail Route:</strong> Most scenic paths via Google Maps walking mode<br><br>
-                        <strong style="color:#D68438;">🚴 Bike Route:</strong> Opens Komoot — built for cyclists, respects trails<br><br>
+                        <strong style="color:#D68438;">🚴 Bike Route:</strong> Opens Google Maps in cycling mode<br><br>
                         <strong style="color:#e74c3c;">⚠️ Important:</strong> If any app suggests Bears Den Rd, use park trails instead!
                     </div>
                     <div style="margin-top:8px; padding:8px; background:#FFF3CD; border-radius:6px; font-size:0.85rem; color:#856404; text-align:center;">
@@ -1567,7 +1567,7 @@
                 trailBtn.style.cssText = 'background:white; color:#6B8E6F; border-color:#6B8E6F;';
                 trailBtn.classList.remove('active');
                 modeText.textContent = 'Bike Route Mode'; modeText.style.color = '#D68438';
-                modeDesc.textContent = 'Komoot cycling routes — trail-aware navigation';
+                modeDesc.textContent = 'Google Maps cycling mode — avoids busy roads';
             }
             infoWindow.close();
         }
