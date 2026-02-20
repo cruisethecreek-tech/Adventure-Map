@@ -7,10 +7,6 @@
     <title>Cruise the Creek | Mill Creek Park eBike Tours</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
     
-    <script async
-    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDnrKBrEm5DYZtYb4o66Pvyjx_aYUlmrHU&callback=initMap&libraries=marker,places,geometry&v=weekly">
-</script>
-
     <style>
         :root {
             --sage-green: #6B8E6F;
@@ -568,7 +564,7 @@
         <div id="iframeWarning" style="display: none; background: linear-gradient(135deg, #3498db, #2980b9); color: white; padding: 20px; border-radius: 12px; margin-bottom: 30px; box-shadow: 0 8px 24px rgba(52, 152, 219, 0.3); text-align: center;">
             <h3 style="font-size: 1.3rem; margin-bottom: 10px;">📱 For GPS Audio Tours</h3>
             <p style="font-size: 1rem; line-height: 1.6;">To use GPS audio tours on mobile, please open this page in the main browser window.</p>
-            <a id="openNewTabBtn" href="https://cruisethecreek-tech.github.io/Adventure-Map/" target="_blank" style="display: inline-block; margin-top: 15px; background: white; color: #2980b9; padding: 12px 30px; border-radius: 25px; text-decoration: none; font-weight: 700; box-shadow: 0 4px 12px rgba(0,0,0,0.2);">
+            <a id="openNewTabBtn" href="https://www.cruisethecreek.com/maps" target="_blank" style="display: inline-block; margin-top: 15px; background: white; color: #2980b9; padding: 12px 30px; border-radius: 25px; text-decoration: none; font-weight: 700; box-shadow: 0 4px 12px rgba(0,0,0,0.2);">
                 🔗 Open in New Tab
             </a>
         </div>
@@ -665,62 +661,69 @@
         <p style="margin-top: 15px; font-size: 0.85rem;">📍 Mill Creek MetroParks, Youngstown, Ohio</p>
     </footer>
 
+    <!-- Google Maps Script - Load BEFORE our script -->
     <script>
-// Global error handler for Google Maps
-window.gm_authFailure = function() {
-    console.error('❌ Google Maps authentication failed');
-    const loadingOverlay = document.getElementById('loadingOverlay');
-    if (loadingOverlay) {
-        loadingOverlay.innerHTML = `
-            <div style="text-align: center; padding: 40px;">
-                <div style="font-size: 48px; margin-bottom: 20px;">🔑</div>
-                <div style="font-size: 1.2rem; color: #e74c3c; margin-bottom: 15px; font-weight: 700;">Google Maps API Key Error</div>
-                <div style="font-size: 0.9rem; color: #666; margin-bottom: 20px;">
-                    The Google Maps API key is invalid or restricted.<br>
-                    Please check your API key configuration.
-                </div>
-            </div>
-        `;
-    }
-};
+        // Global error handler for Google Maps
+        window.gm_authFailure = function() {
+            console.error('❌ Google Maps authentication failed');
+            const loadingOverlay = document.getElementById('loadingOverlay');
+            if (loadingOverlay) {
+                loadingOverlay.innerHTML = `
+                    <div style="text-align: center; padding: 40px;">
+                        <div style="font-size: 48px; margin-bottom: 20px;">🔑</div>
+                        <div style="font-size: 1.2rem; color: #e74c3c; margin-bottom: 15px; font-weight: 700;">Google Maps API Key Error</div>
+                        <div style="font-size: 0.9rem; color: #666; margin-bottom: 20px;">
+                            The Google Maps API key is invalid or restricted.<br>
+                            Please check your API key configuration.
+                        </div>
+                    </div>
+                `;
+            }
+        };
 
-// Timeout fallback if map never loads
-setTimeout(function() {
-    const loadingOverlay = document.getElementById('loadingOverlay');
-    if (loadingOverlay && !loadingOverlay.classList.contains('hide')) {
-        console.error('❌ Map loading timeout after 15 seconds');
-        loadingOverlay.innerHTML = `
-            <div style="text-align: center; padding: 40px;">
-                <div style="font-size: 48px; margin-bottom: 20px;">⏱️</div>
-                <div style="font-size: 1.2rem; color: #e74c3c; margin-bottom: 15px; font-weight: 700;">Loading Timeout</div>
-                <div style="font-size: 0.9rem; color: #666; margin-bottom: 20px;">
-                    The map is taking too long to load.<br>
-                    This might be a network issue.
-                </div>
-                <button onclick="location.reload()" style="
-                    background: var(--sage-green);
-                    color: white;
-                    border: none;
-                    padding: 12px 30px;
-                    border-radius: 25px;
-                    font-size: 1rem;
-                    font-weight: 700;
-                    cursor: pointer;
-                ">
-                    Retry
-                </button>
-            </div>
-        `;
-    }
-}, 15000); // 15 second timeout
-</script>
+        // Timeout fallback if map never loads
+        setTimeout(function() {
+            const loadingOverlay = document.getElementById('loadingOverlay');
+            if (loadingOverlay && !loadingOverlay.classList.contains('hide')) {
+                console.error('❌ Map loading timeout after 15 seconds');
+                loadingOverlay.innerHTML = `
+                    <div style="text-align: center; padding: 40px;">
+                        <div style="font-size: 48px; margin-bottom: 20px;">⏱️</div>
+                        <div style="font-size: 1.2rem; color: #e74c3c; margin-bottom: 15px; font-weight: 700;">Loading Timeout</div>
+                        <div style="font-size: 0.9rem; color: #666; margin-bottom: 20px;">
+                            The map is taking too long to load.<br>
+                            This might be a network issue.
+                        </div>
+                        <button onclick="location.reload()" style="
+                            background: var(--sage-green);
+                            color: white;
+                            border: none;
+                            padding: 12px 30px;
+                            border-radius: 25px;
+                            font-size: 1rem;
+                            font-weight: 700;
+                            cursor: pointer;
+                        ">
+                            Retry
+                        </button>
+                    </div>
+                `;
+            }
+        }, 15000);
+    </script>
+    
+    <script async defer
+        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDnrKBrEm5DYZtYb4o66Pvyjx_aYUlmrHU&callback=initMap&libraries=marker,places,geometry&v=weekly">
+    </script>
+
+    <script>
+        console.log('📜 Script started loading');
+        
         // Check if in iframe
         if (window.self !== window.top) {
             const warning = document.getElementById('iframeWarning');
             if (warning) {
                 warning.style.display = 'block';
-                const openBtn = document.getElementById('openNewTabBtn');
-                if (openBtn) openBtn.href = "https://cruisethecreek-tech.github.io/Adventure-Map/";
             }
         }
 
@@ -737,9 +740,9 @@ setTimeout(function() {
         let currentChapterIndex = 0;
         
         // Audio configuration
-        const BACKGROUND_AUDIO_VOLUME = 0.5;  // 50% volume
-        const WAYPOINT_AUDIO_VOLUME = 1.0;    // 100% volume
-        const DUCKING_VOLUME = 0.15;          // 15% when ducked
+        const BACKGROUND_AUDIO_VOLUME = 0.5;
+        const WAYPOINT_AUDIO_VOLUME = 1.0;
+        const DUCKING_VOLUME = 0.15;
         
         // Background chapter URLs
         const CHAPTER_URLS = [
@@ -760,6 +763,15 @@ setTimeout(function() {
             "Modern Conservation - Part 2"
         ];
 
+        // Prevent audio interruption on mobile
+        document.addEventListener('visibilitychange', function() {
+            if (document.hidden) {
+                console.log('📱 Page hidden - keeping audio alive');
+            } else {
+                console.log('📱 Page visible again');
+            }
+        });
+
         // Accordion functionality
         function toggleAccordion(btn) {
             const content = btn.nextElementSibling;
@@ -774,8 +786,8 @@ setTimeout(function() {
             }
         }
 
-        // LOCATIONS DATA (keeping original 63 locations - truncated for space)
-        const locations = [
+        // LOCATIONS DATA - Complete 63 locations
+const locations = [
     {
         name: "Cruise The Creek",
         category: "amenity", icon: "🚲",
@@ -1413,7 +1425,6 @@ setTimeout(function() {
         desc: "You are standing at the heart of Mill Creek Park. Everything that makes this place extraordinary converges right here — the creek running through the gorge below you, the sandstone walls carved by glaciers, the hemlock forest creating its own microclimate, and forty-five miles of trails radiating outward in every direction. Volney Rogers, the man who founded this park in 1891, walked this exact corridor and understood immediately that this gorge was something that needed to be protected from the industrial city growing around it. He spent years acquiring land, personally buying twenty-five thousand dollars worth of bonds when funding ran short, and died in 1919 having given Youngstown one of the finest municipal parks in America. The Mill Creek itself has carved this gorge over thousands of years, and continues carving it today — the park you are riding through right now looks slightly different than it did fifty years ago, and will look different again fifty years from now. The gorge is alive and moving. That sound you hear — water over stone — is the same sound Rogers heard when he decided this place was worth saving. It still is."
     }
 ];
-
         const categories = [
             { id: 'playground', label: '🛝 Playgrounds' },
             { id: 'trail', label: '🥾 Trails' },
@@ -1548,11 +1559,9 @@ setTimeout(function() {
             btn.innerHTML = "📡 GPS Tracking Active";
             btn.style.background = "#27ae60";
             
-            // Show additional controls
             document.getElementById('pauseBackgroundBtn').style.display = 'inline-flex';
             document.getElementById('batteryModeBtn').style.display = 'inline-flex';
             
-            // Show background audio modal
             showBackgroundAudioPrompt();
         }
 
@@ -1611,7 +1620,6 @@ setTimeout(function() {
             
             document.body.appendChild(overlay);
             
-            // Initialize background audio player
             if (!backgroundAudio) {
                 backgroundAudio = new Audio();
                 backgroundAudio.preload = "auto";
@@ -1622,12 +1630,10 @@ setTimeout(function() {
                     showChapterNotification('⚠️ Background audio unavailable - waypoints still work!');
                 });
                 
-                // Preload first chapter
                 backgroundAudio.src = CHAPTER_URLS[0];
                 backgroundAudio.load();
             }
             
-            // Start History Tour button
             document.getElementById('start-background-btn').addEventListener('click', function() {
                 currentChapterIndex = 0;
                 backgroundAudio.play().then(() => {
@@ -1639,7 +1645,6 @@ setTimeout(function() {
                 document.getElementById('audio-start-modal').remove();
             });
             
-            // Skip button
             document.getElementById('skip-background-btn').addEventListener('click', function() {
                 document.getElementById('audio-start-modal').remove();
             });
@@ -1648,7 +1653,7 @@ setTimeout(function() {
         function playNextChapter() {
             currentChapterIndex++;
             if (currentChapterIndex >= CHAPTER_URLS.length) {
-                currentChapterIndex = 0; // Loop back to beginning
+                currentChapterIndex = 0;
             }
             backgroundAudio.src = CHAPTER_URLS[currentChapterIndex];
             backgroundAudio.play().then(() => {
@@ -1691,7 +1696,6 @@ setTimeout(function() {
                 btn.innerHTML = '🔋 Battery Saver ON';
                 btn.style.background = '#27ae60';
                 
-                // Restart GPS with battery-saving settings
                 if (watchId) {
                     navigator.geolocation.clearWatch(watchId);
                     startGPS();
@@ -1700,7 +1704,6 @@ setTimeout(function() {
                 btn.innerHTML = '🔋 Battery Saver';
                 btn.style.background = '#7f8c8d';
                 
-                // Restart GPS with high accuracy
                 if (watchId) {
                     navigator.geolocation.clearWatch(watchId);
                     startGPS();
@@ -1715,26 +1718,22 @@ setTimeout(function() {
             
             audioEnabled = false;
             
-            // Stop background audio
             if (backgroundAudio) {
                 backgroundAudio.pause();
                 backgroundAudio.currentTime = 0;
             }
             
-            // Stop waypoint audio
             if (currentAudio) {
                 currentAudio.pause();
                 currentAudio.currentTime = 0;
                 currentAudio = null;
             }
             
-            // Stop GPS tracking
             if (watchId) {
                 navigator.geolocation.clearWatch(watchId);
                 watchId = null;
             }
             
-            // Reset button states
             btn.classList.remove('active');
             btn.innerHTML = "🎧 Start Audio Tour";
             btn.style.background = "var(--accent-orange)";
@@ -1742,19 +1741,13 @@ setTimeout(function() {
             pauseBtn.style.display = 'none';
             batteryBtn.style.display = 'none';
             
-            // Remove user marker
             if (userMarker) {
                 userMarker.map = null;
                 userMarker = null;
             }
             
-            // Update find-me button
             const findMeBtn = document.querySelector('.find-me-btn');
             if (findMeBtn) findMeBtn.classList.remove('active');
-            
-            if (speakGoodbye) {
-                speak("Audio tour stopped. Thank you for visiting Mill Creek Park!");
-            }
         }
 
         function startGPS() {
@@ -1784,125 +1777,47 @@ setTimeout(function() {
             }
         }
 
-        async function initMap() {
-    try {
-        console.log('🗺️ Starting map initialization...');
-        
-        const { Map } = await google.maps.importLibrary("maps");
-        const { AdvancedMarkerElement, PinElement } = await google.maps.importLibrary("marker");
-        
-        console.log('✓ Google Maps libraries loaded');
-        
-        map = new Map(document.getElementById('map'), {
-            center: { lat: 41.070, lng: -80.685 },
-            zoom: 13,
-            mapId: "DEMO_MAP_ID"
-        });
-        
-        console.log('✓ Map created');
-        
-        // Prevent map from being dragged to invalid coordinates
-        map.addListener('center_changed', () => {
-            const c = map.getCenter();
-            if (Math.abs(c.lat()) < 1 && Math.abs(c.lng()) < 1) {
-                map.setCenter({ lat: 41.070, lng: -80.685 });
-                map.setZoom(13);
+        async function updateUserLocation(position) {
+            const userLat = position.coords.latitude;
+            const userLng = position.coords.longitude;
+            
+            if (!window.google || !window.google.maps) {
+                console.warn('Google Maps not loaded yet');
+                return;
             }
-        });
-        
-        infoWindow = new google.maps.InfoWindow();
-        
-        // Park boundary polygon
-        parkBoundary = new google.maps.Polygon({
-            paths: [
-                {"lat": 41.102, "lng": -80.67},{"lat": 41.095072, "lng": -80.672607},{"lat": 41.093419, "lng": -80.675198},
-                {"lat": 41.091622, "lng": -80.671987},{"lat": 41.08976, "lng": -80.67354},{"lat": 41.088119, "lng": -80.672038},
-                {"lat": 41.083913, "lng": -80.67535},{"lat": 41.085012, "lng": -80.677529},{"lat": 41.084913, "lng": -80.679398},
-                {"lat": 41.077682, "lng": -80.678787},{"lat": 41.079186, "lng": -80.682468},{"lat": 41.079218, "lng": -80.684756},
-                {"lat": 41.077309, "lng": -80.683926},{"lat": 41.077616, "lng": -80.686772},{"lat": 41.076475, "lng": -80.686393},
-                {"lat": 41.076012, "lng": -80.684153},{"lat": 41.074838, "lng": -80.682685},{"lat": 41.072369, "lng": -80.686795},
-                {"lat": 41.069597, "lng": -80.68604},{"lat": 41.067133, "lng": -80.68168},{"lat": 41.068087, "lng": -80.678131},
-                {"lat": 41.061001, "lng": -80.674619},{"lat": 41.060046, "lng": -80.67312},{"lat": 41.056041, "lng": -80.67486},
-                {"lat": 41.054006, "lng": -80.674099},{"lat": 41.051468, "lng": -80.672903},{"lat": 41.048386, "lng": -80.67488},
-                {"lat": 41.049532, "lng": -80.679731},{"lat": 41.048324, "lng": -80.681126},{"lat": 41.046912, "lng": -80.67676},
-                {"lat": 41.045304, "lng": -80.677715},{"lat": 41.044632, "lng": -80.679016},{"lat": 41.045837, "lng": -80.678922},
-                {"lat": 41.045529, "lng": -80.682447},{"lat": 41.025, "lng": -80.695},{"lat": 41.02487, "lng": -80.701813},
-                {"lat": 41.041995, "lng": -80.700384},{"lat": 41.044828, "lng": -80.696365},{"lat": 41.045653, "lng": -80.68535},
-                {"lat": 41.049213, "lng": -80.685444},{"lat": 41.051996, "lng": -80.680732},{"lat": 41.066192, "lng": -80.679509},
-                {"lat": 41.0663, "lng": -80.688253},{"lat": 41.079284, "lng": -80.69571},{"lat": 41.083752, "lng": -80.681194},
-                {"lat": 41.082363, "lng": -80.696852},{"lat": 41.086197, "lng": -80.699703},{"lat": 41.088308, "lng": -80.695979},
-                {"lat": 41.088442, "lng": -80.688538},{"lat": 41.08843, "lng": -80.683994},{"lat": 41.087905, "lng": -80.683478},
-                {"lat": 41.096479, "lng": -80.678424},{"lat": 41.098469, "lng": -80.681047},{"lat": 41.09839, "lng": -80.681095},
-                {"lat": 41.098452, "lng": -80.681152},{"lat": 41.098448, "lng": -80.681165},{"lat": 41.09851, "lng": -80.681157},
-                {"lat": 41.098476, "lng": -80.681196},{"lat": 41.098232, "lng": -80.680872},{"lat": 41.098434, "lng": -80.681139},
-                {"lat": 41.09847, "lng": -80.681144},{"lat": 41.098488, "lng": -80.681189},{"lat": 41.098303, "lng": -80.681083},
-                {"lat": 41.098372, "lng": -80.680987},{"lat": 41.098342, "lng": -80.681068},{"lat": 41.098392, "lng": -80.680979},
-                {"lat": 41.099193, "lng": -80.679691},{"lat": 41.099593, "lng": -80.679218},{"lat": 41.100828, "lng": -80.677308},
-                {"lat": 41.100867, "lng": -80.677458},{"lat": 41.098289, "lng": -80.680918},{"lat": 41.098396, "lng": -80.680944},
-                {"lat": 41.101378, "lng": -80.676588},{"lat": 41.101709, "lng": -80.671116}
-            ],
-            strokeColor: '#D68438',
-            strokeOpacity: 0.9,
-            strokeWeight: 4,
-            fillColor: '#6B8E6F',
-            fillOpacity: 0.08,
-            map: null
-        });
-        
-        console.log('✓ Park boundary created');
-        
-        await loadAllMarkers();
-        console.log('✓ Markers loaded');
-        
-        renderCategoryAccordions();
-        console.log('✓ Categories rendered');
-        
-        // Hide loading overlay
-        setTimeout(() => {
-            const loadingOverlay = document.getElementById('loadingOverlay');
-            if (loadingOverlay) {
-                loadingOverlay.classList.add('hide');
-                console.log('✓ Loading overlay hidden');
+            
+            const { AdvancedMarkerElement, PinElement } = await google.maps.importLibrary("marker");
+
+            if (!gpsInitialized) {
+                gpsInitialized = true;
+                map.panTo({ lat: userLat, lng: userLng });
+                map.setZoom(15);
             }
-        }, 1000);
-        
-        console.log('✅ Map initialization complete!');
-        
-    } catch (error) {
-        console.error('❌ Map initialization failed:', error);
-        
-        // Show error message to user
-        const loadingOverlay = document.getElementById('loadingOverlay');
-        if (loadingOverlay) {
-            loadingOverlay.innerHTML = `
-                <div style="text-align: center; padding: 40px;">
-                    <div style="font-size: 48px; margin-bottom: 20px;">⚠️</div>
-                    <div style="font-size: 1.2rem; color: #e74c3c; margin-bottom: 15px; font-weight: 700;">Map Loading Failed</div>
-                    <div style="font-size: 0.9rem; color: #666; margin-bottom: 20px;">
-                        ${error.message || 'Unable to load Google Maps'}
-                    </div>
-                    <button onclick="location.reload()" style="
-                        background: var(--sage-green);
-                        color: white;
-                        border: none;
-                        padding: 12px 30px;
-                        border-radius: 25px;
-                        font-size: 1rem;
-                        font-weight: 700;
-                        cursor: pointer;
-                    ">
-                        Retry
-                    </button>
-                </div>
-            `;
+
+            if (!userMarker) {
+                const userPin = new PinElement({ 
+                    background: "#4285F4", 
+                    borderColor: "white", 
+                    glyph: "", 
+                    scale: 0.8 
+                });
+                userMarker = new AdvancedMarkerElement({
+                    map: map,
+                    position: { lat: userLat, lng: userLng },
+                    title: "You are here",
+                    content: userPin.element,
+                    zIndex: 1000
+                });
+            } else {
+                userMarker.position = { lat: userLat, lng: userLng };
+            }
+
+            if (audioEnabled) {
+                checkProximity(userLat, userLng);
+            }
         }
-    }
-}
 
         function checkProximity(lat, lng) {
-            // Adjust trigger distance based on route mode
-            // Walking: 50 meters (close, precise)
-            // Biking: 200 meters (early warning for faster speed)
             const triggerDistance = currentRouteMode === 'bike' ? 200 : 50;
             
             locations.forEach(spot => {
@@ -1922,33 +1837,24 @@ setTimeout(function() {
             const isInside = google.maps.geometry.poly.containsLocation(userPoint, parkBoundary);
             const now = Date.now();
             
-            // Cooldown to prevent spam
             if (now - lastBoundaryWarning < 45000) return;
             
             const distanceToBoundary = getDistanceToNearestBoundaryPoint(lat, lng);
             
-            // Approaching boundary
             if (isInside && distanceToBoundary < 50) {
                 lastBoundaryWarning = now;
                 isInsidePark = true;
                 showBoundaryWarning("approaching");
-                speak("Warning: You are approaching the park boundary. Please stay within Mill Creek Park for your safety.");
-            } 
-            // Left park
-            else if (!isInside && isInsidePark) {
+            } else if (!isInside && isInsidePark) {
                 lastBoundaryWarning = now;
                 isInsidePark = false;
                 hasLeftPark = true;
                 showBoundaryWarning("outside");
-                speak("Alert: You have left Mill Creek Park boundaries. Please return to the park trails. Remember, never use Bears Den Road!");
-            } 
-            // Returned to park
-            else if (isInside && hasLeftPark && !isInsidePark) {
+            } else if (isInside && hasLeftPark && !isInsidePark) {
                 lastBoundaryWarning = now;
                 isInsidePark = true;
                 hasLeftPark = false;
                 showBoundaryWarning("returned");
-                speak("Welcome back! You have returned to Mill Creek Park. Stay safe and enjoy your ride!");
             }
         }
 
@@ -1988,156 +1894,105 @@ setTimeout(function() {
         }
 
         function triggerHotspot(spot) {
-    spokenLocations.add(spot.name);
-    
-    const popup = document.getElementById('audioPopup');
-    document.getElementById('popupTitle').innerText = spot.name;
-    popup.classList.add('show');
-
-    // Stop any currently playing waypoint audio
-    if (currentAudio) {
-        currentAudio.pause();
-        currentAudio.currentTime = 0;
-        currentAudio = null;
-    }
-    window.speechSynthesis.cancel();
-
-    // CRITICAL: Fully pause background audio during waypoint
-    let backgroundWasPlaying = false;
-    if (backgroundAudio && !backgroundAudio.paused) {
-        backgroundWasPlaying = true;
-        backgroundAudio.pause();
-        isPlayingWaypoint = true;
-    }
-
-    // Play waypoint audio - ONLY use Rachel's audio files, NO TTS fallback
-    if (spot.audio) {
-        console.log(`🎙️ Loading waypoint audio: ${spot.name}`);
-        console.log(`📂 Audio URL: ${spot.audio}`);
-        
-        const audio = new Audio();
-        audio.preload = "auto";
-        audio.volume = WAYPOINT_AUDIO_VOLUME;
-        audio.src = spot.audio;
-        currentAudio = audio;
-
-        // Track loading state
-        let hasStartedPlaying = false;
-
-        audio.onloadstart = () => {
-            console.log(`⏳ Loading audio for: ${spot.name}`);
-        };
-
-        audio.onloadeddata = () => {
-            console.log(`📦 Audio data loaded for: ${spot.name}`);
-        };
-
-        audio.oncanplay = () => {
-            console.log(`✓ Audio ready to play: ${spot.name}`);
-        };
-
-        audio.onloadedmetadata = () => {
-            console.log(`📻 Audio metadata loaded: ${spot.name} - Duration: ${audio.duration.toFixed(1)}s`);
-        };
-
-        audio.onplay = () => {
-            hasStartedPlaying = true;
-            console.log(`▶️ Audio started playing: ${spot.name}`);
-        };
-
-        audio.onplaying = () => {
-            console.log(`🔊 Audio is now playing: ${spot.name}`);
-        };
-
-        audio.ontimeupdate = () => {
-            // Log every 5 seconds to track progress
-            if (Math.floor(audio.currentTime) % 5 === 0 && audio.currentTime > 0) {
-                console.log(`⏱️ Playing: ${spot.name} - ${audio.currentTime.toFixed(1)}s / ${audio.duration.toFixed(1)}s`);
-            }
-        };
-
-        audio.onpause = () => {
-            if (!audio.ended) {
-                console.warn(`⏸️ Audio paused unexpectedly: ${spot.name} at ${audio.currentTime.toFixed(1)}s`);
-            }
-        };
-
-        audio.onended = () => {
-            console.log(`✅ Audio finished naturally: ${spot.name}`);
-            currentAudio = null;
+            spokenLocations.add(spot.name);
             
-            // Resume background audio if it was playing
-            if (backgroundWasPlaying && backgroundAudio) {
-                setTimeout(() => {
-                    console.log(`🔄 Resuming background audio`);
-                    backgroundAudio.play().catch(err => {
-                        console.error('Background resume failed:', err);
-                    });
-                }, 500);
-            }
-            
-            isPlayingWaypoint = false;
-            setTimeout(() => { 
-                popup.classList.remove('show'); 
-            }, 3000);
-        };
+            const popup = document.getElementById('audioPopup');
+            document.getElementById('popupTitle').innerText = spot.name;
+            popup.classList.add('show');
 
-        audio.onerror = (e) => {
-            console.error(`❌ Audio loading error for ${spot.name}:`, e);
-            console.error(`❌ Error details:`, {
-                error: audio.error,
-                code: audio.error ? audio.error.code : 'unknown',
-                message: audio.error ? audio.error.message : 'unknown',
-                src: audio.src
-            });
-            
-            currentAudio = null;
-            
-            // Show error message to user
-            document.getElementById('popupTitle').innerText = `⚠️ Audio Unavailable: ${spot.name}`;
-            
-            // Resume background audio
-            if (backgroundWasPlaying && backgroundAudio) {
-                setTimeout(() => {
-                    backgroundAudio.play().catch(err => console.log('Background resume failed:', err));
-                }, 1000);
-            }
-            
-            isPlayingWaypoint = false;
-            setTimeout(() => { 
-                popup.classList.remove('show'); 
-            }, 5000);
-        };
-
-        audio.onstalled = () => {
-            console.warn(`⚠️ Audio stalled: ${spot.name}`);
-        };
-
-        audio.onsuspend = () => {
-            console.warn(`⚠️ Audio suspended: ${spot.name}`);
-        };
-
-        audio.onwaiting = () => {
-            console.warn(`⏳ Audio buffering: ${spot.name}`);
-        };
-
-        // Attempt to play
-        const playPromise = audio.play();
-        
-        if (playPromise !== undefined) {
-            playPromise.then(() => {
-                console.log(`✓ Play promise resolved for: ${spot.name}`);
-            }).catch((e) => {
-                console.error(`❌ Play promise rejected for ${spot.name}:`, e);
-                console.error(`❌ Error name: ${e.name}`);
-                console.error(`❌ Error message: ${e.message}`);
-                
+            if (currentAudio) {
+                currentAudio.pause();
+                currentAudio.currentTime = 0;
                 currentAudio = null;
+            }
+
+            let backgroundWasPlaying = false;
+            if (backgroundAudio && !backgroundAudio.paused) {
+                backgroundWasPlaying = true;
+                backgroundAudio.pause();
+                isPlayingWaypoint = true;
+            }
+
+            if (spot.audio) {
+                console.log(`🎙️ Loading waypoint audio: ${spot.name}`);
+                console.log(`📂 Audio URL: ${spot.audio}`);
                 
-                // Show error to user
-                document.getElementById('popupTitle').innerText = `⚠️ Cannot Play: ${spot.name}`;
+                const audio = new Audio();
+                audio.preload = "auto";
+                audio.volume = WAYPOINT_AUDIO_VOLUME;
+                audio.src = spot.audio;
+                currentAudio = audio;
+
+                audio.onloadedmetadata = () => {
+                    console.log(`📻 Audio loaded: ${spot.name} - Duration: ${audio.duration.toFixed(1)}s`);
+                };
+
+                audio.onended = () => {
+                    console.log(`✅ Audio finished: ${spot.name}`);
+                    currentAudio = null;
+                    
+                    if (backgroundWasPlaying && backgroundAudio) {
+                        setTimeout(() => {
+                            console.log(`🔄 Resuming background audio`);
+                            backgroundAudio.play().catch(err => {
+                                console.error('Background resume failed:', err);
+                            });
+                        }, 500);
+                    }
+                    
+                    isPlayingWaypoint = false;
+                    setTimeout(() => { 
+                        popup.classList.remove('show'); 
+                    }, 3000);
+                };
+
+                audio.onerror = (e) => {
+                    console.error(`❌ Audio loading error for ${spot.name}:`, e);
+                    currentAudio = null;
+                    
+                    document.getElementById('popupTitle').innerText = `⚠️ Audio Unavailable: ${spot.name}`;
+                    
+                    if (backgroundWasPlaying && backgroundAudio) {
+                        setTimeout(() => {
+                            backgroundAudio.play().catch(err => console.log('Background resume failed:', err));
+                        }, 1000);
+                    }
+                    
+                    isPlayingWaypoint = false;
+                    setTimeout(() => { 
+                        popup.classList.remove('show'); 
+                    }, 5000);
+                };
+
+                const playPromise = audio.play();
                 
-                // Resume background audio
+                if (playPromise !== undefined) {
+                    playPromise.then(() => {
+                        console.log(`✓ Playing: ${spot.name}`);
+                    }).catch((e) => {
+                        console.error(`❌ Play failed for ${spot.name}:`, e);
+                        currentAudio = null;
+                        
+                        document.getElementById('popupTitle').innerText = `⚠️ Cannot Play: ${spot.name}`;
+                        
+                        if (backgroundWasPlaying && backgroundAudio) {
+                            setTimeout(() => {
+                                backgroundAudio.play().catch(err => console.log('Background resume failed:', err));
+                            }, 1000);
+                        }
+                        
+                        isPlayingWaypoint = false;
+                        setTimeout(() => { 
+                            popup.classList.remove('show'); 
+                        }, 5000);
+                    });
+                }
+                
+            } else {
+                console.warn(`⚠️ No audio file specified for: ${spot.name}`);
+                
+                document.getElementById('popupTitle').innerText = `${spot.name} (No Audio)`;
+                
                 if (backgroundWasPlaying && backgroundAudio) {
                     setTimeout(() => {
                         backgroundAudio.play().catch(err => console.log('Background resume failed:', err));
@@ -2147,263 +2002,140 @@ setTimeout(function() {
                 isPlayingWaypoint = false;
                 setTimeout(() => { 
                     popup.classList.remove('show'); 
-                }, 5000);
-            });
-        }
-        
-    } else {
-        // No audio file provided for this location
-        console.warn(`⚠️ No audio file specified for: ${spot.name}`);
-        
-        document.getElementById('popupTitle').innerText = `${spot.name} (No Audio)`;
-        
-        // Resume background audio
-        if (backgroundWasPlaying && backgroundAudio) {
+                }, 3000);
+            }
+
             setTimeout(() => {
-                backgroundAudio.play().catch(err => console.log('Background resume failed:', err));
-            }, 1000);
-        }
-        
-        isPlayingWaypoint = false;
-        setTimeout(() => { 
-            popup.classList.remove('show'); 
-        }, 3000);
-    }
-
-    // Clear spoken location after 5 minutes
-    setTimeout(() => {
-        spokenLocations.delete(spot.name);
-    }, 300000);
-}
-
-    // Play waypoint audio
-    if (spot.audio) {
-        const audio = new Audio(spot.audio);
-        audio.volume = WAYPOINT_AUDIO_VOLUME;
-        audio.preload = "auto";
-        currentAudio = audio;
-
-        // Add event listeners BEFORE playing
-        audio.onloadedmetadata = () => {
-            console.log(`📻 Loaded: ${spot.name} - Duration: ${audio.duration}s`);
-        };
-
-        audio.onended = () => {
-            console.log(`✅ Waypoint finished: ${spot.name}`);
-            currentAudio = null;
-            
-            // Resume background audio if it was playing
-            if (backgroundWasPlaying && backgroundAudio) {
-                setTimeout(() => {
-                    backgroundAudio.play().catch(err => console.log('Background resume failed:', err));
-                }, 500);
-            }
-            
-            isPlayingWaypoint = false;
-            setTimeout(() => { popup.classList.remove('show'); }, 3000);
-        };
-
-        audio.onerror = (err) => {
-            console.error(`❌ Audio error for ${spot.name}:`, err);
-            currentAudio = null;
-            
-            // Fallback to TTS
-            speak(spot.desc, () => {
-                if (backgroundWasPlaying && backgroundAudio) {
-                    backgroundAudio.play().catch(err => console.log('Background resume failed:', err));
-                }
-                isPlayingWaypoint = false;
-                setTimeout(() => { popup.classList.remove('show'); }, 3000);
-            });
-        };
-
-        // Play the audio
-        audio.play().catch((e) => {
-            console.warn(`⚠️ Play failed for ${spot.name}:`, e);
-            currentAudio = null;
-            
-            // Fallback to TTS
-            speak(spot.desc, () => {
-                if (backgroundWasPlaying && backgroundAudio) {
-                    backgroundAudio.play().catch(err => console.log('Background resume failed:', err));
-                }
-                isPlayingWaypoint = false;
-                setTimeout(() => { popup.classList.remove('show'); }, 3000);
-            });
-        });
-        
-    } else {
-        // No audio file - use TTS
-        speak(spot.desc, () => {
-            if (backgroundWasPlaying && backgroundAudio) {
-                backgroundAudio.play().catch(err => console.log('Background resume failed:', err));
-            }
-            isPlayingWaypoint = false;
-            setTimeout(() => { popup.classList.remove('show'); }, 3000);
-        });
-    }
-
-    // Clear spoken location after 5 minutes
-    setTimeout(() => {
-        spokenLocations.delete(spot.name);
-    }, 300000);
-}
-
-        function duckBackgroundAudio() {
-            if (backgroundAudio && !backgroundAudio.paused) {
-                // Smooth fade down
-                let vol = backgroundAudio.volume;
-                const fadeInterval = setInterval(() => {
-                    vol = Math.max(vol - 0.05, DUCKING_VOLUME);
-                    backgroundAudio.volume = vol;
-                    if (vol <= DUCKING_VOLUME) {
-                        clearInterval(fadeInterval);
-                    }
-                }, 50);
-            }
-        }
-
-        function restoreBackgroundAudio() {
-            isPlayingWaypoint = false;
-            
-            if (backgroundAudio && !backgroundAudio.paused) {
-                // Smooth fade up
-                let vol = backgroundAudio.volume;
-                const fadeInterval = setInterval(() => {
-                    vol = Math.min(vol + 0.05, BACKGROUND_AUDIO_VOLUME);
-                    backgroundAudio.volume = vol;
-                    if (vol >= BACKGROUND_AUDIO_VOLUME) {
-                        clearInterval(fadeInterval);
-                    }
-                }, 50);
-            }
-        }
-
-        function speak(text, onEndCallback) {
-            if (!window.speechSynthesis) return;
-            
-            window.speechSynthesis.cancel();
-            const utterance = new SpeechSynthesisUtterance(text);
-            utterance.rate = 0.9;
-            utterance.pitch = 1.0;
-            utterance.volume = 1.0;
-            utterance.lang = 'en-US';
-            
-            const voices = window.speechSynthesis.getVoices();
-            const preferredVoice = voices.find(v => v.lang === 'en-US' && (v.name.includes('Google') || v.name.includes('Samantha'))) || 
-                                   voices.find(v => v.lang === 'en-US') || 
-                                   voices[0];
-            if (preferredVoice) utterance.voice = preferredVoice;
-            
-            let heartbeat = null;
-            utterance.onstart = () => {
-                heartbeat = setInterval(() => {
-                    if (window.speechSynthesis.speaking) {
-                        window.speechSynthesis.pause();
-                        window.speechSynthesis.resume();
-                    } else {
-                        if (heartbeat) clearInterval(heartbeat);
-                    }
-                }, 10000);
-            };
-            
-            utterance.onend = () => {
-                if (heartbeat) clearInterval(heartbeat);
-                if (onEndCallback) onEndCallback();
-            };
-            
-            utterance.onerror = (e) => {
-                if (heartbeat) clearInterval(heartbeat);
-                if (onEndCallback) onEndCallback();
-            };
-            
-            setTimeout(() => {
-                window.speechSynthesis.speak(utterance);
-            }, 100);
+                spokenLocations.delete(spot.name);
+            }, 300000);
         }
 
         function getDistanceFromLatLonInMeters(lat1, lon1, lat2, lon2) {
-            const R = 6371; // Radius of Earth in km
+            const R = 6371;
             const dLat = deg2rad(lat2 - lat1);
             const dLon = deg2rad(lon2 - lon1);
             const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
                      Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) *
                      Math.sin(dLon/2) * Math.sin(dLon/2);
             const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-            return R * c * 1000; // Convert to meters
+            return R * c * 1000;
         }
 
         function deg2rad(deg) {
             return deg * (Math.PI / 180);
         }
 
-        // Map Initialization
-        async function initMap() {
-            const { Map } = await google.maps.importLibrary("maps");
-            const { AdvancedMarkerElement, PinElement } = await google.maps.importLibrary("marker");
-            
-            map = new Map(document.getElementById('map'), {
-                center: { lat: 41.070, lng: -80.685 },
-                zoom: 13,
-                mapId: "DEMO_MAP_ID"
-            });
-            
-            // Prevent map from being dragged to invalid coordinates
-            map.addListener('center_changed', () => {
-                const c = map.getCenter();
-                if (Math.abs(c.lat()) < 1 && Math.abs(c.lng()) < 1) {
-                    map.setCenter({ lat: 41.070, lng: -80.685 });
-                    map.setZoom(13);
+        // Map Initialization - MUST BE GLOBAL
+        window.initMap = async function() {
+            try {
+                console.log('🗺️ Starting map initialization...');
+                
+                const { Map } = await google.maps.importLibrary("maps");
+                const { AdvancedMarkerElement, PinElement } = await google.maps.importLibrary("marker");
+                
+                console.log('✓ Google Maps libraries loaded');
+                
+                map = new Map(document.getElementById('map'), {
+                    center: { lat: 41.070, lng: -80.685 },
+                    zoom: 13,
+                    mapId: "DEMO_MAP_ID"
+                });
+                
+                console.log('✓ Map created');
+                
+                map.addListener('center_changed', () => {
+                    const c = map.getCenter();
+                    if (Math.abs(c.lat()) < 1 && Math.abs(c.lng()) < 1) {
+                        map.setCenter({ lat: 41.070, lng: -80.685 });
+                        map.setZoom(13);
+                    }
+                });
+                
+                infoWindow = new google.maps.InfoWindow();
+                
+                parkBoundary = new google.maps.Polygon({
+                    paths: [
+                        {"lat": 41.102, "lng": -80.67},{"lat": 41.095072, "lng": -80.672607},{"lat": 41.093419, "lng": -80.675198},
+                        {"lat": 41.091622, "lng": -80.671987},{"lat": 41.08976, "lng": -80.67354},{"lat": 41.088119, "lng": -80.672038},
+                        {"lat": 41.083913, "lng": -80.67535},{"lat": 41.085012, "lng": -80.677529},{"lat": 41.084913, "lng": -80.679398},
+                        {"lat": 41.077682, "lng": -80.678787},{"lat": 41.079186, "lng": -80.682468},{"lat": 41.079218, "lng": -80.684756},
+                        {"lat": 41.077309, "lng": -80.683926},{"lat": 41.077616, "lng": -80.686772},{"lat": 41.076475, "lng": -80.686393},
+                        {"lat": 41.076012, "lng": -80.684153},{"lat": 41.074838, "lng": -80.682685},{"lat": 41.072369, "lng": -80.686795},
+                        {"lat": 41.069597, "lng": -80.68604},{"lat": 41.067133, "lng": -80.68168},{"lat": 41.068087, "lng": -80.678131},
+                        {"lat": 41.061001, "lng": -80.674619},{"lat": 41.060046, "lng": -80.67312},{"lat": 41.056041, "lng": -80.67486},
+                        {"lat": 41.054006, "lng": -80.674099},{"lat": 41.051468, "lng": -80.672903},{"lat": 41.048386, "lng": -80.67488},
+                        {"lat": 41.049532, "lng": -80.679731},{"lat": 41.048324, "lng": -80.681126},{"lat": 41.046912, "lng": -80.67676},
+                        {"lat": 41.045304, "lng": -80.677715},{"lat": 41.044632, "lng": -80.679016},{"lat": 41.045837, "lng": -80.678922},
+                        {"lat": 41.045529, "lng": -80.682447},{"lat": 41.025, "lng": -80.695},{"lat": 41.02487, "lng": -80.701813},
+                        {"lat": 41.041995, "lng": -80.700384},{"lat": 41.044828, "lng": -80.696365},{"lat": 41.045653, "lng": -80.68535},
+                        {"lat": 41.049213, "lng": -80.685444},{"lat": 41.051996, "lng": -80.680732},{"lat": 41.066192, "lng": -80.679509},
+                        {"lat": 41.0663, "lng": -80.688253},{"lat": 41.079284, "lng": -80.69571},{"lat": 41.083752, "lng": -80.681194},
+                        {"lat": 41.082363, "lng": -80.696852},{"lat": 41.086197, "lng": -80.699703},{"lat": 41.088308, "lng": -80.695979},
+                        {"lat": 41.088442, "lng": -80.688538},{"lat": 41.08843, "lng": -80.683994},{"lat": 41.087905, "lng": -80.683478},
+                        {"lat": 41.096479, "lng": -80.678424},{"lat": 41.098469, "lng": -80.681047},{"lat": 41.09839, "lng": -80.681095},
+                        {"lat": 41.098452, "lng": -80.681152},{"lat": 41.098448, "lng": -80.681165},{"lat": 41.09851, "lng": -80.681157},
+                        {"lat": 41.098476, "lng": -80.681196},{"lat": 41.098232, "lng": -80.680872},{"lat": 41.098434, "lng": -80.681139},
+                        {"lat": 41.09847, "lng": -80.681144},{"lat": 41.098488, "lng": -80.681189},{"lat": 41.098303, "lng": -80.681083},
+                        {"lat": 41.098372, "lng": -80.680987},{"lat": 41.098342, "lng": -80.681068},{"lat": 41.098392, "lng": -80.680979},
+                        {"lat": 41.099193, "lng": -80.679691},{"lat": 41.099593, "lng": -80.679218},{"lat": 41.100828, "lng": -80.677308},
+                        {"lat": 41.100867, "lng": -80.677458},{"lat": 41.098289, "lng": -80.680918},{"lat": 41.098396, "lng": -80.680944},
+                        {"lat": 41.101378, "lng": -80.676588},{"lat": 41.101709, "lng": -80.671116}
+                    ],
+                    strokeColor: '#D68438',
+                    strokeOpacity: 0.9,
+                    strokeWeight: 4,
+                    fillColor: '#6B8E6F',
+                    fillOpacity: 0.08,
+                    map: null
+                });
+                
+                console.log('✓ Park boundary created');
+                
+                await loadAllMarkers();
+                console.log('✓ Markers loaded');
+                
+                renderCategoryAccordions();
+                console.log('✓ Categories rendered');
+                
+                setTimeout(() => {
+                    const loadingOverlay = document.getElementById('loadingOverlay');
+                    if (loadingOverlay) {
+                        loadingOverlay.classList.add('hide');
+                        console.log('✓ Loading overlay hidden');
+                    }
+                }, 1000);
+                
+                console.log('✅ Map initialization complete!');
+                
+            } catch (error) {
+                console.error('❌ Map initialization failed:', error);
+                
+                const loadingOverlay = document.getElementById('loadingOverlay');
+                if (loadingOverlay) {
+                    loadingOverlay.innerHTML = `
+                        <div style="text-align: center; padding: 40px;">
+                            <div style="font-size: 48px; margin-bottom: 20px;">⚠️</div>
+                            <div style="font-size: 1.2rem; color: #e74c3c; margin-bottom: 15px; font-weight: 700;">Map Loading Failed</div>
+                            <div style="font-size: 0.9rem; color: #666; margin-bottom: 20px;">
+                                ${error.message || 'Unable to load Google Maps'}
+                            </div>
+                            <button onclick="location.reload()" style="
+                                background: var(--sage-green);
+                                color: white;
+                                border: none;
+                                padding: 12px 30px;
+                                border-radius: 25px;
+                                font-size: 1rem;
+                                font-weight: 700;
+                                cursor: pointer;
+                            ">
+                                Retry
+                            </button>
+                        </div>
+                    `;
                 }
-            });
-            
-            infoWindow = new google.maps.InfoWindow();
-            
-            // Park boundary polygon
-            parkBoundary = new google.maps.Polygon({
-                paths: [
-                    {"lat": 41.102, "lng": -80.67},{"lat": 41.095072, "lng": -80.672607},{"lat": 41.093419, "lng": -80.675198},
-                    {"lat": 41.091622, "lng": -80.671987},{"lat": 41.08976, "lng": -80.67354},{"lat": 41.088119, "lng": -80.672038},
-                    {"lat": 41.083913, "lng": -80.67535},{"lat": 41.085012, "lng": -80.677529},{"lat": 41.084913, "lng": -80.679398},
-                    {"lat": 41.077682, "lng": -80.678787},{"lat": 41.079186, "lng": -80.682468},{"lat": 41.079218, "lng": -80.684756},
-                    {"lat": 41.077309, "lng": -80.683926},{"lat": 41.077616, "lng": -80.686772},{"lat": 41.076475, "lng": -80.686393},
-                    {"lat": 41.076012, "lng": -80.684153},{"lat": 41.074838, "lng": -80.682685},{"lat": 41.072369, "lng": -80.686795},
-                    {"lat": 41.069597, "lng": -80.68604},{"lat": 41.067133, "lng": -80.68168},{"lat": 41.068087, "lng": -80.678131},
-                    {"lat": 41.061001, "lng": -80.674619},{"lat": 41.060046, "lng": -80.67312},{"lat": 41.056041, "lng": -80.67486},
-                    {"lat": 41.054006, "lng": -80.674099},{"lat": 41.051468, "lng": -80.672903},{"lat": 41.048386, "lng": -80.67488},
-                    {"lat": 41.049532, "lng": -80.679731},{"lat": 41.048324, "lng": -80.681126},{"lat": 41.046912, "lng": -80.67676},
-                    {"lat": 41.045304, "lng": -80.677715},{"lat": 41.044632, "lng": -80.679016},{"lat": 41.045837, "lng": -80.678922},
-                    {"lat": 41.045529, "lng": -80.682447},{"lat": 41.025, "lng": -80.695},{"lat": 41.02487, "lng": -80.701813},
-                    {"lat": 41.041995, "lng": -80.700384},{"lat": 41.044828, "lng": -80.696365},{"lat": 41.045653, "lng": -80.68535},
-                    {"lat": 41.049213, "lng": -80.685444},{"lat": 41.051996, "lng": -80.680732},{"lat": 41.066192, "lng": -80.679509},
-                    {"lat": 41.0663, "lng": -80.688253},{"lat": 41.079284, "lng": -80.69571},{"lat": 41.083752, "lng": -80.681194},
-                    {"lat": 41.082363, "lng": -80.696852},{"lat": 41.086197, "lng": -80.699703},{"lat": 41.088308, "lng": -80.695979},
-                    {"lat": 41.088442, "lng": -80.688538},{"lat": 41.08843, "lng": -80.683994},{"lat": 41.087905, "lng": -80.683478},
-                    {"lat": 41.096479, "lng": -80.678424},{"lat": 41.098469, "lng": -80.681047},{"lat": 41.09839, "lng": -80.681095},
-                    {"lat": 41.098452, "lng": -80.681152},{"lat": 41.098448, "lng": -80.681165},{"lat": 41.09851, "lng": -80.681157},
-                    {"lat": 41.098476, "lng": -80.681196},{"lat": 41.098232, "lng": -80.680872},{"lat": 41.098434, "lng": -80.681139},
-                    {"lat": 41.09847, "lng": -80.681144},{"lat": 41.098488, "lng": -80.681189},{"lat": 41.098303, "lng": -80.681083},
-                    {"lat": 41.098372, "lng": -80.680987},{"lat": 41.098342, "lng": -80.681068},{"lat": 41.098392, "lng": -80.680979},
-                    {"lat": 41.099193, "lng": -80.679691},{"lat": 41.099593, "lng": -80.679218},{"lat": 41.100828, "lng": -80.677308},
-                    {"lat": 41.100867, "lng": -80.677458},{"lat": 41.098289, "lng": -80.680918},{"lat": 41.098396, "lng": -80.680944},
-                    {"lat": 41.101378, "lng": -80.676588},{"lat": 41.101709, "lng": -80.671116}
-                ],
-                strokeColor: '#D68438',
-                strokeOpacity: 0.9,
-                strokeWeight: 4,
-                fillColor: '#6B8E6F',
-                fillOpacity: 0.08,
-                map: null
-            });
-            
-            loadAllMarkers();
-            renderCategoryAccordions();
-            
-            // Hide loading overlay
-            setTimeout(() => {
-                document.getElementById('loadingOverlay').classList.add('hide');
-            }, 1000);
-        }
+            }
+        };
 
         async function loadAllMarkers() {
             const { AdvancedMarkerElement, PinElement } = await google.maps.importLibrary("marker");
@@ -2476,27 +2208,18 @@ setTimeout(function() {
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px;">
                         <a href="https://www.google.com/maps/dir/?api=1&destination=${loc.lat},${loc.lng}&travelmode=walking"
                            target="_blank"
-                           style="display:block; ${trailStyle} padding:12px 10px; border-radius:8px; text-decoration:none; font-weight:700; font-size:0.85rem; text-align:center; box-shadow: ${currentRouteMode === 'trail' ? '0 4px 12px rgba(39,174,96,0.3)' : 'none'};">
+                           style="display:block; ${trailStyle} padding:12px 10px; border-radius:8px; text-decoration:none; font-weight:700; font-size:0.85rem; text-align:center;">
                             🚶<br>${trailLabel}
                         </a>
                         <a href="https://www.google.com/maps/dir/?api=1&destination=${loc.lat},${loc.lng}&travelmode=bicycling"
                            target="_blank"
-                           style="display:block; ${bikeStyle} padding:12px 10px; border-radius:8px; text-decoration:none; font-weight:700; font-size:0.85rem; text-align:center; box-shadow: ${currentRouteMode === 'bike' ? '0 4px 12px rgba(230,126,34,0.3)' : 'none'};">
+                           style="display:block; ${bikeStyle} padding:12px 10px; border-radius:8px; text-decoration:none; font-weight:700; font-size:0.85rem; text-align:center;">
                             🚴<br>${bikeLabel}
                         </a>
                     </div>
                     <div style="margin-bottom: 8px; padding: 10px; background: #ffebee; border: 2px solid #e74c3c; border-radius: 6px; text-align: center;">
                         <strong style="color: #c0392b; font-size: 0.9rem; display: block;">🚫 NEVER USE BEARS DEN ROAD</strong>
                         <span style="color: #721c24; font-size: 0.8rem;">City street with traffic - Use park trails only!</span>
-                    </div>
-                    <div style="margin-top:10px; padding:10px; background:#E8F5E9; border-left:3px solid #6B8E6F; border-radius:4px; font-size:0.8rem; color:#2C3A2E;">
-                        <strong style="display:block; margin-bottom:5px;">🌳 Route Guidelines:</strong>
-                        <strong style="color:#6B8E6F;">🚶 Trail Route:</strong> Most scenic paths via Google Maps walking mode<br><br>
-                        <strong style="color:#D68438;">🚴 Bike Route:</strong> Opens Google Maps in cycling mode<br><br>
-                        <strong style="color:#e74c3c;">⚠️ Important:</strong> If any app suggests Bears Den Rd, use park trails instead!
-                    </div>
-                    <div style="margin-top:8px; padding:8px; background:#FFF3CD; border-radius:6px; font-size:0.85rem; color:#856404; text-align:center;">
-                        🟢 Both routes stay within park boundaries
                     </div>
                 </div>
             `;
