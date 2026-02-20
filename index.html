@@ -723,11 +723,10 @@
         
         // Check if in iframe
         if (window.self !== window.top) {
-            const warning = document.getElementById('iframeWarning');
-            if (warning) {
-                warning.style.display = 'block';
-            }
-        }
+    // This forces the browser to leave the 'embedded' mode 
+    // and open the page directly so GPS permissions work.
+    window.top.location.href = "https://cruisethecreek-tech.github.io/";
+}
 
         // Global variables
         let map, markers = [], infoWindow, parkBoundary = null, boundaryVisible = false, currentRouteMode = 'trail';
