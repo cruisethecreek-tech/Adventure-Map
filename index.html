@@ -3,9 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Delegate-CH" content="sec-ch-ua-geo-lat; sec-ch-ua-geo-lon">
-<meta http-equiv="Permissions-Policy" content="geolocation=(self 'https://cruisethecreek-tech.github.io')">
-<meta http-equiv="Delegate-CH" content="sec-ch-ua-geo-lat; sec-ch-ua-geo-lon">
+    <meta http-equiv="Permissions-Policy" content="geolocation=(self)">
     <title>Cruise the Creek | Mill Creek Park eBike Tours</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
     
@@ -563,14 +561,6 @@
 
     <div class="container">
 
-        <div id="iframeWarning" style="display: none; background: linear-gradient(135deg, #3498db, #2980b9); color: white; padding: 20px; border-radius: 12px; margin-bottom: 30px; box-shadow: 0 8px 24px rgba(52, 152, 219, 0.3); text-align: center;">
-            <h3 style="font-size: 1.3rem; margin-bottom: 10px;">📱 For GPS Audio Tours</h3>
-            <p style="font-size: 1rem; line-height: 1.6;">To use GPS audio tours on mobile, please open this page in the main browser window.</p>
-            ​<a id="openNewTabBtn" href="https://cruisethecreek-tech.github.io/" style="display: inline-block; margin-top: 15px; background: white; color: #2980b9; padding: 12px 30px; border-radius: 25px; text-decoration: none; font-weight: 700; box-shadow: 0 4px 12px rgba(0,0,0,0.2);">
-                🔗 Open in New Tab
-            </a>
-        </div>
-
         <div class="info-banner">
             <h3>🚴 Scenic eBike Adventure Through Mill Creek Park</h3>
             <p>63 locations including 18 official trails • 45 miles of scenic trails • Take the slow route and enjoy nature</p>
@@ -663,95 +653,58 @@
         <p style="margin-top: 15px; font-size: 0.85rem;">📍 Mill Creek MetroParks, Youngstown, Ohio</p>
     </footer>
 
-    <!-- Google Maps Script - Load BEFORE our script -->
+    <!-- Error Handlers -->
     <script>
-        // Global error handler for Google Maps
         window.gm_authFailure = function() {
-            console.error('❌ Google Maps authentication failed');
-            const loadingOverlay = document.getElementById('loadingOverlay');
-            if (loadingOverlay) {
-                loadingOverlay.innerHTML = `
-                    <div style="text-align: center; padding: 40px;">
-                        <div style="font-size: 48px; margin-bottom: 20px;">🔑</div>
-                        <div style="font-size: 1.2rem; color: #e74c3c; margin-bottom: 15px; font-weight: 700;">Google Maps API Key Error</div>
-                        <div style="font-size: 0.9rem; color: #666; margin-bottom: 20px;">
-                            The Google Maps API key is invalid or restricted.<br>
-                            Please check your API key configuration.
-                        </div>
-                    </div>
-                `;
-            }
+            console.error('❌ Google Maps auth failed');
+            document.getElementById('loadingOverlay').innerHTML = `
+                <div style="text-align: center; padding: 40px;">
+                    <div style="font-size: 48px; margin-bottom: 20px;">🔑</div>
+                    <div style="font-size: 1.2rem; color: #e74c3c; margin-bottom: 15px; font-weight: 700;">Google Maps API Key Error</div>
+                    <div style="font-size: 0.9rem; color: #666;">The API key is invalid or restricted.</div>
+                </div>
+            `;
         };
 
-        // Timeout fallback if map never loads
         setTimeout(function() {
             const loadingOverlay = document.getElementById('loadingOverlay');
             if (loadingOverlay && !loadingOverlay.classList.contains('hide')) {
-                console.error('❌ Map loading timeout after 15 seconds');
+                console.error('❌ Map timeout');
                 loadingOverlay.innerHTML = `
                     <div style="text-align: center; padding: 40px;">
                         <div style="font-size: 48px; margin-bottom: 20px;">⏱️</div>
                         <div style="font-size: 1.2rem; color: #e74c3c; margin-bottom: 15px; font-weight: 700;">Loading Timeout</div>
-                        <div style="font-size: 0.9rem; color: #666; margin-bottom: 20px;">
-                            The map is taking too long to load.<br>
-                            This might be a network issue.
-                        </div>
-                        <button onclick="location.reload()" style="
-                            background: var(--sage-green);
-                            color: white;
-                            border: none;
-                            padding: 12px 30px;
-                            border-radius: 25px;
-                            font-size: 1rem;
-                            font-weight: 700;
-                            cursor: pointer;
-                        ">
-                            Retry
-                        </button>
+                        <div style="font-size: 0.9rem; color: #666; margin-bottom: 20px;">The map is taking too long to load.</div>
+                        <button onclick="location.reload()" style="background: #6B8E6F; color: white; border: none; padding: 12px 30px; border-radius: 25px; font-size: 1rem; font-weight: 700; cursor: pointer;">Retry</button>
                     </div>
                 `;
             }
         }, 15000);
     </script>
     
-    
+    <!-- Google Maps Script -->
+    <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDnrKBrEm5DYZtYb4o66Pvyjx_aYUlmrHU&callback=initMap&libraries=marker,places,geometry&v=weekly"></script>
 
+    <!-- Main Script -->
     <script>
-        console.log('📜 Script started loading');
+        console.log('📜 Script loaded');
         
-       // 1. IMMEDIATE BREAKOUT - This must run before any other logic
-    if (window.self !== window.top) {
-        // Force the browser to reload using the direct GitHub URL
-        window.top.location.href = "https://cruisethecreek-tech.github.io/";
-    } else {
-        // 2. ONLY LOAD THE REST IF WE ARE THE MAIN WINDOW
-        console.log('📜 Main window detected - Initializing Audio Tour...');
-        
-        // Your existing global variables continue here...
-        let map, markers = [], infoWindow, parkBoundary = null;
-        let watchId = null, audioEnabled = false, gpsInitialized = false;
-        // ... (keep the rest of your variables as they are);
-}
-}
+        // Redirect if in iframe
+        if (window.self !== window.top) {
+            console.log('🔄 Redirecting from iframe...');
+            window.top.location.href = "https://cruisethecreek-tech.github.io/Adventure-Map/";
+        }
 
         // Global variables
         let map, markers = [], infoWindow, parkBoundary = null, boundaryVisible = false, currentRouteMode = 'trail';
         let watchId = null, audioEnabled = false, gpsInitialized = false, batteryMode = false;
         let spokenLocations = new Set(), userMarker = null;
         let lastBoundaryWarning = 0, isInsidePark = true, hasLeftPark = false;
-        
-        // Two-tier audio system variables
-        let currentAudio = null;
-        let backgroundAudio = null;
-        let isPlayingWaypoint = false;
-        let currentChapterIndex = 0;
-        
-        // Audio configuration
+        let currentAudio = null, backgroundAudio = null, isPlayingWaypoint = false, currentChapterIndex = 0;
+
         const BACKGROUND_AUDIO_VOLUME = 0.5;
         const WAYPOINT_AUDIO_VOLUME = 1.0;
-        const DUCKING_VOLUME = 0.15;
-        
-        // Background chapter URLs
+
         const CHAPTER_URLS = [
             "https://pub-1953848c95da4e07b0d7c144edf2c38e.r2.dev/background/Chapter%201.mp3",
             "https://pub-1953848c95da4e07b0d7c144edf2c38e.r2.dev/background/Chapter%202.mp3",
@@ -760,7 +713,7 @@
             "https://pub-1953848c95da4e07b0d7c144edf2c38e.r2.dev/background/Chapter%205.mp3",
             "https://pub-1953848c95da4e07b0d7c144edf2c38e.r2.dev/background/Final.mp3"
         ];
-        
+
         const CHAPTER_NAMES = [
             "Welcome to Mill Creek",
             "Nature & Geology",
@@ -770,7 +723,6 @@
             "Modern Conservation - Part 2"
         ];
 
-        // Prevent audio interruption on mobile
         document.addEventListener('visibilitychange', function() {
             if (document.hidden) {
                 console.log('📱 Page hidden - keeping audio alive');
@@ -779,7 +731,6 @@
             }
         });
 
-        // Accordion functionality
         function toggleAccordion(btn) {
             const content = btn.nextElementSibling;
             const parent = btn.parentElement;
@@ -793,8 +744,8 @@
             }
         }
 
-        // LOCATIONS DATA - Complete 63 locations
-const locations = [
+        // PASTE YOUR COMPLETE 63 LOCATIONS ARRAY HERE
+        const locations = [
     {
         name: "Cruise The Creek",
         category: "amenity", icon: "🚲",
@@ -1454,14 +1405,12 @@ const locations = [
             playground: '#e91e63'
         };
 
-        // Search functionality
         const searchInput = document.getElementById('searchInput');
         const searchResults = document.getElementById('searchResults');
         const clearSearchBtn = document.getElementById('clearSearch');
 
         searchInput.addEventListener('input', handleSearch);
         searchInput.addEventListener('focus', handleSearch);
-
         document.addEventListener('click', function(e) {
             if (!e.target.closest('.search-wrapper')) {
                 searchResults.classList.remove('active');
@@ -1526,39 +1475,22 @@ const locations = [
             searchInput.focus();
         }
 
-        // Audio Tour Functions
         function toggleAudioTour() {
-    const btn = document.getElementById('startAudioBtn');
-    
-    // 1. Immediately request permission on the first click
-    // This 'User Gesture' is critical for mobile browsers
-    if (!audioEnabled) {
-        // Force a direct GPS call instead of querying permissions first
-        navigator.geolocation.getCurrentPosition(
-            (pos) => {
-                // Success! Now start the full tracking
-                startAudioTourWithGPS(btn, false);
-            },
-            (err) => {
-                console.error("GPS Denied", err);
-                alert("Please enable Location Services to start the tour.");
-            },
-            { enableHighAccuracy: true }
-        );
-    } else {
-        stopAudioTour(true);
-    }
-}
-
-
-        function showGPSPermissionHelp(isInIframe) {
-            let message = "GPS Permission Required!\n\n";
-            if (isInIframe) {
-                message += "You're viewing this in an embedded page.\nPlease open in a new tab for GPS audio tours.";
+            const btn = document.getElementById('startAudioBtn');
+            if (!audioEnabled) {
+                navigator.geolocation.getCurrentPosition(
+                    (pos) => {
+                        startAudioTourWithGPS(btn, false);
+                    },
+                    (err) => {
+                        console.error("GPS Denied", err);
+                        alert("Please enable Location Services to start the tour.");
+                    },
+                    { enableHighAccuracy: true }
+                );
             } else {
-                message += "To enable GPS:\nChrome: Tap the lock icon → Permissions → Location → Allow\nSafari: Settings → Safari → Location → Allow";
+                stopAudioTour(true);
             }
-            alert(message);
         }
 
         function startAudioTourWithGPS(btn, isInIframe) {
@@ -1577,53 +1509,15 @@ const locations = [
         function showBackgroundAudioPrompt() {
             const overlay = document.createElement('div');
             overlay.id = 'audio-start-modal';
-            overlay.style.cssText = `
-                position: fixed;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
-                background: rgba(0,0,0,0.85);
-                z-index: 10000;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-            `;
+            overlay.style.cssText = `position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 10000; display: flex; align-items: center; justify-content: center;`;
             
             overlay.innerHTML = `
                 <div style="background: white; padding: 40px; border-radius: 20px; text-align: center; max-width: 400px; margin: 20px;">
                     <div style="font-size: 64px; margin-bottom: 20px;">🎧</div>
                     <h2 style="margin-bottom: 15px; color: #2c3e50;">Start Mill Creek History Tour?</h2>
-                    <p style="margin-bottom: 25px; color: #666; line-height: 1.6;">
-                        Rachel will narrate the 50-minute history of Mill Creek Park as you ride. 
-                        The background audio will automatically pause when you reach specific landmarks.
-                    </p>
-                    <button id="start-background-btn" style="
-                        background: linear-gradient(135deg, #4a6741 0%, #5d7a52 100%);
-                        color: white;
-                        padding: 15px 40px;
-                        border: none;
-                        border-radius: 50px;
-                        font-size: 18px;
-                        font-weight: 700;
-                        cursor: pointer;
-                        box-shadow: 0 4px 15px rgba(74, 103, 65, 0.3);
-                        margin-bottom: 10px;
-                    ">
-                        🎙️ Start History Tour
-                    </button>
-                    <button id="skip-background-btn" style="
-                        background: transparent;
-                        color: #666;
-                        padding: 10px 20px;
-                        border: none;
-                        font-size: 14px;
-                        cursor: pointer;
-                        display: block;
-                        margin: 15px auto 0;
-                    ">
-                        Skip (waypoints only)
-                    </button>
+                    <p style="margin-bottom: 25px; color: #666; line-height: 1.6;">Rachel will narrate the 50-minute history of Mill Creek Park as you ride. The background audio will automatically pause when you reach specific landmarks.</p>
+                    <button id="start-background-btn" style="background: linear-gradient(135deg, #4a6741 0%, #5d7a52 100%); color: white; padding: 15px 40px; border: none; border-radius: 50px; font-size: 18px; font-weight: 700; cursor: pointer; box-shadow: 0 4px 15px rgba(74, 103, 65, 0.3); margin-bottom: 10px;">🎙️ Start History Tour</button>
+                    <button id="skip-background-btn" style="background: transparent; color: #666; padding: 10px 20px; border: none; font-size: 14px; cursor: pointer; display: block; margin: 15px auto 0;">Skip (waypoints only)</button>
                 </div>
             `;
             
@@ -1638,7 +1532,6 @@ const locations = [
                     console.error('Background audio failed to load');
                     showChapterNotification('⚠️ Background audio unavailable - waypoints still work!');
                 });
-                
                 backgroundAudio.src = CHAPTER_URLS[0];
                 backgroundAudio.load();
             }
@@ -1649,7 +1542,7 @@ const locations = [
                     showChapterNotification(CHAPTER_NAMES[currentChapterIndex]);
                 }).catch(err => {
                     console.error('Could not play background audio:', err);
-                    alert('Could not start background audio. Check your browser settings. Waypoint audio will still work!');
+                    alert('Could not start background audio. Waypoint audio will still work!');
                 });
                 document.getElementById('audio-start-modal').remove();
             });
@@ -1661,9 +1554,7 @@ const locations = [
 
         function playNextChapter() {
             currentChapterIndex++;
-            if (currentChapterIndex >= CHAPTER_URLS.length) {
-                currentChapterIndex = 0;
-            }
+            if (currentChapterIndex >= CHAPTER_URLS.length) currentChapterIndex = 0;
             backgroundAudio.src = CHAPTER_URLS[currentChapterIndex];
             backgroundAudio.play().then(() => {
                 showChapterNotification(CHAPTER_NAMES[currentChapterIndex]);
@@ -1677,7 +1568,6 @@ const locations = [
             notification.className = 'chapter-notification';
             notification.textContent = `🎧 ${chapterName}`;
             document.body.appendChild(notification);
-            
             setTimeout(() => {
                 notification.style.opacity = '0';
                 setTimeout(() => notification.remove(), 500);
@@ -1700,11 +1590,9 @@ const locations = [
         function toggleBatteryMode() {
             batteryMode = !batteryMode;
             const btn = document.getElementById('batteryModeBtn');
-            
             if (batteryMode) {
                 btn.innerHTML = '🔋 Battery Saver ON';
                 btn.style.background = '#27ae60';
-                
                 if (watchId) {
                     navigator.geolocation.clearWatch(watchId);
                     startGPS();
@@ -1712,7 +1600,6 @@ const locations = [
             } else {
                 btn.innerHTML = '🔋 Battery Saver';
                 btn.style.background = '#7f8c8d';
-                
                 if (watchId) {
                     navigator.geolocation.clearWatch(watchId);
                     startGPS();
@@ -1726,18 +1613,15 @@ const locations = [
             const batteryBtn = document.getElementById('batteryModeBtn');
             
             audioEnabled = false;
-            
             if (backgroundAudio) {
                 backgroundAudio.pause();
                 backgroundAudio.currentTime = 0;
             }
-            
             if (currentAudio) {
                 currentAudio.pause();
                 currentAudio.currentTime = 0;
                 currentAudio = null;
             }
-            
             if (watchId) {
                 navigator.geolocation.clearWatch(watchId);
                 watchId = null;
@@ -1746,7 +1630,6 @@ const locations = [
             btn.classList.remove('active');
             btn.innerHTML = "🎧 Start Audio Tour";
             btn.style.background = "var(--accent-orange)";
-            
             pauseBtn.style.display = 'none';
             batteryBtn.style.display = 'none';
             
@@ -1754,7 +1637,6 @@ const locations = [
                 userMarker.map = null;
                 userMarker = null;
             }
-            
             const findMeBtn = document.querySelector('.find-me-btn');
             if (findMeBtn) findMeBtn.classList.remove('active');
         }
@@ -1764,14 +1646,12 @@ const locations = [
                 alert("GPS not supported"); 
                 return; 
             }
-            
             if (!watchId) {
                 const gpsOptions = {
                     enableHighAccuracy: !batteryMode,
                     maximumAge: batteryMode ? 30000 : 0,
                     timeout: batteryMode ? 30000 : 15000
                 };
-                
                 watchId = navigator.geolocation.watchPosition(
                     updateUserLocation,
                     (err) => { 
@@ -1780,7 +1660,6 @@ const locations = [
                     },
                     gpsOptions
                 );
-                
                 const btn = document.querySelector('.find-me-btn');
                 if (btn) btn.classList.add('active');
             }
@@ -1828,28 +1707,22 @@ const locations = [
 
         function checkProximity(lat, lng) {
             const triggerDistance = currentRouteMode === 'bike' ? 200 : 50;
-            
             locations.forEach(spot => {
                 const distance = getDistanceFromLatLonInMeters(lat, lng, spot.lat, spot.lng);
                 if (distance < triggerDistance && !spokenLocations.has(spot.name)) {
                     triggerHotspot(spot);
                 }
             });
-            
             checkParkBoundaries(lat, lng);
         }
 
         function checkParkBoundaries(lat, lng) {
             if (!parkBoundary) return;
-            
             const userPoint = new google.maps.LatLng(lat, lng);
             const isInside = google.maps.geometry.poly.containsLocation(userPoint, parkBoundary);
             const now = Date.now();
-            
             if (now - lastBoundaryWarning < 45000) return;
-            
             const distanceToBoundary = getDistanceToNearestBoundaryPoint(lat, lng);
-            
             if (isInside && distanceToBoundary < 50) {
                 lastBoundaryWarning = now;
                 isInsidePark = true;
@@ -1870,19 +1743,16 @@ const locations = [
         function getDistanceToNearestBoundaryPoint(lat, lng) {
             const boundaryPoints = parkBoundary.getPath().getArray();
             let minDistance = Infinity;
-            
             boundaryPoints.forEach(point => {
                 const distance = getDistanceFromLatLonInMeters(lat, lng, point.lat(), point.lng());
                 if (distance < minDistance) minDistance = distance;
             });
-            
             return minDistance;
         }
 
         function showBoundaryWarning(type) {
             const popup = document.getElementById('audioPopup');
             const title = document.getElementById('popupTitle');
-            
             if (type === "approaching") {
                 title.innerText = "⚠️ Approaching Park Boundary";
                 popup.style.background = "linear-gradient(135deg, #f39c12, #e67e22)";
@@ -1893,9 +1763,7 @@ const locations = [
                 title.innerText = "✅ Back Inside Park";
                 popup.style.background = "linear-gradient(135deg, #27ae60, #229954)";
             }
-            
             popup.classList.add('show');
-            
             setTimeout(() => {
                 popup.classList.remove('show');
                 popup.style.background = "linear-gradient(135deg, var(--sage-green), var(--dark-sage))";
@@ -1904,7 +1772,6 @@ const locations = [
 
         function triggerHotspot(spot) {
             spokenLocations.add(spot.name);
-            
             const popup = document.getElementById('audioPopup');
             document.getElementById('popupTitle').innerText = spot.name;
             popup.classList.add('show');
@@ -1923,9 +1790,7 @@ const locations = [
             }
 
             if (spot.audio) {
-                console.log(`🎙️ Loading waypoint audio: ${spot.name}`);
-                console.log(`📂 Audio URL: ${spot.audio}`);
-                
+                console.log(`🎙️ Loading: ${spot.name}`);
                 const audio = new Audio();
                 audio.preload = "auto";
                 audio.volume = WAYPOINT_AUDIO_VOLUME;
@@ -1933,85 +1798,58 @@ const locations = [
                 currentAudio = audio;
 
                 audio.onloadedmetadata = () => {
-                    console.log(`📻 Audio loaded: ${spot.name} - Duration: ${audio.duration.toFixed(1)}s`);
+                    console.log(`📻 Loaded: ${spot.name} - ${audio.duration.toFixed(1)}s`);
                 };
 
                 audio.onended = () => {
-                    console.log(`✅ Audio finished: ${spot.name}`);
+                    console.log(`✅ Finished: ${spot.name}`);
                     currentAudio = null;
-                    
                     if (backgroundWasPlaying && backgroundAudio) {
                         setTimeout(() => {
-                            console.log(`🔄 Resuming background audio`);
-                            backgroundAudio.play().catch(err => {
-                                console.error('Background resume failed:', err);
-                            });
+                            backgroundAudio.play().catch(err => console.error('Resume failed:', err));
                         }, 500);
                     }
-                    
                     isPlayingWaypoint = false;
-                    setTimeout(() => { 
-                        popup.classList.remove('show'); 
-                    }, 3000);
+                    setTimeout(() => { popup.classList.remove('show'); }, 3000);
                 };
 
                 audio.onerror = (e) => {
-                    console.error(`❌ Audio loading error for ${spot.name}:`, e);
+                    console.error(`❌ Error: ${spot.name}`, e);
                     currentAudio = null;
-                    
                     document.getElementById('popupTitle').innerText = `⚠️ Audio Unavailable: ${spot.name}`;
-                    
                     if (backgroundWasPlaying && backgroundAudio) {
                         setTimeout(() => {
-                            backgroundAudio.play().catch(err => console.log('Background resume failed:', err));
+                            backgroundAudio.play().catch(err => console.log('Resume failed:', err));
                         }, 1000);
                     }
-                    
                     isPlayingWaypoint = false;
-                    setTimeout(() => { 
-                        popup.classList.remove('show'); 
-                    }, 5000);
+                    setTimeout(() => { popup.classList.remove('show'); }, 5000);
                 };
 
-                const playPromise = audio.play();
-                
-                if (playPromise !== undefined) {
-                    playPromise.then(() => {
-                        console.log(`✓ Playing: ${spot.name}`);
-                    }).catch((e) => {
-                        console.error(`❌ Play failed for ${spot.name}:`, e);
-                        currentAudio = null;
-                        
-                        document.getElementById('popupTitle').innerText = `⚠️ Cannot Play: ${spot.name}`;
-                        
-                        if (backgroundWasPlaying && backgroundAudio) {
-                            setTimeout(() => {
-                                backgroundAudio.play().catch(err => console.log('Background resume failed:', err));
-                            }, 1000);
-                        }
-                        
-                        isPlayingWaypoint = false;
-                        setTimeout(() => { 
-                            popup.classList.remove('show'); 
-                        }, 5000);
-                    });
-                }
-                
+                audio.play().then(() => {
+                    console.log(`✓ Playing: ${spot.name}`);
+                }).catch((e) => {
+                    console.error(`❌ Play failed: ${spot.name}`, e);
+                    currentAudio = null;
+                    document.getElementById('popupTitle').innerText = `⚠️ Cannot Play: ${spot.name}`;
+                    if (backgroundWasPlaying && backgroundAudio) {
+                        setTimeout(() => {
+                            backgroundAudio.play().catch(err => console.log('Resume failed:', err));
+                        }, 1000);
+                    }
+                    isPlayingWaypoint = false;
+                    setTimeout(() => { popup.classList.remove('show'); }, 5000);
+                });
             } else {
-                console.warn(`⚠️ No audio file specified for: ${spot.name}`);
-                
+                console.warn(`⚠️ No audio: ${spot.name}`);
                 document.getElementById('popupTitle').innerText = `${spot.name} (No Audio)`;
-                
                 if (backgroundWasPlaying && backgroundAudio) {
                     setTimeout(() => {
-                        backgroundAudio.play().catch(err => console.log('Background resume failed:', err));
+                        backgroundAudio.play().catch(err => console.log('Resume failed:', err));
                     }, 1000);
                 }
-                
                 isPlayingWaypoint = false;
-                setTimeout(() => { 
-                    popup.classList.remove('show'); 
-                }, 3000);
+                setTimeout(() => { popup.classList.remove('show'); }, 3000);
             }
 
             setTimeout(() => {
@@ -2034,30 +1872,16 @@ const locations = [
             return deg * (Math.PI / 180);
         }
 
-        // Map Initialization - MUST BE GLOBAL
         window.initMap = async function() {
             try {
-                console.log('🗺️ Starting map initialization...');
-                
+                console.log('🗺️ Initializing...');
                 const { Map } = await google.maps.importLibrary("maps");
                 const { AdvancedMarkerElement, PinElement } = await google.maps.importLibrary("marker");
-                
-                console.log('✓ Google Maps libraries loaded');
                 
                 map = new Map(document.getElementById('map'), {
                     center: { lat: 41.070, lng: -80.685 },
                     zoom: 13,
                     mapId: "DEMO_MAP_ID"
-                });
-                
-                console.log('✓ Map created');
-                
-                map.addListener('center_changed', () => {
-                    const c = map.getCenter();
-                    if (Math.abs(c.lat()) < 1 && Math.abs(c.lng()) < 1) {
-                        map.setCenter({ lat: 41.070, lng: -80.685 });
-                        map.setZoom(13);
-                    }
                 });
                 
                 infoWindow = new google.maps.InfoWindow();
@@ -2098,60 +1922,31 @@ const locations = [
                     map: null
                 });
                 
-                console.log('✓ Park boundary created');
-                
                 await loadAllMarkers();
-                console.log('✓ Markers loaded');
-                
                 renderCategoryAccordions();
-                console.log('✓ Categories rendered');
                 
                 setTimeout(() => {
-                    const loadingOverlay = document.getElementById('loadingOverlay');
-                    if (loadingOverlay) {
-                        loadingOverlay.classList.add('hide');
-                        console.log('✓ Loading overlay hidden');
-                    }
-                }, 1000);
+                    document.getElementById('loadingOverlay').classList.add('hide');
+                }, 500);
                 
-                console.log('✅ Map initialization complete!');
-                
+                console.log('✅ Map loaded');
             } catch (error) {
-                console.error('❌ Map initialization failed:', error);
-                
-                const loadingOverlay = document.getElementById('loadingOverlay');
-                if (loadingOverlay) {
-                    loadingOverlay.innerHTML = `
-                        <div style="text-align: center; padding: 40px;">
-                            <div style="font-size: 48px; margin-bottom: 20px;">⚠️</div>
-                            <div style="font-size: 1.2rem; color: #e74c3c; margin-bottom: 15px; font-weight: 700;">Map Loading Failed</div>
-                            <div style="font-size: 0.9rem; color: #666; margin-bottom: 20px;">
-                                ${error.message || 'Unable to load Google Maps'}
-                            </div>
-                            <button onclick="location.reload()" style="
-                                background: var(--sage-green);
-                                color: white;
-                                border: none;
-                                padding: 12px 30px;
-                                border-radius: 25px;
-                                font-size: 1rem;
-                                font-weight: 700;
-                                cursor: pointer;
-                            ">
-                                Retry
-                            </button>
-                        </div>
-                    `;
-                }
+                console.error('❌ Init failed:', error);
+                document.getElementById('loadingOverlay').innerHTML = `
+                    <div style="text-align: center; padding: 40px;">
+                        <div style="font-size: 48px;">⚠️</div>
+                        <h3 style="color: #e74c3c;">Map Failed</h3>
+                        <p style="color: #666;">${error.message}</p>
+                        <button onclick="location.reload()" style="background: #6B8E6F; color: white; border: none; padding: 12px 30px; border-radius: 25px; font-weight: 700; cursor: pointer;">Retry</button>
+                    </div>
+                `;
             }
         };
 
         async function loadAllMarkers() {
             const { AdvancedMarkerElement, PinElement } = await google.maps.importLibrary("marker");
-            
             markers.forEach(m => m.map = null);
             markers = [];
-            
             locations.forEach(loc => {
                 const pin = new PinElement({
                     background: categoryColors[loc.category],
@@ -2159,7 +1954,6 @@ const locations = [
                     glyph: loc.icon,
                     scale: 1
                 });
-                
                 const marker = new AdvancedMarkerElement({
                     position: { lat: loc.lat, lng: loc.lng },
                     map: map,
@@ -2167,23 +1961,17 @@ const locations = [
                     content: pin.element,
                     gmpClickable: true
                 });
-                
                 marker.addListener('click', () => {
                     openInfoWindowForLocation(marker, loc);
                 });
-                
                 marker.category = loc.category;
                 markers.push(marker);
             });
         }
 
         function openInfoWindowForLocation(marker, loc) {
-            const trailStyle = currentRouteMode === 'trail' 
-                ? 'background:#27ae60; color:white; border:3px solid #FFD700;' 
-                : 'background:#6B8E6F; color:white;';
-            const bikeStyle = currentRouteMode === 'bike' 
-                ? 'background:#e67e22; color:white; border:3px solid #FFD700;' 
-                : 'background:#D68438; color:white;';
+            const trailStyle = currentRouteMode === 'trail' ? 'background:#27ae60; color:white; border:3px solid #FFD700;' : 'background:#6B8E6F; color:white;';
+            const bikeStyle = currentRouteMode === 'bike' ? 'background:#e67e22; color:white; border:3px solid #FFD700;' : 'background:#D68438; color:white;';
             const trailLabel = currentRouteMode === 'trail' ? '⭐ Recommended' : 'Scenic Trail';
             const bikeLabel = currentRouteMode === 'bike' ? '⭐ Selected' : 'Bike Route';
 
@@ -2202,29 +1990,19 @@ const locations = [
                 badgeHTML += '</div>';
             }
 
-            const timeHTML = loc.time ? `<div class="time-stat">🕒 Time to Enjoy: ${loc.time}</div>` : '';
+            const timeHTML = loc.time ? `<div class="time-stat">🕒 ${loc.time}</div>` : '';
             const displayDesc = loc.shortDesc || loc.desc.substring(0, 200) + '...';
 
             const content = `
                 <div style="font-family:'Open Sans',sans-serif; padding:12px; max-width:320px;">
-                    <h3 style="color:${categoryColors[loc.category]}; margin-bottom:8px; font-size:1.2rem;">
-                        ${loc.icon} ${loc.name}
-                    </h3>
+                    <h3 style="color:${categoryColors[loc.category]}; margin-bottom:8px; font-size:1.2rem;">${loc.icon} ${loc.name}</h3>
                     ${badgeHTML}
                     ${timeHTML}
                     <p style="font-size:0.95rem; color:#555; line-height:1.6; margin-bottom:12px;">${displayDesc}</p>
                     <div style="margin-bottom: 8px; text-align: center; font-size: 0.85rem; color: #666; font-weight: 600;">Choose Your Route:</div>
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px;">
-                        <a href="https://www.google.com/maps/dir/?api=1&destination=${loc.lat},${loc.lng}&travelmode=walking"
-                           target="_blank"
-                           style="display:block; ${trailStyle} padding:12px 10px; border-radius:8px; text-decoration:none; font-weight:700; font-size:0.85rem; text-align:center;">
-                            🚶<br>${trailLabel}
-                        </a>
-                        <a href="https://www.google.com/maps/dir/?api=1&destination=${loc.lat},${loc.lng}&travelmode=bicycling"
-                           target="_blank"
-                           style="display:block; ${bikeStyle} padding:12px 10px; border-radius:8px; text-decoration:none; font-weight:700; font-size:0.85rem; text-align:center;">
-                            🚴<br>${bikeLabel}
-                        </a>
+                        <a href="https://www.google.com/maps/dir/?api=1&destination=${loc.lat},${loc.lng}&travelmode=walking" target="_blank" style="display:block; ${trailStyle} padding:12px 10px; border-radius:8px; text-decoration:none; font-weight:700; font-size:0.85rem; text-align:center;">🚶<br>${trailLabel}</a>
+                        <a href="https://www.google.com/maps/dir/?api=1&destination=${loc.lat},${loc.lng}&travelmode=bicycling" target="_blank" style="display:block; ${bikeStyle} padding:12px 10px; border-radius:8px; text-decoration:none; font-weight:700; font-size:0.85rem; text-align:center;">🚴<br>${bikeLabel}</a>
                     </div>
                     <div style="margin-bottom: 8px; padding: 10px; background: #ffebee; border: 2px solid #e74c3c; border-radius: 6px; text-align: center;">
                         <strong style="color: #c0392b; font-size: 0.9rem; display: block;">🚫 NEVER USE BEARS DEN ROAD</strong>
@@ -2232,7 +2010,6 @@ const locations = [
                     </div>
                 </div>
             `;
-            
             infoWindow.setContent(content);
             infoWindow.open(map, marker);
         }
@@ -2240,19 +2017,14 @@ const locations = [
         function toggleParkBoundary() {
             boundaryVisible = !boundaryVisible;
             const btn = document.getElementById('boundaryBtn');
-            
             if (boundaryVisible) {
                 parkBoundary.setMap(map);
-                btn.textContent = '✅ SAFE ZONE VISIBLE - Stay Inside Orange Line!';
+                btn.textContent = '✅ SAFE ZONE VISIBLE';
                 btn.style.background = '#27ae60';
-                btn.style.color = 'white';
-                btn.style.borderColor = '#27ae60';
             } else {
                 parkBoundary.setMap(null);
                 btn.textContent = '🗺️ SHOW SAFE RIDING ZONE';
                 btn.style.background = 'var(--accent-orange)';
-                btn.style.color = 'white';
-                btn.style.borderColor = 'var(--accent-orange)';
             }
         }
 
@@ -2262,72 +2034,51 @@ const locations = [
             const bikeBtn = document.getElementById('bikeModeBtn');
             const modeText = document.getElementById('currentModeText');
             const modeDesc = document.getElementById('modeDescription');
-            
             if (mode === 'trail') {
                 trailBtn.style.cssText = 'background:#6B8E6F; color:white; border-color:#6B8E6F;';
-                trailBtn.classList.add('active');
                 bikeBtn.style.cssText = 'background:white; color:#D68438; border-color:#D68438;';
-                bikeBtn.classList.remove('active');
                 modeText.textContent = 'Scenic Trail Mode';
-                modeText.style.color = '#6B8E6F';
                 modeDesc.textContent = 'Most scenic routes through the park';
             } else {
                 bikeBtn.style.cssText = 'background:#D68438; color:white; border-color:#D68438;';
-                bikeBtn.classList.add('active');
                 trailBtn.style.cssText = 'background:white; color:#6B8E6F; border-color:#6B8E6F;';
-                trailBtn.classList.remove('active');
                 modeText.textContent = 'Bike Route Mode';
-                modeText.style.color = '#D68438';
-                modeDesc.textContent = 'Google Maps cycling mode — avoids busy roads';
+                modeDesc.textContent = 'Google Maps cycling mode';
             }
-            
             infoWindow.close();
         }
 
         function renderCategoryAccordions() {
             const container = document.getElementById('categoryContainer');
             container.innerHTML = '';
-            
             categories.forEach(cat => {
                 const catLocations = locations.filter(l => l.category === cat.id);
                 const count = catLocations.length;
-                
                 const item = document.createElement('div');
                 item.className = 'category-accordion-item';
-                
                 const btn = document.createElement('button');
                 btn.className = 'accordion-btn';
                 btn.onclick = function() { toggleAccordion(this); };
                 btn.innerHTML = `<span>${cat.label} <span class="badge">${count}</span></span><span class="arrow">▼</span>`;
-                
                 const content = document.createElement('div');
                 content.className = 'accordion-content';
-                
                 const innerGrid = document.createElement('div');
                 innerGrid.className = 'accordion-inner-grid';
-                
                 catLocations.forEach(loc => {
                     const card = document.createElement('div');
                     card.className = 'mini-card';
                     card.onclick = () => { selectLocation(loc.lat, loc.lng, loc.name); };
-                    card.innerHTML = `
-                        <div class="mini-icon">${loc.icon}</div>
-                        <div class="mini-info">
-                            <div class="mini-name">${loc.name}</div>
-                        </div>
-                    `;
+                    card.innerHTML = `<div class="mini-icon">${loc.icon}</div><div class="mini-info"><div class="mini-name">${loc.name}</div></div>`;
                     innerGrid.appendChild(card);
                 });
-                
                 content.appendChild(innerGrid);
                 item.appendChild(btn);
                 item.appendChild(content);
                 container.appendChild(item);
             });
         }
-    </script>
-    <script async defer
-        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDnrKBrEm5DYZtYb4o66Pvyjx_aYUlmrHU&callback=initMap&libraries=marker,places,geometry&v=weekly">
+
+        console.log('✅ Ready for map');
     </script>
 </body>
 </html>
