@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="permissions-policy" content="geolocation=(self)">
+    <meta http-equiv="Delegate-CH" content="sec-ch-ua-geo-lat; sec-ch-ua-geo-lon">
+<meta http-equiv="Permissions-Policy" content="geolocation=(self)">
     <title>Cruise the Creek | Mill Creek Park eBike Tours</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
     
@@ -1521,26 +1522,28 @@ const locations = [
 
         // Audio Tour Functions
         function toggleAudioTour() {
-            const btn = document.getElementById('startAudioBtn');
-            if (!audioEnabled) {
-                const isInIframe = window.self !== window.top;
-                if (!navigator.geolocation) {
-                    alert("GPS not supported on this device.");
-                    return;
-                }
-                navigator.permissions.query({ name: 'geolocation' }).then((result) => {
-                    if (result.state === 'denied') { 
-                        showGPSPermissionHelp(isInIframe); 
-                        return; 
-                    }
-                    startAudioTourWithGPS(btn, isInIframe);
-                }).catch(() => { 
-                    startAudioTourWithGPS(btn, isInIframe); 
-                });
-            } else {
-                stopAudioTour(true);
-            }
-        }
+    const btn = document.getElementById('startAudioBtn');
+    
+    // 1. Immediately request permission on the first click
+    // This 'User Gesture' is critical for mobile browsers
+    if (!audioEnabled) {
+        // Force a direct GPS call instead of querying permissions first
+        navigator.geolocation.getCurrentPosition(
+            (pos) => {
+                // Success! Now start the full tracking
+                startAudioTourWithGPS(btn, false);
+            },
+            (err) => {
+                console.error("GPS Denied", err);
+                alert("Please enable Location Services to start the tour.");
+            },
+            { enableHighAccuracy: true }
+        );
+    } else {
+        stopAudioTour(true);
+    }
+}
+
 
         function showGPSPermissionHelp(isInIframe) {
             let message = "GPS Permission Required!\n\n";
