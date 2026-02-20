@@ -719,12 +719,18 @@
     <script>
         console.log('📜 Script started loading');
         
-       // Force the page to break out of domain masking/iframes
-if (window.self !== window.top) {
-    window.top.location.href = "https://cruisethecreek-tech.github.io/";
-} else {
-    // Only log 'Script started loading' if we are in the top window
-    console.log('📜 Main window detected - Loading Map...');
+       // 1. IMMEDIATE BREAKOUT - This must run before any other logic
+    if (window.self !== window.top) {
+        // Force the browser to reload using the direct GitHub URL
+        window.top.location.href = "https://cruisethecreek-tech.github.io/";
+    } else {
+        // 2. ONLY LOAD THE REST IF WE ARE THE MAIN WINDOW
+        console.log('📜 Main window detected - Initializing Audio Tour...');
+        
+        // Your existing global variables continue here...
+        let map, markers = [], infoWindow, parkBoundary = null;
+        let watchId = null, audioEnabled = false, gpsInitialized = false;
+        // ... (keep the rest of your variables as they are);
 }
 }
 
