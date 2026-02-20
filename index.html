@@ -1862,72 +1862,100 @@
         }
 
         function triggerHotspot(spot) {
-            spokenLocations.add(spot.name);
+    spokenLocations.add(spot.name);
+    
+    const popup = document.getElementById('audioPopup');
+    document.getElementById('popupTitle').innerText = spot.name;
+    popup.classList.add('show');
+
+    // Stop any currently playing waypoint audio
+    if (currentAudio) {
+        currentAudio.pause();
+        currentAudio.currentTime = 0;
+        currentAudio = null;
+    }
+    window.speechSynthesis.cancel();
+
+    // CRITICAL: Fully pause background audio during waypoint
+    let backgroundWasPlaying = false;
+    if (backgroundAudio && !backgroundAudio.paused) {
+        backgroundWasPlaying = true;
+        backgroundAudio.pause(); // PAUSE completely, don't just duck
+        isPlayingWaypoint = true;
+    }
+
+    // Play waypoint audio
+    if (spot.audio) {
+        const audio = new Audio(spot.audio);
+        audio.volume = WAYPOINT_AUDIO_VOLUME;
+        audio.preload = "auto";
+        currentAudio = audio;
+
+        // Add event listeners BEFORE playing
+        audio.onloadedmetadata = () => {
+            console.log(`📻 Loaded: ${spot.name} - Duration: ${audio.duration}s`);
+        };
+
+        audio.onended = () => {
+            console.log(`✅ Waypoint finished: ${spot.name}`);
+            currentAudio = null;
             
-            const popup = document.getElementById('audioPopup');
-            document.getElementById('popupTitle').innerText = spot.name;
-            popup.classList.add('show');
-
-            // Stop any currently playing waypoint audio
-            if (currentAudio) {
-                currentAudio.pause();
-                currentAudio.currentTime = 0;
-                currentAudio = null;
+            // Resume background audio if it was playing
+            if (backgroundWasPlaying && backgroundAudio) {
+                setTimeout(() => {
+                    backgroundAudio.play().catch(err => console.log('Background resume failed:', err));
+                }, 500);
             }
-            window.speechSynthesis.cancel();
+            
+            isPlayingWaypoint = false;
+            setTimeout(() => { popup.classList.remove('show'); }, 3000);
+        };
 
-            // Duck background audio if it's playing
-            if (backgroundAudio && !backgroundAudio.paused) {
-                duckBackgroundAudio();
-                isPlayingWaypoint = true;
+        audio.onerror = (err) => {
+            console.error(`❌ Audio error for ${spot.name}:`, err);
+            currentAudio = null;
+            
+            // Fallback to TTS
+            speak(spot.desc, () => {
+                if (backgroundWasPlaying && backgroundAudio) {
+                    backgroundAudio.play().catch(err => console.log('Background resume failed:', err));
+                }
+                isPlayingWaypoint = false;
+                setTimeout(() => { popup.classList.remove('show'); }, 3000);
+            });
+        };
+
+        // Play the audio
+        audio.play().catch((e) => {
+            console.warn(`⚠️ Play failed for ${spot.name}:`, e);
+            currentAudio = null;
+            
+            // Fallback to TTS
+            speak(spot.desc, () => {
+                if (backgroundWasPlaying && backgroundAudio) {
+                    backgroundAudio.play().catch(err => console.log('Background resume failed:', err));
+                }
+                isPlayingWaypoint = false;
+                setTimeout(() => { popup.classList.remove('show'); }, 3000);
+            });
+        });
+        
+    } else {
+        // No audio file - use TTS
+        speak(spot.desc, () => {
+            if (backgroundWasPlaying && backgroundAudio) {
+                backgroundAudio.play().catch(err => console.log('Background resume failed:', err));
             }
+            isPlayingWaypoint = false;
+            setTimeout(() => { popup.classList.remove('show'); }, 3000);
+        });
+    }
 
-            // Play waypoint audio
-            if (spot.audio) {
-                const audio = new Audio(spot.audio);
-                audio.volume = WAYPOINT_AUDIO_VOLUME;
-                currentAudio = audio;
-
-                audio.play().catch((e) => {
-                    console.warn('Audio play failed:', e);
-                    currentAudio = null;
-                    speak(spot.desc, () => {
-                        restoreBackgroundAudio();
-                        setTimeout(() => { popup.classList.remove('show'); }, 3000);
-                    });
-                });
-
-                audio.onended = () => {
-                    currentAudio = null;
-                    restoreBackgroundAudio();
-                    setTimeout(() => { popup.classList.remove('show'); }, 3000);
-                };
-
-                audio.onerror = () => {
-                    currentAudio = null;
-                    restoreBackgroundAudio();
-                    speak(spot.desc, () => {
-                        setTimeout(() => { popup.classList.remove('show'); }, 3000);
-                    });
-                };
-
-                audio.addEventListener('pause', () => {
-                    if (!audio.ended && currentAudio === audio) {
-                        audio.play().catch(() => {});
-                    }
-                });
-            } else {
-                speak(spot.desc, () => {
-                    restoreBackgroundAudio();
-                    setTimeout(() => { popup.classList.remove('show'); }, 3000);
-                });
-            }
-
-            // Clear spoken location after 5 minutes
-            setTimeout(() => {
-                spokenLocations.delete(spot.name);
-            }, 300000);
-        }
+    // Clear spoken location after 5 minutes
+    setTimeout(() => {
+        spokenLocations.delete(spot.name);
+    }, 300000);
+}
 
         function duckBackgroundAudio() {
             if (backgroundAudio && !backgroundAudio.paused) {
