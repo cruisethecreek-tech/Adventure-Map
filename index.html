@@ -721,11 +721,13 @@
     <script>
         console.log('📜 Script started loading');
         
-        // Check if in iframe
-        if (window.self !== window.top) {
-    // This forces the browser to leave the 'embedded' mode 
-    // and open the page directly so GPS permissions work.
+       // Force the page to break out of domain masking/iframes
+if (window.self !== window.top) {
     window.top.location.href = "https://cruisethecreek-tech.github.io/";
+} else {
+    // Only log 'Script started loading' if we are in the top window
+    console.log('📜 Main window detected - Loading Map...');
+}
 }
 
         // Global variables
