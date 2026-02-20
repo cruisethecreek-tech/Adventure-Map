@@ -1516,47 +1516,61 @@
         let currentAudio = null;
 
         function triggerHotspot(spot) {
-            spokenLocations.add(spot.name);
-            const popup = document.getElementById('audioPopup');
-            document.getElementById('popupTitle').innerText = spot.name;
-            popup.classList.add('show');
+    spokenLocations.add(spot.name);
+    const popup = document.getElementById('audioPopup');
+    document.getElementById('popupTitle').innerText = spot.name;
+    popup.classList.add('show');
 
-            // Stop any currently playing audio
-            if (currentAudio) { currentAudio.pause(); currentAudio.currentTime = 0; currentAudio = null; }
-            window.speechSynthesis.cancel();
+    // Stop any currently playing audio
+    if (currentAudio) { 
+        currentAudio.pause(); 
+        currentAudio.currentTime = 0; 
+        currentAudio = null; 
+    }
+    window.speechSynthesis.cancel();
 
-            if (spot.audio) {
-                const audio = new Audio(spot.audio);
-                currentAudio = audio;
+    // NEW CODE: Use the audio URL from the location if it exists
+    if (spot.audio) {
+        const audio = new Audio(spot.audio);
+        currentAudio = audio;
 
-                audio.play().catch((e) => {
-                    console.warn('Audio play failed:', e);
-                    currentAudio = null;
-                    speak(spot.desc, () => { setTimeout(() => { popup.classList.remove('show'); }, 3000); });
-                });
+        audio.play().catch((e) => {
+            console.warn('Audio play failed:', e);
+            currentAudio = null;
+            // Fallback to browser TTS if audio fails
+            speak(spot.desc, () => { 
+                setTimeout(() => { popup.classList.remove('show'); }, 3000); 
+            });
+        });
 
-                audio.onended = () => {
-                    currentAudio = null;
-                    setTimeout(() => { popup.classList.remove('show'); }, 3000);
-                };
+        audio.onended = () => {
+            currentAudio = null;
+            setTimeout(() => { popup.classList.remove('show'); }, 3000);
+        };
 
-                audio.onerror = () => {
-                    currentAudio = null;
-                    speak(spot.desc, () => { setTimeout(() => { popup.classList.remove('show'); }, 3000); });
-                };
+        audio.onerror = () => {
+            currentAudio = null;
+            // Fallback to browser TTS if audio fails to load
+            speak(spot.desc, () => { 
+                setTimeout(() => { popup.classList.remove('show'); }, 3000); 
+            });
+        };
 
-                // Keep audio alive on mobile — prevents iOS/Android from killing playback
-                audio.addEventListener('pause', () => {
-                    if (!audio.ended && currentAudio === audio) {
-                        audio.play().catch(() => {});
-                    }
-                });
-            } else {
-                speak(spot.desc, () => { setTimeout(() => { popup.classList.remove('show'); }, 3000); });
+        // Keep audio alive on mobile
+        audio.addEventListener('pause', () => {
+            if (!audio.ended && currentAudio === audio) {
+                audio.play().catch(() => {});
             }
+        });
+    } else {
+        // If no audio URL, use browser TTS
+        speak(spot.desc, () => { 
+            setTimeout(() => { popup.classList.remove('show'); }, 3000); 
+        });
+    }
 
-            setTimeout(() => { spokenLocations.delete(spot.name); }, 300000);
-        }
+    setTimeout(() => { spokenLocations.delete(spot.name); }, 300000);
+}
 
         function speak(text, onEndCallback) {
             if (!window.speechSynthesis) return;
