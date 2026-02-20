@@ -1462,14 +1462,19 @@
         }
 
         function checkProximity(lat, lng) {
-            locations.forEach(spot => {
-                const distance = getDistanceFromLatLonInMeters(lat, lng, spot.lat, spot.lng);
-                if (distance < 50 && !spokenLocations.has(spot.name)) {
-                    triggerHotspot(spot);
-                }
-            });
-            checkParkBoundaries(lat, lng);
+    // Use different trigger distances based on route mode
+    // Walking: 50 meters (close, precise)
+    // Biking: 200 meters (early warning for faster speed)
+    const triggerDistance = currentRouteMode === 'bike' ? 200 : 50;
+    
+    locations.forEach(spot => {
+        const distance = getDistanceFromLatLonInMeters(lat, lng, spot.lat, spot.lng);
+        if (distance < triggerDistance && !spokenLocations.has(spot.name)) {
+            triggerHotspot(spot);
         }
+    });
+    checkParkBoundaries(lat, lng);
+}
 
         function checkParkBoundaries(lat, lng) {
             if (!parkBoundary) return;
