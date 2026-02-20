@@ -1880,9 +1880,175 @@
     let backgroundWasPlaying = false;
     if (backgroundAudio && !backgroundAudio.paused) {
         backgroundWasPlaying = true;
-        backgroundAudio.pause(); // PAUSE completely, don't just duck
+        backgroundAudio.pause();
         isPlayingWaypoint = true;
     }
+
+    // Play waypoint audio - ONLY use Rachel's audio files, NO TTS fallback
+    if (spot.audio) {
+        console.log(`🎙️ Loading waypoint audio: ${spot.name}`);
+        console.log(`📂 Audio URL: ${spot.audio}`);
+        
+        const audio = new Audio();
+        audio.preload = "auto";
+        audio.volume = WAYPOINT_AUDIO_VOLUME;
+        audio.src = spot.audio;
+        currentAudio = audio;
+
+        // Track loading state
+        let hasStartedPlaying = false;
+
+        audio.onloadstart = () => {
+            console.log(`⏳ Loading audio for: ${spot.name}`);
+        };
+
+        audio.onloadeddata = () => {
+            console.log(`📦 Audio data loaded for: ${spot.name}`);
+        };
+
+        audio.oncanplay = () => {
+            console.log(`✓ Audio ready to play: ${spot.name}`);
+        };
+
+        audio.onloadedmetadata = () => {
+            console.log(`📻 Audio metadata loaded: ${spot.name} - Duration: ${audio.duration.toFixed(1)}s`);
+        };
+
+        audio.onplay = () => {
+            hasStartedPlaying = true;
+            console.log(`▶️ Audio started playing: ${spot.name}`);
+        };
+
+        audio.onplaying = () => {
+            console.log(`🔊 Audio is now playing: ${spot.name}`);
+        };
+
+        audio.ontimeupdate = () => {
+            // Log every 5 seconds to track progress
+            if (Math.floor(audio.currentTime) % 5 === 0 && audio.currentTime > 0) {
+                console.log(`⏱️ Playing: ${spot.name} - ${audio.currentTime.toFixed(1)}s / ${audio.duration.toFixed(1)}s`);
+            }
+        };
+
+        audio.onpause = () => {
+            if (!audio.ended) {
+                console.warn(`⏸️ Audio paused unexpectedly: ${spot.name} at ${audio.currentTime.toFixed(1)}s`);
+            }
+        };
+
+        audio.onended = () => {
+            console.log(`✅ Audio finished naturally: ${spot.name}`);
+            currentAudio = null;
+            
+            // Resume background audio if it was playing
+            if (backgroundWasPlaying && backgroundAudio) {
+                setTimeout(() => {
+                    console.log(`🔄 Resuming background audio`);
+                    backgroundAudio.play().catch(err => {
+                        console.error('Background resume failed:', err);
+                    });
+                }, 500);
+            }
+            
+            isPlayingWaypoint = false;
+            setTimeout(() => { 
+                popup.classList.remove('show'); 
+            }, 3000);
+        };
+
+        audio.onerror = (e) => {
+            console.error(`❌ Audio loading error for ${spot.name}:`, e);
+            console.error(`❌ Error details:`, {
+                error: audio.error,
+                code: audio.error ? audio.error.code : 'unknown',
+                message: audio.error ? audio.error.message : 'unknown',
+                src: audio.src
+            });
+            
+            currentAudio = null;
+            
+            // Show error message to user
+            document.getElementById('popupTitle').innerText = `⚠️ Audio Unavailable: ${spot.name}`;
+            
+            // Resume background audio
+            if (backgroundWasPlaying && backgroundAudio) {
+                setTimeout(() => {
+                    backgroundAudio.play().catch(err => console.log('Background resume failed:', err));
+                }, 1000);
+            }
+            
+            isPlayingWaypoint = false;
+            setTimeout(() => { 
+                popup.classList.remove('show'); 
+            }, 5000);
+        };
+
+        audio.onstalled = () => {
+            console.warn(`⚠️ Audio stalled: ${spot.name}`);
+        };
+
+        audio.onsuspend = () => {
+            console.warn(`⚠️ Audio suspended: ${spot.name}`);
+        };
+
+        audio.onwaiting = () => {
+            console.warn(`⏳ Audio buffering: ${spot.name}`);
+        };
+
+        // Attempt to play
+        const playPromise = audio.play();
+        
+        if (playPromise !== undefined) {
+            playPromise.then(() => {
+                console.log(`✓ Play promise resolved for: ${spot.name}`);
+            }).catch((e) => {
+                console.error(`❌ Play promise rejected for ${spot.name}:`, e);
+                console.error(`❌ Error name: ${e.name}`);
+                console.error(`❌ Error message: ${e.message}`);
+                
+                currentAudio = null;
+                
+                // Show error to user
+                document.getElementById('popupTitle').innerText = `⚠️ Cannot Play: ${spot.name}`;
+                
+                // Resume background audio
+                if (backgroundWasPlaying && backgroundAudio) {
+                    setTimeout(() => {
+                        backgroundAudio.play().catch(err => console.log('Background resume failed:', err));
+                    }, 1000);
+                }
+                
+                isPlayingWaypoint = false;
+                setTimeout(() => { 
+                    popup.classList.remove('show'); 
+                }, 5000);
+            });
+        }
+        
+    } else {
+        // No audio file provided for this location
+        console.warn(`⚠️ No audio file specified for: ${spot.name}`);
+        
+        document.getElementById('popupTitle').innerText = `${spot.name} (No Audio)`;
+        
+        // Resume background audio
+        if (backgroundWasPlaying && backgroundAudio) {
+            setTimeout(() => {
+                backgroundAudio.play().catch(err => console.log('Background resume failed:', err));
+            }, 1000);
+        }
+        
+        isPlayingWaypoint = false;
+        setTimeout(() => { 
+            popup.classList.remove('show'); 
+        }, 3000);
+    }
+
+    // Clear spoken location after 5 minutes
+    setTimeout(() => {
+        spokenLocations.delete(spot.name);
+    }, 300000);
+}
 
     // Play waypoint audio
     if (spot.audio) {
