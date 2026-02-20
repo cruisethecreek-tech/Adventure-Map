@@ -1736,42 +1736,120 @@
             }
         }
 
-        async function updateUserLocation(position) {
-            const userLat = position.coords.latitude;
-            const userLng = position.coords.longitude;
-            const { AdvancedMarkerElement, PinElement } = await google.maps.importLibrary("marker");
-
-            // Only center map on FIRST GPS lock
-            if (!gpsInitialized) {
-                gpsInitialized = true;
-                map.panTo({ lat: userLat, lng: userLng });
-                map.setZoom(15);
+        async function initMap() {
+    try {
+        console.log('🗺️ Starting map initialization...');
+        
+        const { Map } = await google.maps.importLibrary("maps");
+        const { AdvancedMarkerElement, PinElement } = await google.maps.importLibrary("marker");
+        
+        console.log('✓ Google Maps libraries loaded');
+        
+        map = new Map(document.getElementById('map'), {
+            center: { lat: 41.070, lng: -80.685 },
+            zoom: 13,
+            mapId: "DEMO_MAP_ID"
+        });
+        
+        console.log('✓ Map created');
+        
+        // Prevent map from being dragged to invalid coordinates
+        map.addListener('center_changed', () => {
+            const c = map.getCenter();
+            if (Math.abs(c.lat()) < 1 && Math.abs(c.lng()) < 1) {
+                map.setCenter({ lat: 41.070, lng: -80.685 });
+                map.setZoom(13);
             }
-
-            // Create or update user marker
-            if (!userMarker) {
-                const userPin = new PinElement({ 
-                    background: "#4285F4", 
-                    borderColor: "white", 
-                    glyph: "", 
-                    scale: 0.8 
-                });
-                userMarker = new AdvancedMarkerElement({
-                    map: map,
-                    position: { lat: userLat, lng: userLng },
-                    title: "You are here",
-                    content: userPin.element,
-                    zIndex: 1000
-                });
-            } else {
-                userMarker.position = { lat: userLat, lng: userLng };
+        });
+        
+        infoWindow = new google.maps.InfoWindow();
+        
+        // Park boundary polygon
+        parkBoundary = new google.maps.Polygon({
+            paths: [
+                {"lat": 41.102, "lng": -80.67},{"lat": 41.095072, "lng": -80.672607},{"lat": 41.093419, "lng": -80.675198},
+                {"lat": 41.091622, "lng": -80.671987},{"lat": 41.08976, "lng": -80.67354},{"lat": 41.088119, "lng": -80.672038},
+                {"lat": 41.083913, "lng": -80.67535},{"lat": 41.085012, "lng": -80.677529},{"lat": 41.084913, "lng": -80.679398},
+                {"lat": 41.077682, "lng": -80.678787},{"lat": 41.079186, "lng": -80.682468},{"lat": 41.079218, "lng": -80.684756},
+                {"lat": 41.077309, "lng": -80.683926},{"lat": 41.077616, "lng": -80.686772},{"lat": 41.076475, "lng": -80.686393},
+                {"lat": 41.076012, "lng": -80.684153},{"lat": 41.074838, "lng": -80.682685},{"lat": 41.072369, "lng": -80.686795},
+                {"lat": 41.069597, "lng": -80.68604},{"lat": 41.067133, "lng": -80.68168},{"lat": 41.068087, "lng": -80.678131},
+                {"lat": 41.061001, "lng": -80.674619},{"lat": 41.060046, "lng": -80.67312},{"lat": 41.056041, "lng": -80.67486},
+                {"lat": 41.054006, "lng": -80.674099},{"lat": 41.051468, "lng": -80.672903},{"lat": 41.048386, "lng": -80.67488},
+                {"lat": 41.049532, "lng": -80.679731},{"lat": 41.048324, "lng": -80.681126},{"lat": 41.046912, "lng": -80.67676},
+                {"lat": 41.045304, "lng": -80.677715},{"lat": 41.044632, "lng": -80.679016},{"lat": 41.045837, "lng": -80.678922},
+                {"lat": 41.045529, "lng": -80.682447},{"lat": 41.025, "lng": -80.695},{"lat": 41.02487, "lng": -80.701813},
+                {"lat": 41.041995, "lng": -80.700384},{"lat": 41.044828, "lng": -80.696365},{"lat": 41.045653, "lng": -80.68535},
+                {"lat": 41.049213, "lng": -80.685444},{"lat": 41.051996, "lng": -80.680732},{"lat": 41.066192, "lng": -80.679509},
+                {"lat": 41.0663, "lng": -80.688253},{"lat": 41.079284, "lng": -80.69571},{"lat": 41.083752, "lng": -80.681194},
+                {"lat": 41.082363, "lng": -80.696852},{"lat": 41.086197, "lng": -80.699703},{"lat": 41.088308, "lng": -80.695979},
+                {"lat": 41.088442, "lng": -80.688538},{"lat": 41.08843, "lng": -80.683994},{"lat": 41.087905, "lng": -80.683478},
+                {"lat": 41.096479, "lng": -80.678424},{"lat": 41.098469, "lng": -80.681047},{"lat": 41.09839, "lng": -80.681095},
+                {"lat": 41.098452, "lng": -80.681152},{"lat": 41.098448, "lng": -80.681165},{"lat": 41.09851, "lng": -80.681157},
+                {"lat": 41.098476, "lng": -80.681196},{"lat": 41.098232, "lng": -80.680872},{"lat": 41.098434, "lng": -80.681139},
+                {"lat": 41.09847, "lng": -80.681144},{"lat": 41.098488, "lng": -80.681189},{"lat": 41.098303, "lng": -80.681083},
+                {"lat": 41.098372, "lng": -80.680987},{"lat": 41.098342, "lng": -80.681068},{"lat": 41.098392, "lng": -80.680979},
+                {"lat": 41.099193, "lng": -80.679691},{"lat": 41.099593, "lng": -80.679218},{"lat": 41.100828, "lng": -80.677308},
+                {"lat": 41.100867, "lng": -80.677458},{"lat": 41.098289, "lng": -80.680918},{"lat": 41.098396, "lng": -80.680944},
+                {"lat": 41.101378, "lng": -80.676588},{"lat": 41.101709, "lng": -80.671116}
+            ],
+            strokeColor: '#D68438',
+            strokeOpacity: 0.9,
+            strokeWeight: 4,
+            fillColor: '#6B8E6F',
+            fillOpacity: 0.08,
+            map: null
+        });
+        
+        console.log('✓ Park boundary created');
+        
+        await loadAllMarkers();
+        console.log('✓ Markers loaded');
+        
+        renderCategoryAccordions();
+        console.log('✓ Categories rendered');
+        
+        // Hide loading overlay
+        setTimeout(() => {
+            const loadingOverlay = document.getElementById('loadingOverlay');
+            if (loadingOverlay) {
+                loadingOverlay.classList.add('hide');
+                console.log('✓ Loading overlay hidden');
             }
-
-            // Check proximity to waypoints
-            if (audioEnabled) {
-                checkProximity(userLat, userLng);
-            }
+        }, 1000);
+        
+        console.log('✅ Map initialization complete!');
+        
+    } catch (error) {
+        console.error('❌ Map initialization failed:', error);
+        
+        // Show error message to user
+        const loadingOverlay = document.getElementById('loadingOverlay');
+        if (loadingOverlay) {
+            loadingOverlay.innerHTML = `
+                <div style="text-align: center; padding: 40px;">
+                    <div style="font-size: 48px; margin-bottom: 20px;">⚠️</div>
+                    <div style="font-size: 1.2rem; color: #e74c3c; margin-bottom: 15px; font-weight: 700;">Map Loading Failed</div>
+                    <div style="font-size: 0.9rem; color: #666; margin-bottom: 20px;">
+                        ${error.message || 'Unable to load Google Maps'}
+                    </div>
+                    <button onclick="location.reload()" style="
+                        background: var(--sage-green);
+                        color: white;
+                        border: none;
+                        padding: 12px 30px;
+                        border-radius: 25px;
+                        font-size: 1rem;
+                        font-weight: 700;
+                        cursor: pointer;
+                    ">
+                        Retry
+                    </button>
+                </div>
+            `;
         }
+    }
+}
 
         function checkProximity(lat, lng) {
             // Adjust trigger distance based on route mode
