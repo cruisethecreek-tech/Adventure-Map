@@ -666,6 +666,54 @@
     </footer>
 
     <script>
+// Global error handler for Google Maps
+window.gm_authFailure = function() {
+    console.error('❌ Google Maps authentication failed');
+    const loadingOverlay = document.getElementById('loadingOverlay');
+    if (loadingOverlay) {
+        loadingOverlay.innerHTML = `
+            <div style="text-align: center; padding: 40px;">
+                <div style="font-size: 48px; margin-bottom: 20px;">🔑</div>
+                <div style="font-size: 1.2rem; color: #e74c3c; margin-bottom: 15px; font-weight: 700;">Google Maps API Key Error</div>
+                <div style="font-size: 0.9rem; color: #666; margin-bottom: 20px;">
+                    The Google Maps API key is invalid or restricted.<br>
+                    Please check your API key configuration.
+                </div>
+            </div>
+        `;
+    }
+};
+
+// Timeout fallback if map never loads
+setTimeout(function() {
+    const loadingOverlay = document.getElementById('loadingOverlay');
+    if (loadingOverlay && !loadingOverlay.classList.contains('hide')) {
+        console.error('❌ Map loading timeout after 15 seconds');
+        loadingOverlay.innerHTML = `
+            <div style="text-align: center; padding: 40px;">
+                <div style="font-size: 48px; margin-bottom: 20px;">⏱️</div>
+                <div style="font-size: 1.2rem; color: #e74c3c; margin-bottom: 15px; font-weight: 700;">Loading Timeout</div>
+                <div style="font-size: 0.9rem; color: #666; margin-bottom: 20px;">
+                    The map is taking too long to load.<br>
+                    This might be a network issue.
+                </div>
+                <button onclick="location.reload()" style="
+                    background: var(--sage-green);
+                    color: white;
+                    border: none;
+                    padding: 12px 30px;
+                    border-radius: 25px;
+                    font-size: 1rem;
+                    font-weight: 700;
+                    cursor: pointer;
+                ">
+                    Retry
+                </button>
+            </div>
+        `;
+    }
+}, 15000); // 15 second timeout
+</script>
         // Check if in iframe
         if (window.self !== window.top) {
             const warning = document.getElementById('iframeWarning');
