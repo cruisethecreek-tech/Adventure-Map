@@ -2282,11 +2282,13 @@ function stopBackgroundTour() {
     document.getElementById('popupTitle').innerText = spot.name;
     popup.classList.add('show');
 
-    // Pause background audio
+    // Pause background audio and track state
     let backgroundWasPlaying = false;
-    if (backgroundAudio && !backgroundAudio.paused) {
-        backgroundWasPlaying = true;
-        backgroundAudio.pause();
+    if (backgroundAudio) {
+        if (!backgroundAudio.paused) {
+            backgroundWasPlaying = true;
+            backgroundAudio.pause();
+        }
         isPlayingWaypoint = true;
     }
 
