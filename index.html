@@ -888,23 +888,109 @@
         ============================================================ */
         #waypointProgress {
             position: fixed; top: 12px; left: 16px;
-            background: rgba(26,26,26,0.85);
-            color: white; padding: 7px 13px; border-radius: 20px;
-            font-size: 0.75rem; font-weight: 700;
             z-index: 3500; display: none;
-            backdrop-filter: blur(8px);
-            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
-            border: 1px solid rgba(255,255,255,0.1);
+            max-width: calc(100vw - 32px);
         }
-        #waypointProgress .wp-count { color: #D68438; }
-        #waypointProgress .wp-bar {
-            height: 3px; background: rgba(255,255,255,0.15);
-            border-radius: 2px; margin-top: 4px; overflow: hidden;
+
+        /* Collapsed pill */
+        #wpPill {
+            background: rgba(26,26,26,0.88);
+            color: white; padding: 8px 14px; border-radius: 22px;
+            font-size: 0.75rem; font-weight: 700;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 2px 12px rgba(0,0,0,0.35);
+            border: 1px solid rgba(255,255,255,0.12);
+            display: flex; align-items: center; gap: 10px;
+            cursor: pointer; user-select: none;
+            transition: background 0.2s;
         }
-        #waypointProgress .wp-bar-fill {
+        #wpPill:active { background: rgba(40,40,40,0.95); }
+        #wpPill .wp-count { color: #D68438; }
+        #wpPill .wp-bar {
+            width: 60px; height: 4px;
+            background: rgba(255,255,255,0.15);
+            border-radius: 2px; overflow: hidden; flex-shrink: 0;
+        }
+        #wpPill .wp-bar-fill {
             height: 100%; background: linear-gradient(90deg, #D68438, #FFD700);
             border-radius: 2px; transition: width 0.5s ease;
         }
+        #wpPill .wp-expand-icon {
+            font-size: 0.65rem; opacity: 0.5; flex-shrink: 0;
+        }
+
+        /* Expanded log panel */
+        #wpLog {
+            display: none;
+            background: rgba(20,20,20,0.94);
+            backdrop-filter: blur(14px);
+            border: 1px solid rgba(255,255,255,0.12);
+            border-radius: 16px;
+            margin-top: 8px;
+            width: min(320px, calc(100vw - 32px));
+            max-height: 55vh;
+            overflow: hidden;
+            box-shadow: 0 8px 28px rgba(0,0,0,0.5);
+            flex-direction: column;
+        }
+        #wpLog.open { display: flex; }
+        #wpLogHeader {
+            padding: 12px 14px 8px;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+            flex-shrink: 0;
+        }
+        #wpLogHeader h4 {
+            color: #FFD700; font-size: 0.78rem;
+            text-transform: uppercase; letter-spacing: 0.8px;
+            margin: 0 0 4px 0; font-weight: 800;
+        }
+        #wpLogHeader .wl-subtitle {
+            font-size: 0.7rem; color: rgba(255,255,255,0.45);
+        }
+        #wpLogList {
+            overflow-y: auto; flex: 1;
+            padding: 6px 0;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(214,132,56,0.4) transparent;
+        }
+        .wl-item {
+            display: flex; align-items: center; gap: 10px;
+            padding: 8px 14px;
+            transition: background 0.15s; cursor: default;
+        }
+        .wl-item:hover { background: rgba(255,255,255,0.05); }
+        .wl-icon {
+            font-size: 1.1rem; flex-shrink: 0; width: 24px;
+            text-align: center;
+        }
+        .wl-info { flex: 1; min-width: 0; }
+        .wl-name {
+            font-size: 0.8rem; font-weight: 700; color: white;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+        .wl-meta {
+            font-size: 0.68rem; color: rgba(255,255,255,0.4);
+            margin-top: 1px;
+        }
+        .wl-replay {
+            background: rgba(214,132,56,0.2);
+            border: 1px solid rgba(214,132,56,0.4);
+            color: #D68438; border-radius: 10px;
+            padding: 4px 10px; font-size: 0.7rem;
+            font-weight: 700; cursor: pointer;
+            flex-shrink: 0; transition: all 0.15s;
+            white-space: nowrap;
+        }
+        .wl-replay:hover {
+            background: rgba(214,132,56,0.4);
+            border-color: #D68438;
+        }
+        .wl-replay:active { transform: scale(0.95); }
+        #wpLogEmpty {
+            padding: 20px 14px; text-align: center;
+            color: rgba(255,255,255,0.3); font-size: 0.78rem;
+        }
+
 
         /* ============================================================
            TRANSCRIPT BUTTON & MODAL
@@ -1251,10 +1337,23 @@
         </div>
     </div>
 
-    <!-- WAYPOINT PROGRESS COUNTER -->
+    <!-- WAYPOINT PROGRESS PILL -->
     <div id="waypointProgress">
-        <div><span class="wp-count" id="wpCountText">0 / 63</span> waypoints heard</div>
-        <div class="wp-bar"><div class="wp-bar-fill" id="wpBarFill" style="width:0%"></div></div>
+        <div id="wpPill" onclick="toggleWpLog()">
+            <span>🎧</span>
+            <span><span class="wp-count" id="wpCountText">0</span> / 63</span>
+            <div class="wp-bar"><div class="wp-bar-fill" id="wpBarFill" style="width:0%"></div></div>
+            <span class="wp-expand-icon" id="wpExpandIcon">▼</span>
+        </div>
+        <div id="wpLog">
+            <div id="wpLogHeader">
+                <h4>Waypoints Visited</h4>
+                <div class="wl-subtitle" id="wpLogSubtitle">Tap ▶ to replay any stop</div>
+            </div>
+            <div id="wpLogList">
+                <div id="wpLogEmpty">No waypoints heard yet — start exploring!</div>
+            </div>
+        </div>
     </div>
 
     <!-- RIDE STATS -->
@@ -1923,11 +2022,45 @@ let WAYPOINT_AUDIO_VOLUME = 1.0;
            WAYPOINT PROGRESS COUNTER
         ============================================================ */
         const TOTAL_WAYPOINTS = 63;
-        let heardWaypoints = new Set();
+        let heardWaypoints = new Set();       // names — for dedup check
+        let heardWaypointLog = [];            // ordered array of full spot objects
 
-        function recordWaypointHeard(spotName) {
-            heardWaypoints.add(spotName);
+        let wpLogOpen = false;
+        function toggleWpLog() {
+            wpLogOpen = !wpLogOpen;
+            document.getElementById('wpLog').classList.toggle('open', wpLogOpen);
+            document.getElementById('wpExpandIcon').textContent = wpLogOpen ? '▲' : '▼';
+        }
+
+        function replayFromLog(spotName) {
+            // Find the spot object from locations array
+            const spot = locations.find(l => l.name === spotName);
+            if (!spot || !spot.audio) return;
+            // Stop current audio, queue this spot at front and play
+            stopCurrentAudio();
+            waypointPaused = false;
+            updatePauseButtons(false);
+            spokenLocations.delete(spot.name);
+            waypointQueue.unshift(spot);
+            if (waypointHistory.length) waypointHistory.pop();
+            lastPlayedSpot = null;
+            playNextWaypoint();
+            // Collapse the log after tapping replay
+            wpLogOpen = false;
+            document.getElementById('wpLog').classList.remove('open');
+            document.getElementById('wpExpandIcon').textContent = '▼';
+        }
+
+        function recordWaypointHeard(spot) {
+            // Accept either a spot object or a name string (backwards compat)
+            const spotObj = (typeof spot === 'string')
+                ? locations.find(l => l.name === spot) || { name: spot, icon: '📍', category: '' }
+                : spot;
+            if (heardWaypoints.has(spotObj.name)) return;
+            heardWaypoints.add(spotObj.name);
+            heardWaypointLog.push({ ...spotObj, heardAt: Date.now() });
             updateProgressUI();
+            renderWpLog();
             if (heardWaypoints.size >= TOTAL_WAYPOINTS) {
                 setTimeout(() => showCompletion(), 2000);
             }
@@ -1936,9 +2069,52 @@ let WAYPOINT_AUDIO_VOLUME = 1.0;
         function updateProgressUI() {
             const count = heardWaypoints.size;
             const pct = Math.round((count / TOTAL_WAYPOINTS) * 100);
-            document.getElementById('wpCountText').textContent = count + ' / ' + TOTAL_WAYPOINTS;
+            document.getElementById('wpCountText').textContent = count;
             document.getElementById('wpBarFill').style.width = pct + '%';
             document.getElementById('rideWaypoints').textContent = count;
+            const subtitle = document.getElementById('wpLogSubtitle');
+            if (subtitle) subtitle.textContent = count === 1
+                ? '1 waypoint heard — tap ▶ to replay'
+                : `${count} waypoints heard — tap ▶ to replay any`;
+        }
+
+        function renderWpLog() {
+            const list = document.getElementById('wpLogList');
+            const empty = document.getElementById('wpLogEmpty');
+            if (!heardWaypointLog.length) {
+                if (empty) empty.style.display = 'block';
+                return;
+            }
+            if (empty) empty.style.display = 'none';
+
+            // Render newest first
+            const reversed = [...heardWaypointLog].reverse();
+            list.innerHTML = reversed.map(spot => {
+                const hasAudio = !!spot.audio;
+                const timeAgo = formatTimeAgo(spot.heardAt);
+                const catLabel = spot.category
+                    ? spot.category.charAt(0).toUpperCase() + spot.category.slice(1)
+                    : 'Location';
+                return `<div class="wl-item">
+                    <div class="wl-icon">${spot.icon || '📍'}</div>
+                    <div class="wl-info">
+                        <div class="wl-name">${spot.name}</div>
+                        <div class="wl-meta">${catLabel} · ${timeAgo}</div>
+                    </div>
+                    ${hasAudio
+                        ? `<button class="wl-replay" onclick="replayFromLog('${spot.name.replace(/'/g,"\\'")}')">▶ Play</button>`
+                        : `<span style="font-size:0.68rem;color:rgba(255,255,255,0.2);flex-shrink:0;">no audio</span>`
+                    }
+                </div>`;
+            }).join('');
+        }
+
+        function formatTimeAgo(ts) {
+            const s = Math.floor((Date.now() - ts) / 1000);
+            if (s < 60) return 'just now';
+            const m = Math.floor(s / 60);
+            if (m < 60) return `${m}m ago`;
+            return `${Math.floor(m / 60)}h ${m % 60}m ago`;
         }
 
         /* ============================================================
@@ -3373,7 +3549,7 @@ function stopBackgroundTour() {
         function triggerHotspot(spot) {
             spokenLocations.add(spot.name);
             setTimeout(() => { spokenLocations.delete(spot.name); }, 300000);
-            recordWaypointHeard(spot.name);
+            recordWaypointHeard(spot);
             waypointQueue.push(spot);
             if (!isPlayingWaypoint) {
                 playNextWaypoint();
