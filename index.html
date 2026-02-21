@@ -359,43 +359,63 @@
         .find-me-btn:active { background: #e0e0e0; transform: scale(0.95); }
         .find-me-btn.active { color: #4285F4; border-color: #4285F4; }
 
-        .audio-popup {
-            position: fixed;
-            bottom: 30px;
-            left: 50%;
-            transform: translateX(-50%) translateY(150px);
-            background: linear-gradient(135deg, var(--sage-green), var(--dark-sage));
-            color: white;
-            padding: 20px 30px;
-            border-radius: 50px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        /* ============================================================
+           MODE-SPECIFIC WAYPOINT PLAYER STYLES
+        ============================================================ */
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+        @keyframes hazardPulse { 0%,100%{background:rgba(255,255,255,0.1)} 50%{background:rgba(255,255,255,0.3)} }
+
+        .waypoint-player {
+            position: fixed; left: 50%;
+            transform: translateX(-50%) translateY(200px);
             z-index: 3000;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            max-width: 90%;
+            transition: transform 0.4s cubic-bezier(0.175,0.885,0.32,1.275);
+            pointer-events: none; opacity: 0;
+            transition: transform 0.4s cubic-bezier(0.175,0.885,0.32,1.275), opacity 0.3s;
         }
+        .waypoint-player.show { transform: translateX(-50%) translateY(0); pointer-events: all; opacity: 1; }
 
-        .audio-popup.show { transform: translateX(-50%) translateY(0); }
+        /* WALK */
+        #walkPlayer { bottom: 30px; width: min(380px,92vw); background: linear-gradient(135deg,#6B8E6F,#4a6b4e); color:white; border-radius:20px; padding:18px 20px; box-shadow:0 12px 40px rgba(0,0,0,0.35); }
+        #walkPlayer .wp-header { display:flex; align-items:center; gap:12px; margin-bottom:10px; }
+        #walkPlayer .wp-icon { width:36px;height:36px;background:rgba(255,255,255,0.2);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0; }
+        #walkPlayer .wp-title { font-size:1.1rem;font-weight:700;line-height:1.2; }
+        #walkPlayer .wp-subtitle { font-size:0.78rem;opacity:0.85;margin-top:2px; }
+        #walkPlayer .wp-desc { font-size:0.82rem;opacity:0.9;line-height:1.5;margin-bottom:12px;padding:8px 10px;background:rgba(0,0,0,0.15);border-radius:8px; }
+        #walkPlayer .wp-controls { display:flex;gap:10px;align-items:center; }
+        #walkPlayer .wp-btn { flex:1;background:rgba(255,255,255,0.2);border:2px solid rgba(255,255,255,0.4);color:white;border-radius:12px;padding:10px 8px;font-size:0.85rem;font-weight:700;cursor:pointer;text-align:center;transition:background 0.2s; }
+        #walkPlayer .wp-btn:active { background:rgba(255,255,255,0.4); }
+        #walkPlayer .wp-btn.primary { background:rgba(255,255,255,0.3);border-color:white;font-size:1rem; }
 
-        .playing-icon {
-            width: 24px;
-            height: 24px;
-            background: var(--accent-orange);
-            border-radius: 50%;
-            animation: blink 1s infinite;
-            flex-shrink: 0;
-        }
+        /* BIKE */
+        #bikePlayer { bottom:0;width:100vw;max-width:100vw;left:0;transform:translateX(0) translateY(120px);background:linear-gradient(135deg,#D68438,#b8621e);color:white;border-radius:20px 20px 0 0;box-shadow:0 -4px 20px rgba(0,0,0,0.4); }
+        #bikePlayer.show { transform:translateX(0) translateY(0); }
+        #bikePlayer .bp-swipe-hint { text-align:center;font-size:0.65rem;opacity:0.6;padding:7px 0 0;letter-spacing:0.5px;text-transform:uppercase; }
+        #bikePlayer .bp-main { display:flex;align-items:center;padding:10px 16px 16px;gap:8px; }
+        #bikePlayer .bp-nav-btn { width:60px;height:60px;background:rgba(255,255,255,0.2);border:3px solid rgba(255,255,255,0.5);border-radius:50%;color:white;font-size:1.6rem;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background 0.15s; }
+        #bikePlayer .bp-nav-btn:active { background:rgba(255,255,255,0.45); }
+        #bikePlayer .bp-center { flex:1;text-align:center;padding:0 4px; }
+        #bikePlayer .bp-title { font-size:1.15rem;font-weight:900;line-height:1.1;text-shadow:0 1px 3px rgba(0,0,0,0.3); }
+        #bikePlayer .bp-status { font-size:0.72rem;opacity:0.8;margin-top:3px; }
+        #bikePlayer .bp-blink { display:inline-block;width:8px;height:8px;background:#fff;border-radius:50%;animation:blink 1s infinite;vertical-align:middle;margin-right:4px; }
 
-        @keyframes blink {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.3; }
-        }
-
-        .popup-content { flex: 1; }
-        #popupTitle { font-size: 1.1rem; display: block; margin-bottom: 3px; }
-        .popup-subtitle { font-size: 0.85rem; opacity: 0.9; }
+        /* CAR */
+        #carPlayer { bottom:0;width:100vw;max-width:100vw;left:0;transform:translateX(0) translateY(200px);background:linear-gradient(160deg,#1a1a2e,#16213e);color:white;border-radius:20px 20px 0 0;box-shadow:0 -6px 30px rgba(0,0,0,0.6);padding:16px 20px 24px; }
+        #carPlayer.show { transform:translateX(0) translateY(0); }
+        #carPlayer.hazard-mode { background:linear-gradient(160deg,#7b0000,#c0392b); }
+        #carPlayer .cp-hazard-banner { display:none;text-align:center;font-size:1rem;font-weight:800;background:rgba(255,255,255,0.15);border-radius:10px;padding:10px;margin-bottom:12px;animation:hazardPulse 1s infinite; }
+        #carPlayer.hazard-mode .cp-hazard-banner { display:block; }
+        #carPlayer .cp-row { display:flex;align-items:center;gap:14px;margin-bottom:14px; }
+        #carPlayer .cp-info { flex:1; }
+        #carPlayer .cp-label { font-size:0.65rem;text-transform:uppercase;letter-spacing:1px;opacity:0.55;margin-bottom:2px; }
+        #carPlayer .cp-title { font-size:1.25rem;font-weight:900;line-height:1.2; }
+        #carPlayer .cp-upcoming { font-size:0.78rem;opacity:0.65;margin-top:2px; }
+        #carPlayer .cp-status-dot { width:14px;height:14px;background:#e74c3c;border-radius:50%;animation:blink 1s infinite;flex-shrink:0; }
+        #carPlayer .cp-status-dot.playing { background:#2ecc71; }
+        #carPlayer .cp-controls { display:flex;gap:12px; }
+        #carPlayer .cp-btn { flex:1;background:rgba(255,255,255,0.12);border:2px solid rgba(255,255,255,0.25);color:white;border-radius:14px;padding:14px 10px;font-size:1rem;font-weight:700;cursor:pointer;text-align:center;transition:background 0.2s;line-height:1.3; }
+        #carPlayer .cp-btn:active { background:rgba(255,255,255,0.3); }
+        #carPlayer .cp-dismiss { text-align:center;margin-top:10px;font-size:0.75rem;opacity:0.45;cursor:pointer; }
 
         .chapter-notification {
             position: fixed;
@@ -747,9 +767,7 @@
             .mini-icon { font-size: 1.4rem; margin-right: 5px; }
             .mini-name { font-size: 0.95rem; white-space: normal; overflow: visible; text-overflow: clip; line-height: 1.3; }
             .accordion-btn { padding: 14px 20px; font-size: 0.95rem; }
-            .audio-popup { bottom: 20px; padding: 12px 18px; max-width: 90%; }
-            #popupTitle { font-size: 0.95rem; }
-            .playing-icon { width: 20px; height: 20px; }
+
         }
     </style>
 </head>
@@ -831,13 +849,54 @@
 
     </div>
 
-    <div class="audio-popup" id="audioPopup">
-        <div class="playing-icon" id="playingIcon"></div>
-        <div class="popup-content">
-            <strong id="popupTitle">Approaching Location...</strong>
-            <div class="popup-subtitle" id="popupSubtitle">🔊 Audio Guide Playing</div>
+    <!-- WALK MODE PLAYER -->
+    <div class="waypoint-player" id="walkPlayer">
+        <div class="wp-header">
+            <div class="wp-icon" id="walkIcon">🚶</div>
+            <div>
+                <div class="wp-title" id="walkTitle">Location Name</div>
+                <div class="wp-subtitle" id="walkSubtitle">🔊 Audio Guide Playing</div>
+            </div>
         </div>
-        <button id="replayBtn" onclick="replayCurrentWaypoint()" style="display:none; background:rgba(255,255,255,0.25); border:2px solid white; color:white; border-radius:20px; padding:6px 14px; font-size:0.8rem; font-weight:700; cursor:pointer; flex-shrink:0; margin-left:8px;">🔁 Replay</button>
+        <div class="wp-desc" id="walkDesc"></div>
+        <div class="wp-controls">
+            <button class="wp-btn" onclick="playerPrev()">⏮ Previous</button>
+            <button class="wp-btn primary" onclick="playerReplay()">🔁 Replay</button>
+            <button class="wp-btn" onclick="playerSkip()">Next ⏭</button>
+        </div>
+    </div>
+
+    <!-- BIKE MODE PLAYER -->
+    <div class="waypoint-player" id="bikePlayer">
+        <div class="bp-swipe-hint">◀ swipe to go back &nbsp;|&nbsp; swipe to skip ▶</div>
+        <div class="bp-main">
+            <button class="bp-nav-btn" onclick="playerPrev()">⏮</button>
+            <div class="bp-center">
+                <div class="bp-title" id="bikeTitle">Location Name</div>
+                <div class="bp-status"><span class="bp-blink" id="bikeBlink"></span><span id="bikeSubtitle">Playing...</span></div>
+            </div>
+            <button class="bp-nav-btn" onclick="playerSkip()">⏭</button>
+        </div>
+    </div>
+
+    <!-- CAR MODE PLAYER -->
+    <div class="waypoint-player" id="carPlayer">
+        <div class="cp-hazard-banner">⚠️ WAYPOINT AHEAD — PUT ON HAZARDS &amp; PULL OVER SAFELY</div>
+        <div class="cp-row">
+            <div class="cp-info">
+                <div class="cp-label" id="carLabel">NOW PLAYING</div>
+                <div class="cp-title" id="carTitle">Location Name</div>
+                <div class="cp-upcoming" id="carUpcoming"></div>
+            </div>
+            <div class="cp-status-dot" id="carDot"></div>
+        </div>
+        <div class="cp-controls">
+            <button class="cp-btn" onclick="playerPrev()">⏮<br><span style="font-size:0.75rem;font-weight:400">Previous</span></button>
+            <button class="cp-btn" onclick="playerReplay()">🔁<br><span style="font-size:0.75rem;font-weight:400">Replay</span></button>
+            <button class="cp-btn" onclick="playerSkip()">⏭<br><span style="font-size:0.75rem;font-weight:400">Skip</span></button>
+            <button class="cp-btn" onclick="playerDismiss()" style="background:rgba(255,255,255,0.06);border-color:rgba(255,255,255,0.15)">✕<br><span style="font-size:0.75rem;font-weight:400">Dismiss</span></button>
+        </div>
+        <div class="cp-dismiss" onclick="playerDismiss()">tap to dismiss</div>
     </div>
 <div id="backgroundAudioPlayer" style="position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); background: linear-gradient(135deg, #2c3e50, #34495e); color: white; padding: 15px 20px; border-radius: 20px; box-shadow: 0 8px 24px rgba(0,0,0,0.4); z-index: 2500; display: none; min-width: 320px; max-width: 90%;">
     
@@ -2298,30 +2357,143 @@ function stopBackgroundTour() {
             }
         }
 
+        /* ============================================================
+           MODE-AWARE WAYPOINT PLAYER SYSTEM
+        ============================================================ */
+
+        let popupDismissTimer = null;
+        let swipeStartX = null;
+
+        function getActivePlayer() {
+            if (currentRouteMode === 'bike') return document.getElementById('bikePlayer');
+            if (currentRouteMode === 'car')  return document.getElementById('carPlayer');
+            return document.getElementById('walkPlayer');
+        }
+
+        function hideAllPlayers() {
+            ['walkPlayer','bikePlayer','carPlayer'].forEach(id => {
+                const el = document.getElementById(id);
+                el.classList.remove('show');
+                if (id === 'carPlayer') el.classList.remove('hazard-mode');
+            });
+            if (popupDismissTimer) { clearTimeout(popupDismissTimer); popupDismissTimer = null; }
+        }
+
+        function showPlayer(spot, state='playing') {
+            hideAllPlayers();
+            const nextSpot = waypointQueue[0] || null;
+
+            if (currentRouteMode === 'walk' || currentRouteMode === 'trail') {
+                const p = document.getElementById('walkPlayer');
+                document.getElementById('walkIcon').textContent = spot.icon || '📍';
+                document.getElementById('walkTitle').textContent = spot.name;
+                document.getElementById('walkDesc').textContent = spot.shortDesc || '';
+                document.getElementById('walkSubtitle').textContent =
+                    state === 'playing' ? '🔊 Audio Guide Playing' :
+                    state === 'finished' ? '✅ Finished' : '⏳ Queued';
+                p.classList.add('show');
+                if (state === 'finished') {
+                    popupDismissTimer = setTimeout(() => hideAllPlayers(), 10000);
+                }
+
+            } else if (currentRouteMode === 'bike') {
+                const p = document.getElementById('bikePlayer');
+                document.getElementById('bikeTitle').textContent = spot.name;
+                const blink = document.getElementById('bikeBlink');
+                const sub = document.getElementById('bikeSubtitle');
+                if (state === 'playing') {
+                    blink.style.display = 'inline-block';
+                    sub.textContent = 'Playing...';
+                } else if (state === 'finished') {
+                    blink.style.display = 'none';
+                    sub.textContent = nextSpot ? `Next: ${nextSpot.name}` : 'Finished';
+                }
+                p.classList.add('show');
+                if (state === 'finished') {
+                    popupDismissTimer = setTimeout(() => hideAllPlayers(), 6000);
+                }
+
+            } else if (currentRouteMode === 'car') {
+                const p = document.getElementById('carPlayer');
+                document.getElementById('carTitle').textContent = spot.name;
+                const dot = document.getElementById('carDot');
+                const label = document.getElementById('carLabel');
+                const upcoming = document.getElementById('carUpcoming');
+                if (state === 'hazard') {
+                    p.classList.add('hazard-mode');
+                    label.textContent = 'APPROACHING';
+                    dot.className = 'cp-status-dot';
+                    upcoming.textContent = '';
+                } else if (state === 'playing') {
+                    p.classList.remove('hazard-mode');
+                    label.textContent = 'NOW PLAYING';
+                    dot.className = 'cp-status-dot playing';
+                    upcoming.textContent = nextSpot ? `Up next: ${nextSpot.name}` : '';
+                } else if (state === 'finished') {
+                    label.textContent = 'FINISHED';
+                    dot.className = 'cp-status-dot';
+                    upcoming.textContent = nextSpot ? `Up next: ${nextSpot.name}` : '';
+                }
+                p.classList.add('show');
+                // Car mode never auto-dismisses
+            }
+        }
+
+        function playerSkip() {
+            if (currentAudio) { currentAudio.onended = null; currentAudio.pause(); currentAudio = null; }
+            isPlayingWaypoint = false;
+            playNextWaypoint();
+        }
+
+        function playerPrev() {
+            if (!lastPlayedSpot) return;
+            if (currentAudio) { currentAudio.onended = null; currentAudio.pause(); currentAudio = null; }
+            isPlayingWaypoint = false;
+            spokenLocations.delete(lastPlayedSpot.name);
+            waypointQueue.unshift(lastPlayedSpot);
+            playNextWaypoint();
+        }
+
+        function playerReplay() {
+            if (!lastPlayedSpot) return;
+            if (currentAudio) { currentAudio.onended = null; currentAudio.pause(); currentAudio = null; }
+            isPlayingWaypoint = false;
+            spokenLocations.delete(lastPlayedSpot.name);
+            waypointQueue.unshift(lastPlayedSpot);
+            playNextWaypoint();
+        }
+
+        function playerDismiss() {
+            if (currentAudio) { currentAudio.onended = null; currentAudio.pause(); currentAudio = null; }
+            isPlayingWaypoint = false;
+            waypointQueue = [];
+            hideAllPlayers();
+            if (backgroundAudio && backgroundAudio.paused) {
+                backgroundAudio.play().catch(() => {});
+            }
+        }
+
+        // Swipe gesture support for bike mode
+        document.addEventListener('touchstart', e => { swipeStartX = e.touches[0].clientX; }, {passive:true});
+        document.addEventListener('touchend', e => {
+            if (swipeStartX === null || currentRouteMode !== 'bike') return;
+            const dx = e.changedTouches[0].clientX - swipeStartX;
+            if (Math.abs(dx) > 60) {
+                if (dx < 0) playerSkip();  // swipe left = skip
+                else playerPrev();          // swipe right = previous
+            }
+            swipeStartX = null;
+        }, {passive:true});
+
         function playNextWaypoint() {
             if (waypointQueue.length === 0) {
                 isPlayingWaypoint = false;
-                // Resume background audio now that queue is empty
                 if (backgroundAudio && backgroundAudio.paused) {
-                    setTimeout(() => {
-                        backgroundAudio.play().catch(err => console.error('Resume failed:', err));
-                    }, 800);
+                    setTimeout(() => { backgroundAudio.play().catch(() => {}); }, 800);
                 }
-                // Show replay button if we just finished a waypoint
                 if (lastPlayedSpot) {
-                    document.getElementById('replayBtn').style.display = 'block';
-                    document.getElementById('popupSubtitle').textContent = '✅ Finished — want to hear it again?';
-                    document.getElementById('playingIcon').style.animationPlayState = 'paused';
-                    document.getElementById('playingIcon').style.opacity = '0.4';
+                    showPlayer(lastPlayedSpot, 'finished');
                 }
-                const popup = document.getElementById('audioPopup');
-                setTimeout(() => {
-                    popup.classList.remove('show');
-                    document.getElementById('replayBtn').style.display = 'none';
-                    document.getElementById('popupSubtitle').textContent = '🔊 Audio Guide Playing';
-                    document.getElementById('playingIcon').style.animationPlayState = 'running';
-                    document.getElementById('playingIcon').style.opacity = '1';
-                }, 8000);
                 return;
             }
 
@@ -2329,86 +2501,40 @@ function stopBackgroundTour() {
             isPlayingWaypoint = true;
             lastPlayedSpot = spot;
 
-            // Hide replay button while playing
-            document.getElementById('replayBtn').style.display = 'none';
-            document.getElementById('popupSubtitle').textContent = '🔊 Audio Guide Playing';
-            document.getElementById('playingIcon').style.animationPlayState = 'running';
-            document.getElementById('playingIcon').style.opacity = '1';
-
-            // Always pause background audio for the entire queue duration
             if (backgroundAudio && !backgroundAudio.paused) {
                 backgroundAudio.pause();
-                console.log('⏸ Background audio paused for waypoint');
             }
 
-            const popup = document.getElementById('audioPopup');
-
-            // Car mode — show hazard warning before playing audio
             if (currentRouteMode === 'car') {
-                document.getElementById('popupTitle').innerText = `⚠️ ${spot.name} ahead — put on hazards & pull over safely`;
-                popup.style.background = 'linear-gradient(135deg, #c0392b, #922b21)';
-                popup.classList.add('show');
-                // Delay audio by 8 seconds to give driver time to pull over
+                showPlayer(spot, 'hazard');
                 setTimeout(() => {
-                    document.getElementById('popupTitle').innerText = spot.name;
-                    popup.style.background = 'linear-gradient(135deg, var(--sage-green), var(--dark-sage))';
+                    showPlayer(spot, 'playing');
                     playWaypointAudio(spot);
                 }, 8000);
             } else {
-                document.getElementById('popupTitle').innerText = spot.name;
-                popup.classList.add('show');
+                showPlayer(spot, 'playing');
                 playWaypointAudio(spot);
             }
         }
 
-        function replayCurrentWaypoint() {
-            if (!lastPlayedSpot) return;
-            // Remove from spokenLocations so it can re-trigger naturally too
-            spokenLocations.delete(lastPlayedSpot.name);
-            document.getElementById('replayBtn').style.display = 'none';
-            // Clear any hide timer and keep popup visible
-            const popup = document.getElementById('audioPopup');
-            popup.classList.add('show');
-            // Re-queue and play
-            waypointQueue.unshift(lastPlayedSpot);
-            if (!isPlayingWaypoint) playNextWaypoint();
-        }
+        function replayCurrentWaypoint() { playerReplay(); }
 
         function playWaypointAudio(spot) {
             if (!spot.audio) {
-                console.warn(`⚠️ No audio: ${spot.name}`);
+                console.warn('No audio:', spot.name);
                 setTimeout(() => { playNextWaypoint(); }, 2000);
                 return;
             }
-
-            console.log(`🎙️ Playing: ${spot.name}`);
             const audio = new Audio();
             audio.crossOrigin = "anonymous";
             audio.preload = "auto";
             audio.volume = WAYPOINT_AUDIO_VOLUME;
             audio.src = spot.audio;
             currentAudio = audio;
-
-            audio.onloadedmetadata = () => {
-                console.log(`📻 Loaded: ${spot.name} - ${audio.duration.toFixed(1)}s`);
-            };
-
-            audio.onended = () => {
-                console.log(`✅ Finished: ${spot.name}`);
-                currentAudio = null;
-                setTimeout(() => { playNextWaypoint(); }, 1000);
-            };
-
-            audio.onerror = () => {
-                console.error(`❌ Error loading: ${spot.name}`);
-                currentAudio = null;
-                setTimeout(() => { playNextWaypoint(); }, 1000);
-            };
-
-            audio.play().then(() => {
-                console.log(`✓ Playing: ${spot.name}`);
-            }).catch((e) => {
-                console.error(`❌ Play failed: ${spot.name}`, e.name, e.message);
+            audio.onended = () => { currentAudio = null; setTimeout(() => { playNextWaypoint(); }, 1000); };
+            audio.onerror = () => { currentAudio = null; setTimeout(() => { playNextWaypoint(); }, 1000); };
+            audio.play().catch((e) => {
+                console.error('Play failed:', spot.name, e.message);
                 currentAudio = null;
                 setTimeout(() => { playNextWaypoint(); }, 1000);
             });
