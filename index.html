@@ -937,8 +937,8 @@ console.log('📜 Script starting normally');
         let lastBoundaryWarning = 0, isInsidePark = true, hasLeftPark = false;
         let currentAudio = null, backgroundAudio = null, isPlayingWaypoint = false, currentChapterIndex = 0;
 
-        const BACKGROUND_AUDIO_VOLUME = 0.5;
-        const WAYPOINT_AUDIO_VOLUME = 1.0;
+        let BACKGROUND_AUDIO_VOLUME = 0.5;
+let WAYPOINT_AUDIO_VOLUME = 1.0;
 
         // FIXED: Updated with waypoints/ prefix
         const CHAPTER_URLS = [
