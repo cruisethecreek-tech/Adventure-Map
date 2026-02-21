@@ -2440,6 +2440,57 @@ function stopBackgroundTour() {
             }
         }
 
+        // Smoothly fade audio volume up or down
+        // direction: 'down' fades to 0 then calls onComplete, 'up' fades from 0 to target
+        function fadeAudio(audioEl, direction, duration, onComplete) {
+            if (!audioEl) { if (onComplete) onComplete(); return; }
+            const steps = 20;
+            const interval = duration / steps;
+            const target = direction === 'up' ? BACKGROUND_AUDIO_VOLUME : 0;
+            const start = audioEl.volume;
+            const delta = (target - start) / steps;
+            let step = 0;
+            const timer = setInterval(() => {
+                step++;
+                let newVol = start + delta * step;
+                newVol = Math.min(1, Math.max(0, newVol));
+                audioEl.volume = newVol;
+                if (step >= steps) {
+                    clearInterval(timer);
+                    audioEl.volume = target;
+                    if (onComplete) onComplete();
+                }
+            }, interval);
+        }
+
+        function fadeOutBackground(onComplete) {
+            if (!backgroundAudio || backgroundAudio.paused) {
+                if (onComplete) onComplete();
+                return;
+            }
+            // Car mode: show a gentle heads-up before audio fades
+            if (currentRouteMode === 'car') {
+                const dot = document.getElementById('carDot');
+                const label = document.getElementById('carLabel');
+                const carPlayer = document.getElementById('carPlayer');
+                if (dot) dot.className = 'cp-status-dot';
+                if (label) label.textContent = 'WAYPOINT APPROACHING';
+                if (carPlayer) carPlayer.classList.add('show');
+            }
+            fadeAudio(backgroundAudio, 'down', 1200, () => {
+                backgroundAudio.pause();
+                if (onComplete) onComplete();
+            });
+        }
+
+        function fadeInBackground() {
+            if (!backgroundAudio) return;
+            backgroundAudio.volume = 0;
+            backgroundAudio.play().then(() => {
+                fadeAudio(backgroundAudio, 'up', 1500, null);
+            }).catch(() => {});
+        }
+
         function stopCurrentAudio() {
             if (currentAudio) {
                 currentAudio.onended = null;
@@ -2488,7 +2539,7 @@ function stopBackgroundTour() {
             waypointQueue = [];
             hideAllPlayers();
             if (backgroundAudio && backgroundAudio.paused) {
-                backgroundAudio.play().catch(() => {});
+                fadeInBackground();
             }
         }
 
@@ -2508,7 +2559,7 @@ function stopBackgroundTour() {
             if (waypointQueue.length === 0) {
                 isPlayingWaypoint = false;
                 if (backgroundAudio && backgroundAudio.paused) {
-                    setTimeout(() => { backgroundAudio.play().catch(() => {}); }, 800);
+                    setTimeout(() => { fadeInBackground(); }, 800);
                 }
                 if (lastPlayedSpot) {
                     showPlayer(lastPlayedSpot, 'finished');
@@ -2522,7 +2573,20 @@ function stopBackgroundTour() {
             waypointHistory.push(spot); // track history for prev button
 
             if (backgroundAudio && !backgroundAudio.paused) {
-                backgroundAudio.pause();
+                fadeOutBackground(() => {
+                    // Start waypoint audio after fade completes
+                    if (currentRouteMode === 'car') {
+                        showPlayer(spot, 'hazard');
+                        setTimeout(() => {
+                            showPlayer(spot, 'playing');
+                            playWaypointAudio(spot);
+                        }, 8000);
+                    } else {
+                        showPlayer(spot, 'playing');
+                        playWaypointAudio(spot);
+                    }
+                });
+                return; // playWaypointAudio called inside callback above
             }
 
             if (currentRouteMode === 'car') {
