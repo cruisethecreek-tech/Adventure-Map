@@ -944,7 +944,7 @@
         }
 
         let map, markers = [], infoWindow, parkBoundary = null, boundaryVisible = false, currentRouteMode = 'trail';
-        let watchId = null, audioEnabled = false, gpsInitialized = false, batteryMode = false;
+        let watchId = null, audioEnabled = false, gpsInitialized = false, batteryMode = false, proximityReady = false;
         let spokenLocations = new Set(), userMarker = null;
         let lastBoundaryWarning = 0, isInsidePark = true, hasLeftPark = false;
         let currentAudio = null, backgroundAudio = null, isPlayingWaypoint = false, currentChapterIndex = 0;
@@ -1018,7 +1018,7 @@ let WAYPOINT_AUDIO_VOLUME = 1.0;
     {
         name: "Wick Pavilion & Wet Playground",
         category: "playground", icon: "🛝",
-        lat: 41.0867, lng: -80.6930,
+        lat: 41.0880, lng: -80.6950,
         tags: ["👨‍👩‍👧‍👦 Family", "💦 Splash Pad", "🚽 Restroom"],
         time: "30-60 mins",
         shortDesc: "Olmsted Brothers-designed recreation area with wet playground, spray basin, and full facilities.",
@@ -1028,7 +1028,7 @@ let WAYPOINT_AUDIO_VOLUME = 1.0;
     {
         name: "Scholl Pavilion & Spray Basin",
         category: "playground", icon: "🛝",
-        lat: 41.0724666, lng: -80.6916099,
+        lat: 41.072938, lng: -80.691662,
         tags: ["👨‍👩‍👧‍👦 Family", "💦 Splash Pad", "🧺 Picnic"],
         time: "30 mins",
         shortDesc: "West-side recreation area with free spray basin and picnic pavilion.",
@@ -1038,7 +1038,7 @@ let WAYPOINT_AUDIO_VOLUME = 1.0;
     {
         name: "Stitt Pavilion Playground",
         category: "playground", icon: "🛝",
-        lat: 41.0424868, lng: -80.6880063,
+        lat: 41.042166, lng: -80.688019,
         tags: ["👨‍👩‍👧‍👦 Family", "🧺 Picnic"],
         time: "20 mins",
         shortDesc: "South-side family pavilion with playground.",
@@ -1048,7 +1048,7 @@ let WAYPOINT_AUDIO_VOLUME = 1.0;
     {
         name: "Chestnut Hill Pavilion Playground",
         category: "playground", icon: "🛝",
-        lat: 41.0706959, lng: -80.6904977,
+        lat: 41.070382, lng: -80.690256,
         tags: ["🌄 View", "👨‍👩‍👧‍👦 Family"],
         time: "20 mins",
         shortDesc: "Hilltop pavilion with elevated views over the parkland.",
@@ -1058,7 +1058,7 @@ let WAYPOINT_AUDIO_VOLUME = 1.0;
     {
         name: "Slippery Rock Pavilion Playground",
         category: "playground", icon: "🛝",
-        lat: 41.0868053, lng: -80.6748662,
+        lat: 41.086735, lng: -80.675000,
         tags: ["👨‍👩‍👧‍👦 Family", "🧺 Picnic"],
         time: "30 mins",
         shortDesc: "East-side pavilion named for smooth sandstone outcroppings.",
@@ -1258,7 +1258,7 @@ let WAYPOINT_AUDIO_VOLUME = 1.0;
     {
         name: "West Channel and Islands Trail",
         category: "trail", icon: "🥾",
-        lat: 41.0550, lng: -80.6765,
+        lat: 41.0525, lng: -80.6730,
         tags: ["🌸 Flowers", "🟢 Easy"],
         time: "25 mins",
         shortDesc: "Gentle wetland trail.",
@@ -1378,7 +1378,7 @@ let WAYPOINT_AUDIO_VOLUME = 1.0;
     {
         name: "Mill Creek Flats",
         category: "nature", icon: "🌾",
-        lat: 41.0722266, lng: -80.6899842,
+        lat: 41.074500, lng: -80.686500,
         tags: ["⚽ Sports", "🟢 Flat"],
         time: "Varies",
         shortDesc: "Open meadow with big sky and playing fields.",
@@ -1448,7 +1448,7 @@ let WAYPOINT_AUDIO_VOLUME = 1.0;
     {
         name: "Mill Creek Furnace",
         category: "historic", icon: "🏭",
-        lat: 41.083307, lng: -80.6806604,
+        lat: 41.082500, lng: -80.679800,
         tags: ["🏛️ Historic", "👻 Ruins"],
         time: "15 mins",
         shortDesc: "1830s iron furnace ruins.",
@@ -1468,7 +1468,7 @@ let WAYPOINT_AUDIO_VOLUME = 1.0;
     {
         name: "Hole 55 Bar & Grill",
         category: "dining", icon: "🍴",
-        lat: 41.0348804, lng: -80.695366,
+        lat: 41.035800, lng: -80.695800,
         tags: ["🍔 Food", "🍺 Drinks", "🚽 Restroom"],
         time: "45-60 mins",
         shortDesc: "The only full-service restaurant in the park.",
@@ -1488,7 +1488,7 @@ let WAYPOINT_AUDIO_VOLUME = 1.0;
     {
         name: "3 Par Golf Course",
         category: "recreation", icon: "⛳",
-        lat: 41.0867287, lng: -80.6930365,
+        lat: 41.085457, lng: -80.692370,
         tags: ["⛳ Golf", "👨‍👩‍👧‍👦 Family"],
         time: "1-2 hours",
         shortDesc: "Family-friendly par-3 course.",
@@ -1538,7 +1538,7 @@ let WAYPOINT_AUDIO_VOLUME = 1.0;
     {
         name: "Pioneer Pavilion",
         category: "recreation", icon: "🏛️",
-        lat: 41.083178, lng: -80.680273,
+        lat: 41.083900, lng: -80.681200,
         tags: ["🎉 Events"],
         time: "N/A",
         shortDesc: "Built 1821 — the oldest building in Youngstown.",
@@ -1597,8 +1597,8 @@ let WAYPOINT_AUDIO_VOLUME = 1.0;
     },
     {
         name: "Cascade Gorge — Upper Section",
-        lat: 41.067010,
-        lng: -80.681837,
+        lat: 41.074200,
+        lng: -80.684000,
         category: "nature",
         icon: "🌊",
         tags: ["📸 Photo Op", "🪨 Geology"],
@@ -1746,6 +1746,7 @@ let WAYPOINT_AUDIO_VOLUME = 1.0;
 
         function startAudioTourWithGPS(btn, isInIframe) {
             audioEnabled = true;
+            proximityReady = false;
             startGPS();
             btn.classList.add('active');
             btn.innerHTML = "📡 GPS Tracking Active";
@@ -1753,6 +1754,9 @@ let WAYPOINT_AUDIO_VOLUME = 1.0;
             
             document.getElementById('pauseBackgroundBtn').style.display = 'inline-flex';
             document.getElementById('batteryModeBtn').style.display = 'inline-flex';
+            
+            // 15 second delay before waypoints fire — prevents triggering at start location
+            setTimeout(() => { proximityReady = true; }, 15000);
             
             showBackgroundAudioPrompt();
         }
@@ -2171,7 +2175,7 @@ function stopBackgroundTour() {
                 userMarker.position = { lat: userLat, lng: userLng };
             }
 
-            if (audioEnabled) {
+            if (audioEnabled && proximityReady) {
                 checkProximity(userLat, userLng);
             }
         }
