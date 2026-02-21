@@ -948,6 +948,7 @@
         let spokenLocations = new Set(), userMarker = null;
         let lastBoundaryWarning = 0, isInsidePark = true, hasLeftPark = false;
         let currentAudio = null, backgroundAudio = null, isPlayingWaypoint = false, currentChapterIndex = 0;
+        let waypointQueue = [];
 
         let BACKGROUND_AUDIO_VOLUME = 0.5;
 let WAYPOINT_AUDIO_VOLUME = 1.0;
@@ -2277,104 +2278,82 @@ function stopBackgroundTour() {
 }
 
         function triggerHotspot(spot) {
-    spokenLocations.add(spot.name);
-    const popup = document.getElementById('audioPopup');
-    document.getElementById('popupTitle').innerText = spot.name;
-    popup.classList.add('show');
+            // Mark as spoken immediately so GPS loop doesn't re-queue it
+            spokenLocations.add(spot.name);
+            setTimeout(() => { spokenLocations.delete(spot.name); }, 300000);
 
-    // Pause background audio and track state
-    let backgroundWasPlaying = false;
-    if (backgroundAudio) {
-        if (!backgroundAudio.paused) {
-            backgroundWasPlaying = true;
-            backgroundAudio.pause();
-        }
-        isPlayingWaypoint = true;
-    }
-
-    if (spot.audio) {
-        console.log(`🎙️ Auto-playing: ${spot.name}`);
-        console.log(`📂 URL: ${spot.audio}`);
-
-        const audio = new Audio();
-        audio.crossOrigin = "anonymous";
-        audio.preload = "auto";
-        audio.volume = WAYPOINT_AUDIO_VOLUME;
-        audio.src = spot.audio;
-        currentAudio = audio;
-
-        audio.onloadedmetadata = () => {
-            console.log(`📻 Loaded: ${spot.name} - ${audio.duration.toFixed(1)}s`);
-        };
-
-        audio.onended = () => {
-            console.log(`✅ Finished: ${spot.name}`);
-            currentAudio = null;
-            if (backgroundWasPlaying && backgroundAudio) {
-                setTimeout(() => {
-                    backgroundAudio.play().catch(err => console.error('Resume failed:', err));
-                }, 500);
+            // Add to queue — if already playing, it will play after current finishes
+            waypointQueue.push(spot);
+            if (!isPlayingWaypoint) {
+                playNextWaypoint();
             }
-            isPlayingWaypoint = false;
-            setTimeout(() => { popup.classList.remove('show'); }, 3000);
-        };
+        }
 
-        audio.onerror = (e) => {
-            console.error(`❌ Error: ${spot.name}`, audio.error);
-            const errorCode = audio.error ? audio.error.code : 0;
-            const errorMessages = {
-                1: 'Loading aborted',
-                2: 'Network error — check your connection',
-                3: 'File corrupt or wrong format',
-                4: 'Format not supported or file not found'
+        function playNextWaypoint() {
+            if (waypointQueue.length === 0) {
+                // Queue empty — resume background if it was playing
+                isPlayingWaypoint = false;
+                if (backgroundAudio && backgroundAudio.paused) {
+                    setTimeout(() => {
+                        backgroundAudio.play().catch(err => console.error('Resume failed:', err));
+                    }, 500);
+                }
+                const popup = document.getElementById('audioPopup');
+                setTimeout(() => { popup.classList.remove('show'); }, 3000);
+                return;
+            }
+
+            const spot = waypointQueue.shift();
+            isPlayingWaypoint = true;
+
+            // Pause background audio for entire queue duration
+            if (backgroundAudio && !backgroundAudio.paused) {
+                backgroundAudio.pause();
+            }
+
+            const popup = document.getElementById('audioPopup');
+            document.getElementById('popupTitle').innerText = spot.name;
+            popup.classList.add('show');
+
+            if (!spot.audio) {
+                console.warn(`⚠️ No audio: ${spot.name}`);
+                setTimeout(() => { playNextWaypoint(); }, 2000);
+                return;
+            }
+
+            console.log(`🎙️ Playing: ${spot.name}`);
+            const audio = new Audio();
+            audio.crossOrigin = "anonymous";
+            audio.preload = "auto";
+            audio.volume = WAYPOINT_AUDIO_VOLUME;
+            audio.src = spot.audio;
+            currentAudio = audio;
+
+            audio.onloadedmetadata = () => {
+                console.log(`📻 Loaded: ${spot.name} - ${audio.duration.toFixed(1)}s`);
             };
-            console.error(`Code ${errorCode}: ${errorMessages[errorCode] || 'Unknown error'}`);
-            document.getElementById('popupTitle').innerText = `📍 ${spot.name}`;
-            currentAudio = null;
-            if (backgroundWasPlaying && backgroundAudio) {
-                setTimeout(() => {
-                    backgroundAudio.play().catch(err => console.log('Resume failed:', err));
-                }, 1000);
-            }
-            isPlayingWaypoint = false;
-            setTimeout(() => { popup.classList.remove('show'); }, 5000);
-        };
 
-        audio.play().then(() => {
-            console.log(`✓ Playing: ${spot.name}`);
-        }).catch((e) => {
-            console.error(`❌ Play failed: ${spot.name}`, e.name, e.message);
-            // Audio context may need resuming — try once more
-            if (e.name === 'NotAllowedError') {
-                console.warn('Audio context blocked — user may need to interact with page first');
-            }
-            document.getElementById('popupTitle').innerText = `📍 Now Passing: ${spot.name}`;
-            currentAudio = null;
-            if (backgroundWasPlaying && backgroundAudio) {
-                setTimeout(() => {
-                    backgroundAudio.play().catch(err => console.log('Resume failed:', err));
-                }, 1000);
-            }
-            isPlayingWaypoint = false;
-            setTimeout(() => { popup.classList.remove('show'); }, 5000);
-        });
-        
-    } else {
-        console.warn(`⚠️ No audio: ${spot.name}`);
-        document.getElementById('popupTitle').innerText = `${spot.name} (No Audio)`;
-        if (backgroundWasPlaying && backgroundAudio) {
-            setTimeout(() => {
-                backgroundAudio.play().catch(err => console.log('Resume failed:', err));
-            }, 1000);
+            audio.onended = () => {
+                console.log(`✅ Finished: ${spot.name}`);
+                currentAudio = null;
+                // Small gap between waypoints
+                setTimeout(() => { playNextWaypoint(); }, 1000);
+            };
+
+            audio.onerror = () => {
+                console.error(`❌ Error loading: ${spot.name}`);
+                currentAudio = null;
+                setTimeout(() => { playNextWaypoint(); }, 1000);
+            };
+
+            audio.play().then(() => {
+                console.log(`✓ Playing: ${spot.name}`);
+            }).catch((e) => {
+                console.error(`❌ Play failed: ${spot.name}`, e.name, e.message);
+                currentAudio = null;
+                setTimeout(() => { playNextWaypoint(); }, 1000);
+            });
         }
-        isPlayingWaypoint = false;
-        setTimeout(() => { popup.classList.remove('show'); }, 3000);
-    }
-
-    setTimeout(() => {
-        spokenLocations.delete(spot.name);
-    }, 300000);
-}
 
         function getDistanceFromLatLonInMeters(lat1, lon1, lat2, lon2) {
             const R = 6371;
