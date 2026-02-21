@@ -889,20 +889,22 @@
         </div>
         <div class="wp-desc" id="walkDesc"></div>
         <div class="wp-controls">
-            <button class="wp-btn" onclick="playerPrev()">⏮ Previous</button>
-            <button class="wp-btn primary" onclick="playerReplay()">🔁 Replay</button>
+            <button class="wp-btn" onclick="playerPrev()">⏮ Prev</button>
+            <button class="wp-btn primary" id="walkPauseBtn" onclick="playerWaypointPause()">⏸ Pause</button>
+            <button class="wp-btn" onclick="playerReplay()">🔁 Replay</button>
             <button class="wp-btn" onclick="playerSkip()">Next ⏭</button>
         </div>
     </div>
 
     <!-- BIKE MODE PLAYER -->
     <div class="waypoint-player" id="bikePlayer">
-        <div class="bp-swipe-hint">◀ swipe to go back &nbsp;|&nbsp; swipe to skip ▶</div>
+        <div class="bp-swipe-hint">◀ swipe left = previous &nbsp;|&nbsp; swipe right = skip ▶</div>
         <div class="bp-main">
             <button class="bp-nav-btn" onclick="playerPrev()">⏮</button>
             <div class="bp-center">
                 <div class="bp-title" id="bikeTitle">Location Name</div>
                 <div class="bp-status"><span class="bp-blink" id="bikeBlink"></span><span id="bikeSubtitle">Playing...</span></div>
+                <button id="bikePauseBtn" onclick="playerWaypointPause()" style="margin-top:6px; background:rgba(255,255,255,0.2); border:2px solid rgba(255,255,255,0.5); color:white; border-radius:16px; padding:5px 18px; font-size:0.8rem; font-weight:700; cursor:pointer; width:100%;">⏸ Pause</button>
             </div>
             <button class="bp-nav-btn" onclick="playerSkip()">⏭</button>
         </div>
@@ -921,6 +923,7 @@
         </div>
         <div class="cp-controls">
             <button class="cp-btn" onclick="playerPrev()">⏮<br><span style="font-size:0.75rem;font-weight:400">Previous</span></button>
+            <button class="cp-btn" id="carPauseBtn" onclick="playerWaypointPause()">⏸<br><span style="font-size:0.75rem;font-weight:400">Pause</span></button>
             <button class="cp-btn" onclick="playerReplay()">🔁<br><span style="font-size:0.75rem;font-weight:400">Replay</span></button>
             <button class="cp-btn" onclick="playerSkip()">⏭<br><span style="font-size:0.75rem;font-weight:400">Skip</span></button>
             <button class="cp-btn" onclick="playerDismiss()" style="background:rgba(255,255,255,0.06);border-color:rgba(255,255,255,0.15)">✕<br><span style="font-size:0.75rem;font-weight:400">Dismiss</span></button>
@@ -1067,11 +1070,46 @@ let WAYPOINT_AUDIO_VOLUME = 1.0;
             "Modern Conservation - Part 2"
         ];
 
-        document.addEventListener('visibilitychange', function() {
+        // Wake Lock — keeps screen on during active tour (when supported)
+        let wakeLock = null;
+        async function requestWakeLock() {
+            if ('wakeLock' in navigator) {
+                try {
+                    wakeLock = await navigator.wakeLock.request('screen');
+                    console.log('🔒 Wake lock active — screen stays on');
+                    wakeLock.addEventListener('release', () => {
+                        console.log('🔓 Wake lock released');
+                        wakeLock = null;
+                    });
+                } catch (err) {
+                    console.warn('Wake lock not available:', err.message);
+                }
+            }
+        }
+
+        async function reacquireWakeLock() {
+            if ('wakeLock' in navigator && audioEnabled && !wakeLock) {
+                await requestWakeLock();
+            }
+        }
+
+        document.addEventListener('visibilitychange', async function() {
             if (document.hidden) {
-                console.log('📱 Page hidden - keeping audio alive');
+                console.log('📱 Screen off — audio continues in background');
+                // Audio continues naturally — no action needed
+                // Wake lock auto-releases when screen locks; we reacquire on return
             } else {
-                console.log('📱 Page visible again');
+                console.log('📱 Screen on — checking audio state');
+                // Reacquire wake lock when user returns to screen
+                await reacquireWakeLock();
+                // If waypoint was playing and got interrupted, nudge it back
+                if (currentAudio && currentAudio.paused && !waypointPaused) {
+                    currentAudio.play().catch(() => {});
+                }
+                // If background audio should be playing but isn't
+                if (backgroundAudio && backgroundAudio.paused && !isPlayingWaypoint && audioEnabled) {
+                    backgroundAudio.play().catch(() => {});
+                }
             }
         });
 
@@ -1435,7 +1473,7 @@ let WAYPOINT_AUDIO_VOLUME = 1.0;
     {
         name: "Daffodil Meadow",
         category: "nature", icon: "🌼",
-        lat: 41.0552994, lng: -80.6765389,
+        lat: 41.055329, lng: -80.6765384,
         tags: ["📸 Seasonal", "🌸 Flowers"],
         time: "20 mins",
         shortDesc: "Over 300,000 daffodils bloom mid-April.",
@@ -1847,6 +1885,7 @@ let WAYPOINT_AUDIO_VOLUME = 1.0;
             audioEnabled = true;
             proximityReady = false;
             startGPS();
+            requestWakeLock(); // keep screen on during tour
             btn.classList.add('active');
             btn.innerHTML = "📡 GPS Tracking Active";
             btn.style.background = "#27ae60";
@@ -2566,20 +2605,26 @@ function stopBackgroundTour() {
 
         function playerSkip() {
             stopCurrentAudio();
+            waypointPaused = false;
+            updatePauseButtons(false);
             playNextWaypoint();
         }
 
         function playerPrev() {
-            if (waypointHistory.length < 2) return; // need at least 2 in history to go back
+            // If no history to go back to, replay the current waypoint instead
+            if (waypointHistory.length < 2) {
+                playerReplay();
+                return;
+            }
             stopCurrentAudio();
-            // Put current spot back at front of queue
+            waypointPaused = false;
+            updatePauseButtons(false);
             if (lastPlayedSpot) {
                 spokenLocations.delete(lastPlayedSpot.name);
                 waypointQueue.unshift(lastPlayedSpot);
             }
-            // Pop current from history, get the one before it
             waypointHistory.pop();
-            const prevSpot = waypointHistory.pop(); // pop so playNextWaypoint re-adds it
+            const prevSpot = waypointHistory.pop();
             spokenLocations.delete(prevSpot.name);
             waypointQueue.unshift(prevSpot);
             lastPlayedSpot = null;
@@ -2589,11 +2634,36 @@ function stopBackgroundTour() {
         function playerReplay() {
             if (!lastPlayedSpot) return;
             stopCurrentAudio();
+            waypointPaused = false;
+            updatePauseButtons(false);
             spokenLocations.delete(lastPlayedSpot.name);
             waypointQueue.unshift(lastPlayedSpot);
-            waypointHistory.pop(); // remove it so playNextWaypoint re-adds cleanly
+            waypointHistory.pop();
             lastPlayedSpot = null;
             playNextWaypoint();
+        }
+
+        let waypointPaused = false;
+        function playerWaypointPause() {
+            if (!currentAudio) return;
+            waypointPaused = !waypointPaused;
+            if (waypointPaused) {
+                currentAudio.pause();
+            } else {
+                currentAudio.play().catch(() => {});
+            }
+            updatePauseButtons(waypointPaused);
+        }
+
+        function updatePauseButtons(paused) {
+            const label = paused ? '▶ Resume' : '⏸ Pause';
+            const icon  = paused ? '▶' : '⏸';
+            const w = document.getElementById('walkPauseBtn');
+            const b = document.getElementById('bikePauseBtn');
+            const c = document.getElementById('carPauseBtn');
+            if (w) w.textContent = label;
+            if (b) b.textContent = (paused ? '▶ Resume' : '⏸ Pause');
+            if (c) c.innerHTML = `${icon}<br><span style="font-size:0.75rem;font-weight:400">${paused ? 'Resume' : 'Pause'}</span>`;
         }
 
         function playerDismiss() {
@@ -2605,16 +2675,27 @@ function stopBackgroundTour() {
             }
         }
 
-        // Swipe gesture support for bike mode
-        document.addEventListener('touchstart', e => { swipeStartX = e.touches[0].clientX; }, {passive:true});
+        // Swipe gesture — restricted to bike player bar only to avoid map pan conflicts
+        let swipeStartX = null;
+        let swipeStartY = null;
+        const bikePlayerEl = document.getElementById('bikePlayer');
+
+        document.addEventListener('touchstart', e => {
+            swipeStartX = e.touches[0].clientX;
+            swipeStartY = e.touches[0].clientY;
+        }, {passive:true});
+
         document.addEventListener('touchend', e => {
-            if (swipeStartX === null || currentRouteMode !== 'bike') return;
+            if (swipeStartX === null || currentRouteMode !== 'bike') { swipeStartX = null; return; }
             const dx = e.changedTouches[0].clientX - swipeStartX;
-            if (Math.abs(dx) > 60) {
-                if (dx < 0) playerSkip();  // swipe left = skip
-                else playerPrev();          // swipe right = previous
+            const dy = Math.abs(e.changedTouches[0].clientY - swipeStartY);
+            // Only count horizontal swipes (dy < 40 prevents vertical scroll mis-fires)
+            if (Math.abs(dx) > 60 && dy < 40) {
+                if (dx < 0) playerPrev();  // swipe left = go back
+                else playerSkip();          // swipe right = skip forward
             }
             swipeStartX = null;
+            swipeStartY = null;
         }, {passive:true});
 
         function playNextWaypoint() {
@@ -2644,7 +2725,7 @@ function stopBackgroundTour() {
                             if (playbackGen !== myGen) return; // skip happened during hazard delay
                             showPlayer(spot, 'playing');
                             playWaypointAudio(spot);
-                        }, 8000);
+                        }, 5000);
                     } else {
                         showPlayer(spot, 'playing');
                         playWaypointAudio(spot);
@@ -2659,7 +2740,7 @@ function stopBackgroundTour() {
                     if (playbackGen !== myGen) return; // skip happened during hazard delay
                     showPlayer(spot, 'playing');
                     playWaypointAudio(spot);
-                }, 8000);
+                }, 5000);
             } else {
                 showPlayer(spot, 'playing');
                 playWaypointAudio(spot);
