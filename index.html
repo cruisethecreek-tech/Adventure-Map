@@ -2239,12 +2239,18 @@ function stopBackgroundTour() {
                 currentAudio = null;
             }
 
-            let backgroundWasPlaying = false;
-            if (backgroundAudio && !backgroundAudio.paused) {
-                backgroundWasPlaying = true;
-                backgroundAudio.pause();
-                isPlayingWaypoint = true;
-            }
+           let backgroundWasPlaying = false;
+if (backgroundAudio && !backgroundAudio.paused) {
+    backgroundWasPlaying = true;
+    backgroundAudio.pause();
+    isPlayingWaypoint = true;
+    
+    // Update player button
+    const playPauseBtn = document.getElementById('playPauseBtn');
+    if (playPauseBtn) {
+        playPauseBtn.textContent = '⏸️';
+    }
+}
 
             if (spot.audio) {
                 console.log(`🎙️ Loading: ${spot.name}`);
