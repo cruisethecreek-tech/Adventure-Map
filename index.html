@@ -814,6 +814,7 @@
                         <div style="display: flex; gap: 8px; margin-top: 8px; justify-content: center;">
                             <button class="filter-btn active" id="trailModeBtn" onclick="setRouteMode('trail')" style="background: #6B8E6F; color: white; border-color: #6B8E6F; font-size: 0.85rem; padding: 8px 16px;">🚶 Walking Route</button>
                             <button class="filter-btn" id="bikeModeBtn" onclick="setRouteMode('bike')" style="background: white; color: #D68438; border-color: #D68438; font-size: 0.85rem; padding: 8px 16px;">🚴 Bike Routes (Faster)</button>
+                            <button class="filter-btn" id="carModeBtn" onclick="setRouteMode('car')" style="background: white; color: #c0392b; border-color: #c0392b; font-size: 0.85rem; padding: 8px 16px;">🚗 Car Mode</button>
                         </div>
                     </div>
                 </div>
@@ -831,11 +832,12 @@
     </div>
 
     <div class="audio-popup" id="audioPopup">
-        <div class="playing-icon"></div>
+        <div class="playing-icon" id="playingIcon"></div>
         <div class="popup-content">
             <strong id="popupTitle">Approaching Location...</strong>
-            <div class="popup-subtitle">🔊 Audio Guide Playing</div>
+            <div class="popup-subtitle" id="popupSubtitle">🔊 Audio Guide Playing</div>
         </div>
+        <button id="replayBtn" onclick="replayCurrentWaypoint()" style="display:none; background:rgba(255,255,255,0.25); border:2px solid white; color:white; border-radius:20px; padding:6px 14px; font-size:0.8rem; font-weight:700; cursor:pointer; flex-shrink:0; margin-left:8px;">🔁 Replay</button>
     </div>
 <div id="backgroundAudioPlayer" style="position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); background: linear-gradient(135deg, #2c3e50, #34495e); color: white; padding: 15px 20px; border-radius: 20px; box-shadow: 0 8px 24px rgba(0,0,0,0.4); z-index: 2500; display: none; min-width: 320px; max-width: 90%;">
     
@@ -949,6 +951,7 @@
         let lastBoundaryWarning = 0, isInsidePark = true, hasLeftPark = false;
         let currentAudio = null, backgroundAudio = null, isPlayingWaypoint = false, currentChapterIndex = 0;
         let waypointQueue = [];
+        let lastPlayedSpot = null;
 
         let BACKGROUND_AUDIO_VOLUME = 0.5;
 let WAYPOINT_AUDIO_VOLUME = 1.0;
@@ -2181,7 +2184,9 @@ function stopBackgroundTour() {
         }
 
         function checkProximity(lat, lng) {
-            const triggerDistance = currentRouteMode === 'bike' ? 200 : 50;
+            let triggerDistance = 25; // walk default
+            if (currentRouteMode === 'bike') triggerDistance = 100;
+            if (currentRouteMode === 'car') triggerDistance = 125;
             locations.forEach(spot => {
                 const distance = getDistanceFromLatLonInMeters(lat, lng, spot.lat, spot.lng);
                 if (distance < triggerDistance && !spokenLocations.has(spot.name)) {
@@ -2295,30 +2300,81 @@ function stopBackgroundTour() {
 
         function playNextWaypoint() {
             if (waypointQueue.length === 0) {
-                // Queue empty — resume background if it was playing
                 isPlayingWaypoint = false;
+                // Resume background audio now that queue is empty
                 if (backgroundAudio && backgroundAudio.paused) {
                     setTimeout(() => {
                         backgroundAudio.play().catch(err => console.error('Resume failed:', err));
-                    }, 500);
+                    }, 800);
+                }
+                // Show replay button if we just finished a waypoint
+                if (lastPlayedSpot) {
+                    document.getElementById('replayBtn').style.display = 'block';
+                    document.getElementById('popupSubtitle').textContent = '✅ Finished — want to hear it again?';
+                    document.getElementById('playingIcon').style.animationPlayState = 'paused';
+                    document.getElementById('playingIcon').style.opacity = '0.4';
                 }
                 const popup = document.getElementById('audioPopup');
-                setTimeout(() => { popup.classList.remove('show'); }, 3000);
+                setTimeout(() => {
+                    popup.classList.remove('show');
+                    document.getElementById('replayBtn').style.display = 'none';
+                    document.getElementById('popupSubtitle').textContent = '🔊 Audio Guide Playing';
+                    document.getElementById('playingIcon').style.animationPlayState = 'running';
+                    document.getElementById('playingIcon').style.opacity = '1';
+                }, 8000);
                 return;
             }
 
             const spot = waypointQueue.shift();
             isPlayingWaypoint = true;
+            lastPlayedSpot = spot;
 
-            // Pause background audio for entire queue duration
+            // Hide replay button while playing
+            document.getElementById('replayBtn').style.display = 'none';
+            document.getElementById('popupSubtitle').textContent = '🔊 Audio Guide Playing';
+            document.getElementById('playingIcon').style.animationPlayState = 'running';
+            document.getElementById('playingIcon').style.opacity = '1';
+
+            // Always pause background audio for the entire queue duration
             if (backgroundAudio && !backgroundAudio.paused) {
                 backgroundAudio.pause();
+                console.log('⏸ Background audio paused for waypoint');
             }
 
             const popup = document.getElementById('audioPopup');
-            document.getElementById('popupTitle').innerText = spot.name;
-            popup.classList.add('show');
 
+            // Car mode — show hazard warning before playing audio
+            if (currentRouteMode === 'car') {
+                document.getElementById('popupTitle').innerText = `⚠️ ${spot.name} ahead — put on hazards & pull over safely`;
+                popup.style.background = 'linear-gradient(135deg, #c0392b, #922b21)';
+                popup.classList.add('show');
+                // Delay audio by 8 seconds to give driver time to pull over
+                setTimeout(() => {
+                    document.getElementById('popupTitle').innerText = spot.name;
+                    popup.style.background = 'linear-gradient(135deg, var(--sage-green), var(--dark-sage))';
+                    playWaypointAudio(spot);
+                }, 8000);
+            } else {
+                document.getElementById('popupTitle').innerText = spot.name;
+                popup.classList.add('show');
+                playWaypointAudio(spot);
+            }
+        }
+
+        function replayCurrentWaypoint() {
+            if (!lastPlayedSpot) return;
+            // Remove from spokenLocations so it can re-trigger naturally too
+            spokenLocations.delete(lastPlayedSpot.name);
+            document.getElementById('replayBtn').style.display = 'none';
+            // Clear any hide timer and keep popup visible
+            const popup = document.getElementById('audioPopup');
+            popup.classList.add('show');
+            // Re-queue and play
+            waypointQueue.unshift(lastPlayedSpot);
+            if (!isPlayingWaypoint) playNextWaypoint();
+        }
+
+        function playWaypointAudio(spot) {
             if (!spot.audio) {
                 console.warn(`⚠️ No audio: ${spot.name}`);
                 setTimeout(() => { playNextWaypoint(); }, 2000);
@@ -2340,7 +2396,6 @@ function stopBackgroundTour() {
             audio.onended = () => {
                 console.log(`✅ Finished: ${spot.name}`);
                 currentAudio = null;
-                // Small gap between waypoints
                 setTimeout(() => { playNextWaypoint(); }, 1000);
             };
 
@@ -2534,20 +2589,35 @@ function stopBackgroundTour() {
             currentRouteMode = mode;
             const trailBtn = document.getElementById('trailModeBtn');
             const bikeBtn = document.getElementById('bikeModeBtn');
+            const carBtn = document.getElementById('carModeBtn');
             const modeText = document.getElementById('currentModeText');
             const modeDesc = document.getElementById('modeDescription');
+
+            // Reset all buttons
+            trailBtn.style.cssText = 'background:white; color:#6B8E6F; border-color:#6B8E6F; font-size:0.85rem; padding:8px 16px;';
+            bikeBtn.style.cssText = 'background:white; color:#D68438; border-color:#D68438; font-size:0.85rem; padding:8px 16px;';
+            if (carBtn) carBtn.style.cssText = 'background:white; color:#c0392b; border-color:#c0392b; font-size:0.85rem; padding:8px 16px;';
+
             if (mode === 'trail') {
-                trailBtn.style.cssText = 'background:#6B8E6F; color:white; border-color:#6B8E6F;';
-                bikeBtn.style.cssText = 'background:white; color:#D68438; border-color:#D68438;';
+                trailBtn.style.cssText = 'background:#6B8E6F; color:white; border-color:#6B8E6F; font-size:0.85rem; padding:8px 16px;';
+                modeText.style.color = '#6B8E6F';
                 modeText.textContent = 'Scenic Trail Mode';
                 modeDesc.textContent = 'Most scenic routes through the park';
-            } else {
-                bikeBtn.style.cssText = 'background:#D68438; color:white; border-color:#D68438;';
-                trailBtn.style.cssText = 'background:white; color:#6B8E6F; border-color:#6B8E6F;';
+            } else if (mode === 'bike') {
+                bikeBtn.style.cssText = 'background:#D68438; color:white; border-color:#D68438; font-size:0.85rem; padding:8px 16px;';
+                modeText.style.color = '#D68438';
                 modeText.textContent = 'Bike Route Mode';
-                modeDesc.textContent = 'Google Maps cycling mode';
+                modeDesc.textContent = 'Google Maps cycling mode — 100m waypoint radius';
+            } else if (mode === 'car') {
+                if (carBtn) carBtn.style.cssText = 'background:#c0392b; color:white; border-color:#c0392b; font-size:0.85rem; padding:8px 16px;';
+                modeText.style.color = '#c0392b';
+                modeText.textContent = '🚗 Car Mode';
+                modeDesc.textContent = '⚠️ Pull over safely before listening to waypoints';
             }
             infoWindow.close();
+        }
+
+        function renderCategoryAccordions() {
         }
 
         function renderCategoryAccordions() {
