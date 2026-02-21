@@ -1010,7 +1010,8 @@
         let lastBoundaryWarning = 0, isInsidePark = true, hasLeftPark = false;
         let currentAudio = null, backgroundAudio = null, isPlayingWaypoint = false, currentChapterIndex = 0;
         let waypointQueue = [];
-        let lastPlayedSpot = null;
+        let waypointHistory = []; // stack of spots already played
+        let lastPlayedSpot = null; // current/most recent spot
 
         let BACKGROUND_AUDIO_VOLUME = 0.5;
 let WAYPOINT_AUDIO_VOLUME = 1.0;
@@ -2439,33 +2440,51 @@ function stopBackgroundTour() {
             }
         }
 
-        function playerSkip() {
-            if (currentAudio) { currentAudio.onended = null; currentAudio.pause(); currentAudio = null; }
+        function stopCurrentAudio() {
+            if (currentAudio) {
+                currentAudio.onended = null;
+                currentAudio.onerror = null;
+                currentAudio.pause();
+                currentAudio.src = '';
+                currentAudio = null;
+            }
             isPlayingWaypoint = false;
+        }
+
+        function playerSkip() {
+            stopCurrentAudio();
             playNextWaypoint();
         }
 
         function playerPrev() {
-            if (!lastPlayedSpot) return;
-            if (currentAudio) { currentAudio.onended = null; currentAudio.pause(); currentAudio = null; }
-            isPlayingWaypoint = false;
-            spokenLocations.delete(lastPlayedSpot.name);
-            waypointQueue.unshift(lastPlayedSpot);
+            if (waypointHistory.length < 2) return; // need at least 2 in history to go back
+            stopCurrentAudio();
+            // Put current spot back at front of queue
+            if (lastPlayedSpot) {
+                spokenLocations.delete(lastPlayedSpot.name);
+                waypointQueue.unshift(lastPlayedSpot);
+            }
+            // Pop current from history, get the one before it
+            waypointHistory.pop();
+            const prevSpot = waypointHistory.pop(); // pop so playNextWaypoint re-adds it
+            spokenLocations.delete(prevSpot.name);
+            waypointQueue.unshift(prevSpot);
+            lastPlayedSpot = null;
             playNextWaypoint();
         }
 
         function playerReplay() {
             if (!lastPlayedSpot) return;
-            if (currentAudio) { currentAudio.onended = null; currentAudio.pause(); currentAudio = null; }
-            isPlayingWaypoint = false;
+            stopCurrentAudio();
             spokenLocations.delete(lastPlayedSpot.name);
             waypointQueue.unshift(lastPlayedSpot);
+            waypointHistory.pop(); // remove it so playNextWaypoint re-adds cleanly
+            lastPlayedSpot = null;
             playNextWaypoint();
         }
 
         function playerDismiss() {
-            if (currentAudio) { currentAudio.onended = null; currentAudio.pause(); currentAudio = null; }
-            isPlayingWaypoint = false;
+            stopCurrentAudio();
             waypointQueue = [];
             hideAllPlayers();
             if (backgroundAudio && backgroundAudio.paused) {
@@ -2500,6 +2519,7 @@ function stopBackgroundTour() {
             const spot = waypointQueue.shift();
             isPlayingWaypoint = true;
             lastPlayedSpot = spot;
+            waypointHistory.push(spot); // track history for prev button
 
             if (backgroundAudio && !backgroundAudio.paused) {
                 backgroundAudio.pause();
