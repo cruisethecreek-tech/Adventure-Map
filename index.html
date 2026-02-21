@@ -1794,11 +1794,10 @@ let WAYPOINT_AUDIO_VOLUME = 1.0;
             
             currentChapterIndex = 0;
             backgroundAudio.play().then(() => {
-                showChapterNotification(CHAPTER_NAMES[currentChapterIndex]);
-            }).catch(err => {
-                console.error('Background audio error:', err);
-                alert('Could not start audio. Try again.');
-            });
+    showChapterNotification(CHAPTER_NAMES[currentChapterIndex]);
+    document.getElementById('backgroundAudioPlayer').style.display = 'block';
+    updatePlayerDisplay();
+})
             
             document.getElementById('audio-start-modal').remove();
         }).catch(err => {
