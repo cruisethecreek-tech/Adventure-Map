@@ -1009,6 +1009,117 @@
             border-radius: 2px; z-index: 7500; pointer-events: none;
             animation: confettiFall linear forwards;
         }
+
+        /* ============================================================
+           PERSONALIZATION SETUP (onboarding step 3 becomes prefs)
+        ============================================================ */
+        .ob-pref-grid {
+            display: grid; grid-template-columns: 1fr 1fr;
+            gap: 10px; margin-bottom: 20px;
+        }
+        .ob-pref-chip {
+            border: 2px solid rgba(255,255,255,0.2);
+            border-radius: 12px; padding: 10px 8px;
+            text-align: center; cursor: pointer;
+            transition: all 0.2s; font-size: 0.82rem;
+            background: rgba(255,255,255,0.05);
+            color: white;
+        }
+        .ob-pref-chip.selected {
+            border-color: #D68438;
+            background: rgba(214,132,56,0.25);
+            color: #FFD700; font-weight: 700;
+        }
+        .ob-pref-chip .pref-icon { font-size: 1.3rem; display: block; margin-bottom: 4px; }
+        .ob-section-label {
+            font-size: 0.7rem; text-transform: uppercase;
+            letter-spacing: 1px; opacity: 0.5;
+            margin-bottom: 8px; text-align: left;
+        }
+
+        /* ============================================================
+           WEATHER BANNER
+        ============================================================ */
+        #weatherBanner {
+            position: fixed; top: 0; left: 0; right: 0;
+            z-index: 3800; display: none;
+            padding: 10px 16px;
+            color: white; font-size: 0.82rem;
+            cursor: pointer;
+            transition: top 0.3s ease;
+        }
+        #gpsSignalBar.active ~ #weatherBanner,
+        body.gps-lost #weatherBanner { top: 38px; }
+        #weatherBanner .wb-inner {
+            display: flex; align-items: center; gap: 10px;
+            max-width: 600px; margin: 0 auto;
+        }
+        #weatherBanner .wb-icon { font-size: 1.4rem; flex-shrink: 0; }
+        #weatherBanner .wb-text { flex: 1; line-height: 1.4; }
+        #weatherBanner .wb-tip {
+            font-style: italic; opacity: 0.85;
+            font-size: 0.78rem; margin-top: 1px;
+        }
+        #weatherBanner .wb-dismiss {
+            opacity: 0.5; font-size: 1rem; flex-shrink: 0; padding: 4px;
+        }
+        #weatherBanner .wb-temp {
+            font-weight: 900; font-size: 1rem; flex-shrink: 0;
+        }
+
+        /* ============================================================
+           PERSONALIZED "WHY YOU'LL LOVE THIS" IN WALK PLAYER
+        ============================================================ */
+        #walkPersonalTip {
+            font-size: 0.75rem;
+            background: rgba(255,215,0,0.12);
+            border: 1px solid rgba(255,215,0,0.25);
+            border-radius: 8px; padding: 7px 10px;
+            margin-top: 8px; display: none;
+            color: #FFD700; line-height: 1.5;
+        }
+
+        /* ============================================================
+           WEATHER DETAIL MODAL
+        ============================================================ */
+        #weatherModal {
+            position: fixed; inset: 0; z-index: 6500;
+            background: rgba(0,0,0,0.6); backdrop-filter: blur(8px);
+            display: none; align-items: flex-end; justify-content: center;
+            padding: 20px;
+        }
+        #weatherModal.show { display: flex; }
+        .weather-card {
+            background: linear-gradient(160deg, #0f2027, #203a43, #2c5364);
+            color: white; border-radius: 20px; padding: 24px 22px;
+            width: 100%; max-width: 420px;
+        }
+        .weather-card h3 { font-size: 1.1rem; margin-bottom: 16px; color: #FFD700; }
+        .weather-main { display: flex; align-items: center; gap: 16px; margin-bottom: 16px; }
+        .weather-main .wm-icon { font-size: 3.5rem; }
+        .weather-main .wm-temp { font-size: 2.8rem; font-weight: 900; }
+        .weather-main .wm-desc { font-size: 0.9rem; opacity: 0.8; margin-top: 2px; }
+        .weather-details {
+            display: grid; grid-template-columns: 1fr 1fr 1fr;
+            gap: 10px; margin-bottom: 16px;
+        }
+        .weather-detail {
+            background: rgba(255,255,255,0.08); border-radius: 10px;
+            padding: 10px 8px; text-align: center;
+        }
+        .weather-detail .wd-val { font-weight: 700; font-size: 0.95rem; }
+        .weather-detail .wd-label { font-size: 0.65rem; opacity: 0.55; margin-top: 2px; }
+        .weather-tips { margin-bottom: 16px; }
+        .weather-tips h4 { font-size: 0.78rem; opacity: 0.6; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
+        .weather-tip-item {
+            display: flex; align-items: flex-start; gap: 10px;
+            margin-bottom: 8px; font-size: 0.82rem; line-height: 1.5;
+        }
+        .weather-close {
+            width: 100%; padding: 12px; background: rgba(255,255,255,0.1);
+            border: none; color: white; border-radius: 12px;
+            cursor: pointer; font-size: 0.88rem; font-weight: 700;
+        }
     </style>
 </head>
 <body>
@@ -1025,6 +1136,7 @@
                 <div class="ob-dot active" id="obDot0"></div>
                 <div class="ob-dot" id="obDot1"></div>
                 <div class="ob-dot" id="obDot2"></div>
+                <div class="ob-dot" id="obDot3"></div>
             </div>
             <div id="obStep0" class="ob-steps">
                 <div class="ob-step">
@@ -1054,6 +1166,7 @@
                     <div class="ob-step-text"><strong>Car Mode</strong> — 125m radius. <strong>Red hazard warning appears first</strong> — pull over safely before audio plays.</div>
                 </div>
             </div>
+            <!-- Step 2: Tips -->
             <div id="obStep2" class="ob-steps" style="display:none;">
                 <div class="ob-step">
                     <div class="ob-step-num">🔊</div>
@@ -1065,9 +1178,29 @@
                 </div>
                 <div class="ob-step">
                     <div class="ob-step-num">☕</div>
-                    <div class="ob-step-text">This tour is <strong>free forever</strong>. If you love it, support us via the donate button at the bottom of the page!</div>
+                    <div class="ob-step-text">This tour is <strong>free forever</strong>. If you love it, support us via the donate button at the bottom!</div>
                 </div>
             </div>
+
+            <!-- Step 3: Personalization -->
+            <div id="obStep3" style="display:none; text-align:left;">
+                <div class="ob-section-label">What brings you to the park today?</div>
+                <div class="ob-pref-grid" id="prefInterests">
+                    <div class="ob-pref-chip" data-pref="history" onclick="togglePref(this,'interests')"><span class="pref-icon">🏛️</span>History</div>
+                    <div class="ob-pref-chip" data-pref="nature" onclick="togglePref(this,'interests')"><span class="pref-icon">🌿</span>Nature</div>
+                    <div class="ob-pref-chip" data-pref="family" onclick="togglePref(this,'interests')"><span class="pref-icon">👨‍👩‍👧‍👦</span>Family</div>
+                    <div class="ob-pref-chip" data-pref="fitness" onclick="togglePref(this,'interests')"><span class="pref-icon">💪</span>Fitness</div>
+                    <div class="ob-pref-chip" data-pref="photography" onclick="togglePref(this,'interests')"><span class="pref-icon">📸</span>Photography</div>
+                    <div class="ob-pref-chip" data-pref="geology" onclick="togglePref(this,'interests')"><span class="pref-icon">🪨</span>Geology</div>
+                </div>
+                <div class="ob-section-label" style="margin-top:4px;">Experience level</div>
+                <div class="ob-pref-grid" id="prefLevel" style="grid-template-columns: 1fr 1fr 1fr;">
+                    <div class="ob-pref-chip" data-pref="beginner" onclick="togglePref(this,'level')"><span class="pref-icon">🌱</span>Beginner</div>
+                    <div class="ob-pref-chip" data-pref="moderate" onclick="togglePref(this,'level')"><span class="pref-icon">🚵</span>Moderate</div>
+                    <div class="ob-pref-chip" data-pref="advanced" onclick="togglePref(this,'level')"><span class="pref-icon">🏆</span>Advanced</div>
+                </div>
+            </div>
+
             <button class="ob-btn" id="obNextBtn" onclick="onboardingNext()">Next →</button>
             <div class="ob-skip" onclick="dismissOnboarding()">Skip intro</div>
         </div>
@@ -1081,6 +1214,42 @@
 
     <!-- GPS SIGNAL INDICATOR -->
     <div id="gpsSignalBar">📡 GPS signal lost — move to an open area</div>
+
+    <!-- WEATHER BANNER -->
+    <div id="weatherBanner" onclick="openWeatherModal()">
+        <div class="wb-inner">
+            <div class="wb-icon" id="wbIcon">🌤</div>
+            <div class="wb-text">
+                <div><strong id="wbCondition">Loading weather...</strong> <span id="wbTemp" class="wb-temp"></span></div>
+                <div class="wb-tip" id="wbTip"></div>
+            </div>
+            <div class="wb-dismiss" onclick="event.stopPropagation(); document.getElementById('weatherBanner').style.display='none'">✕</div>
+        </div>
+    </div>
+
+    <!-- WEATHER DETAIL MODAL -->
+    <div id="weatherModal">
+        <div class="weather-card">
+            <h3>🌤 Current Conditions — Mill Creek Park</h3>
+            <div class="weather-main">
+                <div class="wm-icon" id="wmIcon">🌤</div>
+                <div>
+                    <div class="wm-temp" id="wmTemp">—°F</div>
+                    <div class="wm-desc" id="wmDesc">—</div>
+                </div>
+            </div>
+            <div class="weather-details">
+                <div class="weather-detail"><div class="wd-val" id="wmFeels">—</div><div class="wd-label">Feels Like</div></div>
+                <div class="weather-detail"><div class="wd-val" id="wmHumidity">—</div><div class="wd-label">Humidity</div></div>
+                <div class="weather-detail"><div class="wd-val" id="wmWind">—</div><div class="wd-label">Wind</div></div>
+            </div>
+            <div class="weather-tips">
+                <h4>Trail Recommendations</h4>
+                <div id="wmTips"></div>
+            </div>
+            <button class="weather-close" onclick="document.getElementById('weatherModal').classList.remove('show')">Close</button>
+        </div>
+    </div>
 
     <!-- WAYPOINT PROGRESS COUNTER -->
     <div id="waypointProgress">
@@ -1212,6 +1381,7 @@
             <button class="wp-btn" onclick="playerReplay()">🔁 Replay</button>
             <button class="wp-btn" onclick="playerSkip()">Next ⏭</button>
         </div>
+        <div id="walkPersonalTip"></div>
         <button class="wp-transcript-btn" onclick="showTranscript()">📄 Read Transcript</button>
     </div>
 
@@ -1436,7 +1606,24 @@ let WAYPOINT_AUDIO_VOLUME = 1.0;
            ONBOARDING
         ============================================================ */
         let obCurrentStep = 0;
-        const OB_TOTAL = 3;
+        const OB_TOTAL = 4;
+        const userPrefs = { interests: [], level: 'moderate' };
+
+        function togglePref(el, group) {
+            if (group === 'level') {
+                // single-select for level
+                document.querySelectorAll('#prefLevel .ob-pref-chip').forEach(c => c.classList.remove('selected'));
+                el.classList.add('selected');
+                userPrefs.level = el.dataset.pref;
+            } else {
+                // multi-select for interests
+                el.classList.toggle('selected');
+                const val = el.dataset.pref;
+                const idx = userPrefs.interests.indexOf(val);
+                if (idx === -1) userPrefs.interests.push(val);
+                else userPrefs.interests.splice(idx, 1);
+            }
+        }
 
         function onboardingNext() {
             obCurrentStep++;
@@ -1444,8 +1631,8 @@ let WAYPOINT_AUDIO_VOLUME = 1.0;
             for (let i = 0; i < OB_TOTAL; i++) {
                 const s = document.getElementById('obStep' + i);
                 const d = document.getElementById('obDot' + i);
-                if (s) s.style.display = i === obCurrentStep ? 'flex' : 'none';
-                if (d) { d.classList.toggle('active', i === obCurrentStep); }
+                if (s) s.style.display = i === obCurrentStep ? (i === 3 ? 'block' : 'flex') : 'none';
+                if (d) d.classList.toggle('active', i === obCurrentStep);
             }
             const btn = document.getElementById('obNextBtn');
             if (btn) btn.textContent = obCurrentStep === OB_TOTAL - 1 ? "Let's Go! 🚴" : "Next →";
@@ -1456,19 +1643,226 @@ let WAYPOINT_AUDIO_VOLUME = 1.0;
             if (!el) return;
             el.classList.add('fade-out');
             localStorage.setItem('ctc_onboarded', '1');
+            localStorage.setItem('ctc_prefs', JSON.stringify(userPrefs));
+            applyPersonalization();
             setTimeout(() => el.remove(), 650);
             checkAudioUnlockNeeded();
+            fetchWeather();
+        }
+
+        // Load saved prefs for returning users
+        function loadSavedPrefs() {
+            const saved = localStorage.getItem('ctc_prefs');
+            if (saved) {
+                try {
+                    const p = JSON.parse(saved);
+                    if (p.interests) userPrefs.interests = p.interests;
+                    if (p.level) userPrefs.level = p.level;
+                } catch(e) {}
+            }
         }
 
         // Skip onboarding for returning users
         if (localStorage.getItem('ctc_onboarded')) {
             const el = document.getElementById('onboardingOverlay');
             if (el) el.remove();
+            loadSavedPrefs();
+            fetchWeather();
         }
 
         /* ============================================================
-           AUDIO UNLOCK (iOS)
+           WEATHER — Open-Meteo (free, no API key)
+           Mill Creek Park coords: 41.0724, -80.6918
         ============================================================ */
+        const PARK_LAT = 41.0724, PARK_LNG = -80.6918;
+        let weatherData = null;
+
+        async function fetchWeather() {
+            try {
+                const url = `https://api.open-meteo.com/v1/forecast?latitude=${PARK_LAT}&longitude=${PARK_LNG}&current=temperature_2m,apparent_temperature,precipitation,weathercode,windspeed_10m,relativehumidity_2m&temperature_unit=fahrenheit&windspeed_unit=mph&precipitation_unit=inch&timezone=America/New_York`;
+                const res = await fetch(url);
+                const data = await res.json();
+                weatherData = data.current;
+                updateWeatherUI(data.current);
+            } catch(e) {
+                console.warn('Weather fetch failed:', e);
+            }
+        }
+
+        const WMO_CODES = {
+            0:  { icon:'☀️',  desc:'Clear sky' },
+            1:  { icon:'🌤',  desc:'Mainly clear' },
+            2:  { icon:'⛅',  desc:'Partly cloudy' },
+            3:  { icon:'☁️',  desc:'Overcast' },
+            45: { icon:'🌫',  desc:'Foggy' },
+            48: { icon:'🌫',  desc:'Icy fog' },
+            51: { icon:'🌦',  desc:'Light drizzle' },
+            53: { icon:'🌦',  desc:'Drizzle' },
+            55: { icon:'🌧',  desc:'Heavy drizzle' },
+            61: { icon:'🌧',  desc:'Light rain' },
+            63: { icon:'🌧',  desc:'Rain' },
+            65: { icon:'🌧',  desc:'Heavy rain' },
+            71: { icon:'🌨',  desc:'Light snow' },
+            73: { icon:'❄️',  desc:'Snow' },
+            75: { icon:'❄️',  desc:'Heavy snow' },
+            77: { icon:'🌨',  desc:'Snow grains' },
+            80: { icon:'🌦',  desc:'Light showers' },
+            81: { icon:'🌧',  desc:'Showers' },
+            82: { icon:'⛈',  desc:'Heavy showers' },
+            85: { icon:'🌨',  desc:'Snow showers' },
+            95: { icon:'⛈',  desc:'Thunderstorm' },
+            99: { icon:'⛈',  desc:'Severe thunderstorm' },
+        };
+
+        // Context-aware trail tips based on weather + personalization
+        const WEATHER_TIPS = {
+            rain: [
+                { icon:'💧', text:"Lanterman's Falls is <strong>spectacular in rain</strong> — the gorge roars to life. One of the best times to visit." },
+                { icon:'🌿', text:'Wet conditions make the <strong>hemlock gorge trails</strong> feel like a rainforest. Bring waterproof shoes.' },
+                { icon:'⚠️', text:'<strong>Avoid steep trails</strong> like Grotto Falls steps — rocks get slippery. Stick to paved routes.' },
+                { icon:'📸', text:'Rain creates <strong>incredible photography</strong> — fog in the gorge, reflections in the creek, moody light.' },
+            ],
+            cold: [
+                { icon:'❄️', text:'Cold days mean <strong>fewer crowds</strong> — you may have the gorge to yourself. Dress in layers.' },
+                { icon:'🌲', text:'Winter reveals the <strong>park\'s geological bones</strong> — sandstone cliffs and creek formations hidden by leaves are fully visible.' },
+                { icon:'⚠️', text:'<strong>Ice possible on shaded trails</strong> after freezing temps. The paved Kirk Road Bikeway stays safer.' },
+            ],
+            hot: [
+                { icon:'💦', text:'Hot day? <strong>Scholl, Wick, and Fellows Pavilions</strong> all have free spray basins and splash pads.' },
+                { icon:'🌲', text:'The <strong>hemlock gorge stays 10-15° cooler</strong> than the rest of the park thanks to the tree canopy. Head there first.' },
+                { icon:'⏰', text:'Ride <strong>early morning</strong> for the best experience — trails are shaded and wildlife is most active before 10am.' },
+            ],
+            clear: [
+                { icon:'📸', text:'Perfect day for <strong>Ford Nature Center trail</strong> — golden light through the hemlocks is stunning on clear days.' },
+                { icon:'🌅', text:'Clear conditions = ideal for <strong>elevated viewpoints</strong> like Lanterman\'s Viewpoint and Chestnut Hill Pavilion.' },
+                { icon:'🦅', text:'Keep an eye out for <strong>great blue herons and osprey</strong> — they\'re most visible in clear weather along the creek.' },
+            ],
+            fog: [
+                { icon:'🌫', text:'Fog transforms <strong>Lanterman\'s Gorge into something magical</strong> — the mist hanging over the falls is unforgettable.' },
+                { icon:'📸', text:'The <strong>covered bridge</strong> in fog is one of the most photographed views in the park. Don\'t miss it.' },
+            ],
+            wind: [
+                { icon:'🌬', text:'Windy day — <strong>avoid tall tree canopy trails</strong> in case of falling branches. Paved routes are safest.' },
+                { icon:'🚴', text:'Headwind heading south on East Cohasset. <strong>Start south, finish north</strong> for an easier return ride.' },
+            ]
+        };
+
+        function getWeatherCategory(code, temp, wind) {
+            if (code >= 95) return 'rain';
+            if (code >= 51 && code <= 82) return 'rain';
+            if (code >= 71 && code <= 85) return 'cold';
+            if (code === 45 || code === 48) return 'fog';
+            if (wind > 20) return 'wind';
+            if (temp < 40) return 'cold';
+            if (temp > 82) return 'hot';
+            return 'clear';
+        }
+
+        function updateWeatherUI(w) {
+            const code = w.weathercode;
+            const temp = Math.round(w.temperature_2m);
+            const feels = Math.round(w.apparent_temperature);
+            const wind = Math.round(w.windspeed_10m);
+            const humidity = Math.round(w.relativehumidity_2m);
+            const wmo = WMO_CODES[code] || { icon:'🌤', desc:'Partly cloudy' };
+            const category = getWeatherCategory(code, temp, wind);
+            const tips = WEATHER_TIPS[category] || WEATHER_TIPS.clear;
+
+            // Banner
+            const banner = document.getElementById('weatherBanner');
+            const bannerColors = {
+                rain: 'linear-gradient(135deg,#1a3a4a,#2c5f7a)',
+                cold: 'linear-gradient(135deg,#1a2a3a,#2d4a6a)',
+                hot:  'linear-gradient(135deg,#7a3a1a,#b85c1e)',
+                clear:'linear-gradient(135deg,#1a3a1a,#2d5a2d)',
+                fog:  'linear-gradient(135deg,#2a2a3a,#4a4a6a)',
+                wind: 'linear-gradient(135deg,#2a3a1a,#4a6a2d)',
+            };
+            banner.style.background = bannerColors[category] || bannerColors.clear;
+            document.getElementById('wbIcon').textContent = wmo.icon;
+            document.getElementById('wbCondition').textContent = wmo.desc;
+            document.getElementById('wbTemp').textContent = temp + '°F';
+            document.getElementById('wbTip').textContent = tips[0].text.replace(/<[^>]+>/g,'');
+            banner.style.display = 'block';
+
+            // Modal
+            document.getElementById('wmIcon').textContent = wmo.icon;
+            document.getElementById('wmTemp').textContent = temp + '°F';
+            document.getElementById('wmDesc').textContent = wmo.desc;
+            document.getElementById('wmFeels').textContent = feels + '°F';
+            document.getElementById('wmHumidity').textContent = humidity + '%';
+            document.getElementById('wmWind').textContent = wind + ' mph';
+
+            // Trail tips
+            const tipsEl = document.getElementById('wmTips');
+            tipsEl.innerHTML = tips.map(t =>
+                `<div class="weather-tip-item"><span>${t.icon}</span><span>${t.text}</span></div>`
+            ).join('');
+        }
+
+        function openWeatherModal() {
+            document.getElementById('weatherModal').classList.add('show');
+        }
+
+        /* ============================================================
+           PERSONALIZATION
+        ============================================================ */
+
+        // Tags that map to each interest for scoring
+        const INTEREST_TAG_MAP = {
+            history:      ['🏛️ Historic', '🎢', 'Historical', 'historic'],
+            nature:       ['🌲', '🌿', '🪨 Geology', '💧', '🐢', '🌊', 'Natural', 'waterfall', 'trail'],
+            family:       ['👨‍👩‍👧‍👦 Family', '💦 Splash Pad', '🛝', '🧺 Picnic', 'playground'],
+            fitness:      ['🚴 Bike Friendly', '⚠️ Steep', '⚠️ Hilly', '⚠️ Moderate', '🏃'],
+            photography:  ['📸 Photo Op', '📸 Must See', '📸 Best View', '🌄 View', '🌅'],
+            geology:      ['🪨 Geology', '🌊 Creek', 'Gorge', 'sandstone', 'Cascade'],
+        };
+
+        const LEVEL_FILTERS = {
+            beginner: ['🟢 Easy', '🟢 Easy/Flat', '♿ Accessible', '🛣️ Paved'],
+            moderate: [],  // no filter for moderate — see everything
+            advanced: ['⚠️ Steep', '⚠️ Hilly', '⚠️ Moderate', '❌ No Bikes'],
+        };
+
+        // Personalized "why you'll love this" messages
+        function getPersonalTip(spot) {
+            if (!userPrefs.interests.length) return null;
+            const tags = (spot.tags || []).join(' ') + ' ' + (spot.category || '') + ' ' + (spot.name || '');
+            const tagsLower = tags.toLowerCase();
+
+            if (userPrefs.interests.includes('history') &&
+                (tagsLower.includes('historic') || tagsLower.includes('histor') || spot.category === 'historic')) {
+                return '🏛️ Matches your interest in history';
+            }
+            if (userPrefs.interests.includes('photography') &&
+                (tags.includes('📸') || tags.includes('🌄') || tags.includes('View'))) {
+                return '📸 Great photography spot based on your interests';
+            }
+            if (userPrefs.interests.includes('geology') &&
+                (tags.includes('🪨') || tagsLower.includes('gorge') || tagsLower.includes('cascade') || tagsLower.includes('sandstone'))) {
+                return '🪨 Notable geology — matches your interests';
+            }
+            if (userPrefs.interests.includes('family') && tags.includes('👨‍👩‍👧‍👦')) {
+                return '👨‍👩‍👧‍👦 Family-friendly — recommended for your group';
+            }
+            if (userPrefs.interests.includes('fitness') &&
+                (tags.includes('⚠️') || tags.includes('🚴 Bike'))) {
+                return '💪 Challenging spot — good for your fitness goals';
+            }
+            if (userPrefs.interests.includes('nature') && spot.category === 'trail') {
+                return '🌿 Natural trail — matches your nature interest';
+            }
+            return null;
+        }
+
+        function applyPersonalization() {
+            // Highlight recommended markers on the map with a gold ring
+            // (visual enhancement — markers matching interests get a star badge)
+            if (window.markers && userPrefs.interests.length) {
+                // Subtle — just log for now, visual marker enhancement needs map reinit
+                console.log('🎯 Personalization active:', userPrefs);
+            }
+        }
         let audioContextUnlocked = false;
 
         function checkAudioUnlockNeeded() {
@@ -1502,17 +1896,21 @@ let WAYPOINT_AUDIO_VOLUME = 1.0;
             gpsCheckInterval = setInterval(() => {
                 if (!audioEnabled || !lastGpsTime) return;
                 const bar = document.getElementById('gpsSignalBar');
+                const wb  = document.getElementById('weatherBanner');
                 const elapsed = Date.now() - lastGpsTime;
                 if (elapsed > 10000) {
                     bar.textContent = '📡 GPS signal lost — move to an open area';
                     bar.className = '';
                     bar.style.display = 'block';
+                    if (wb && wb.style.display !== 'none') wb.style.top = '38px';
                 } else if (elapsed > 5000) {
                     bar.textContent = '📡 GPS signal weak — accuracy may be reduced';
                     bar.className = 'weak';
                     bar.style.display = 'block';
+                    if (wb && wb.style.display !== 'none') wb.style.top = '38px';
                 } else {
                     bar.style.display = 'none';
+                    if (wb && wb.style.display !== 'none') wb.style.top = '0';
                 }
             }, 3000);
         }
@@ -3015,6 +3413,19 @@ function stopBackgroundTour() {
                 document.getElementById('walkSubtitle').textContent =
                     state === 'playing' ? '🔊 Audio Guide Playing' :
                     state === 'finished' ? '✅ Finished' : '⏳ Queued';
+
+                // Personalized tip
+                const tipEl = document.getElementById('walkPersonalTip');
+                if (tipEl) {
+                    const tip = getPersonalTip(spot);
+                    if (tip) {
+                        tipEl.textContent = tip;
+                        tipEl.style.display = 'block';
+                    } else {
+                        tipEl.style.display = 'none';
+                    }
+                }
+
                 p.classList.add('show');
                 if (state === 'finished') {
                     popupDismissTimer = setTimeout(() => hideAllPlayers(), 10000);
