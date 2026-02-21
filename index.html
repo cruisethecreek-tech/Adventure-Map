@@ -2221,129 +2221,200 @@ function stopBackgroundTour() {
         }
 
         function showBoundaryWarning(type) {
-            const popup = document.getElementById('audioPopup');
-            const title = document.getElementById('popupTitle');
-            if (type === "approaching") {
-                title.innerText = "⚠️ Approaching Park Boundary";
-                popup.style.background = "linear-gradient(135deg, #f39c12, #e67e22)";
-            } else if (type === "outside") {
-                title.innerText = "🚫 Outside Park Boundaries!";
-                popup.style.background = "linear-gradient(135deg, #e74c3c, #c0392b)";
-            } else if (type === "returned") {
-                title.innerText = "✅ Back Inside Park";
-                popup.style.background = "linear-gradient(135deg, #27ae60, #229954)";
-            }
-            popup.classList.add('show');
-            setTimeout(() => {
-                popup.classList.remove('show');
-                popup.style.background = "linear-gradient(135deg, var(--sage-green), var(--dark-sage))";
-            }, 8000);
-        }
-
-        function triggerHotspot(spot) {
-            spokenLocations.add(spot.name);
-            const popup = document.getElementById('audioPopup');
-            document.getElementById('popupTitle').innerText = spot.name;
-            popup.classList.add('show');
-
-            if (currentAudio) {
-                currentAudio.pause();
-                currentAudio.currentTime = 0;
-                currentAudio = null;
-            }
-
-           let backgroundWasPlaying = false;
-if (backgroundAudio && !backgroundAudio.paused) {
-    backgroundWasPlaying = true;
-    backgroundAudio.pause();
-    isPlayingWaypoint = true;
+    const popup = document.getElementById('audioPopup');
+    const title = document.getElementById('popupTitle');
     
-    // Update player button
-    const playPauseBtn = document.getElementById('playPauseBtn');
-    if (playPauseBtn) {
-        playPauseBtn.textContent = '⏸️';
+    // VIBRATION ALERT (if supported)
+    if (navigator.vibrate) {
+        if (type === "approaching") {
+            navigator.vibrate([200, 100, 200]); // Two quick buzzes
+        } else if (type === "outside") {
+            navigator.vibrate([400, 200, 400, 200, 400]); // Strong alert
+        } else if (type === "returned") {
+            navigator.vibrate(200); // Single buzz
+        }
     }
+    
+    // VISUAL ALERT
+    if (type === "approaching") {
+        title.innerText = "⚠️ APPROACHING PARK BOUNDARY";
+        popup.style.background = "linear-gradient(135deg, #f39c12, #e67e22)";
+    } else if (type === "outside") {
+        title.innerText = "🚫 OUTSIDE PARK - TURN AROUND!";
+        popup.style.background = "linear-gradient(135deg, #e74c3c, #c0392b)";
+    } else if (type === "returned") {
+        title.innerText = "✅ BACK INSIDE PARK";
+        popup.style.background = "linear-gradient(135deg, #27ae60, #229954)";
+    }
+    
+    popup.classList.add('show');
+    
+    // AUDIO ALERT WITH SPEECH SYNTHESIS (doesn't get blocked)
+    if ('speechSynthesis' in window) {
+        const utterance = new SpeechSynthesisUtterance();
+        utterance.volume = 1.0;
+        utterance.rate = 1.1;
+        utterance.pitch = 1.0;
+        
+        if (type === "approaching") {
+            utterance.text = "Warning. Approaching park boundary.";
+        } else if (type === "outside") {
+            utterance.text = "Alert! You are outside the park. Please turn around.";
+        } else if (type === "returned") {
+            utterance.text = "You are back inside the park.";
+        }
+        
+        // Cancel any ongoing speech and speak
+        window.speechSynthesis.cancel();
+        window.speechSynthesis.speak(utterance);
+    }
+    
+    // Keep popup visible longer for safety warnings
+    setTimeout(() => {
+        popup.classList.remove('show');
+        popup.style.background = "linear-gradient(135deg, var(--sage-green), var(--dark-sage))";
+    }, 10000); // 10 seconds instead of 8
 }
 
-            if (spot.audio) {
-                console.log(`🎙️ Loading: ${spot.name}`);
-                console.log(`📂 URL: ${spot.audio}`);
+        function triggerHotspot(spot) {
+    spokenLocations.add(spot.name);
+    const popup = document.getElementById('audioPopup');
+    document.getElementById('popupTitle').innerText = spot.name;
+    popup.classList.add('show');
+
+    // Pause background audio
+    let backgroundWasPlaying = false;
+    if (backgroundAudio && !backgroundAudio.paused) {
+        backgroundWasPlaying = true;
+        backgroundAudio.pause();
+        isPlayingWaypoint = true;
+    }
+
+    if (spot.audio) {
+        console.log(`🎙️ Loading: ${spot.name}`);
+        console.log(`📂 URL: ${spot.audio}`);
+        
+        // CREATE TAP-TO-PLAY BUTTON OVERLAY
+        const playButton = document.createElement('div');
+        playButton.id = 'waypoint-play-overlay';
+        playButton.style.cssText = `
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(135deg, #27ae60, #229954);
+            color: white;
+            padding: 30px 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+            z-index: 5000;
+            text-align: center;
+            cursor: pointer;
+            animation: pulse 1.5s infinite;
+        `;
+        
+        playButton.innerHTML = `
+            <div style="font-size: 48px; margin-bottom: 10px;">🎧</div>
+            <div style="font-size: 1.3rem; font-weight: 700; margin-bottom: 8px;">${spot.name}</div>
+            <div style="font-size: 0.9rem; opacity: 0.9; margin-bottom: 15px;">Tap to hear Rachel's guide</div>
+            <div style="background: rgba(255,255,255,0.2); padding: 12px 30px; border-radius: 30px; font-size: 1.1rem; font-weight: 700;">▶️ PLAY AUDIO</div>
+        `;
+        
+        document.body.appendChild(playButton);
+        
+        // PLAY ON TAP
+        playButton.addEventListener('click', function() {
+            playButton.remove();
+            
+            const audio = new Audio();
+            audio.crossOrigin = "anonymous";
+            audio.preload = "auto";
+            audio.volume = WAYPOINT_AUDIO_VOLUME;
+            audio.src = spot.audio;
+            currentAudio = audio;
+
+            audio.onloadedmetadata = () => {
+                console.log(`📻 Loaded: ${spot.name} - ${audio.duration.toFixed(1)}s`);
+            };
+
+            audio.onended = () => {
+                console.log(`✅ Finished: ${spot.name}`);
+                currentAudio = null;
+                if (backgroundWasPlaying && backgroundAudio) {
+                    setTimeout(() => {
+                        backgroundAudio.play().catch(err => console.error('Resume failed:', err));
+                    }, 500);
+                }
+                isPlayingWaypoint = false;
+                setTimeout(() => { popup.classList.remove('show'); }, 3000);
+            };
+
+            audio.onerror = (e) => {
+                console.error(`❌ Error: ${spot.name}`, audio.error);
+                const errorCode = audio.error ? audio.error.code : 0;
+                const errorMessages = {
+                    1: 'Loading aborted',
+                    2: 'Network error',
+                    3: 'File corrupt or wrong format',
+                    4: 'Format not supported or CORS blocked'
+                };
+                console.error(`Code ${errorCode}: ${errorMessages[errorCode]}`);
                 
-                const audio = new Audio();
-                audio.crossOrigin = "anonymous";
-                audio.preload = "auto";
-                audio.volume = WAYPOINT_AUDIO_VOLUME;
-                audio.src = spot.audio;
-                currentAudio = audio;
-
-                audio.onloadedmetadata = () => {
-                    console.log(`📻 Loaded: ${spot.name} - ${audio.duration.toFixed(1)}s`);
-                };
-
-                audio.onended = () => {
-                    console.log(`✅ Finished: ${spot.name}`);
-                    currentAudio = null;
-                    if (backgroundWasPlaying && backgroundAudio) {
-                        setTimeout(() => {
-                            backgroundAudio.play().catch(err => console.error('Resume failed:', err));
-                        }, 500);
-                    }
-                    isPlayingWaypoint = false;
-                    setTimeout(() => { popup.classList.remove('show'); }, 3000);
-                };
-
-                audio.onerror = (e) => {
-                    console.error(`❌ Error: ${spot.name}`, audio.error);
-                    const errorCode = audio.error ? audio.error.code : 0;
-                    const errorMessages = {
-                        1: 'Loading aborted',
-                        2: 'Network error',
-                        3: 'File corrupt or wrong format',
-                        4: 'Format not supported or CORS blocked'
-                    };
-                    console.error(`Code ${errorCode}: ${errorMessages[errorCode]}`);
-                    
-                    document.getElementById('popupTitle').innerText = `⚠️ ${spot.name} - Audio Error`;
-                    currentAudio = null;
-                    if (backgroundWasPlaying && backgroundAudio) {
-                        setTimeout(() => {
-                            backgroundAudio.play().catch(err => console.log('Resume failed:', err));
-                        }, 1000);
-                    }
-                    isPlayingWaypoint = false;
-                    setTimeout(() => { popup.classList.remove('show'); }, 5000);
-                };
-
-                audio.play().then(() => {
-                    console.log(`✓ Playing: ${spot.name}`);
-                }).catch((e) => {
-                    console.error(`❌ Play failed: ${spot.name}`, e.name, e.message);
-                    document.getElementById('popupTitle').innerText = `⚠️ Playback blocked: ${spot.name}`;
-                    currentAudio = null;
-                    if (backgroundWasPlaying && backgroundAudio) {
-                        setTimeout(() => {
-                            backgroundAudio.play().catch(err => console.log('Resume failed:', err));
-                        }, 1000);
-                    }
-                    isPlayingWaypoint = false;
-                    setTimeout(() => { popup.classList.remove('show'); }, 5000);
-                });
-            } else {
-                console.warn(`⚠️ No audio: ${spot.name}`);
-                document.getElementById('popupTitle').innerText = `${spot.name} (No Audio)`;
+                document.getElementById('popupTitle').innerText = `⚠️ ${spot.name} - Audio Error`;
+                currentAudio = null;
                 if (backgroundWasPlaying && backgroundAudio) {
                     setTimeout(() => {
                         backgroundAudio.play().catch(err => console.log('Resume failed:', err));
                     }, 1000);
                 }
                 isPlayingWaypoint = false;
-                setTimeout(() => { popup.classList.remove('show'); }, 3000);
-            }
+                setTimeout(() => { popup.classList.remove('show'); }, 5000);
+            };
 
+            audio.play().then(() => {
+                console.log(`✓ Playing: ${spot.name}`);
+            }).catch((e) => {
+                console.error(`❌ Play failed: ${spot.name}`, e.name, e.message);
+                document.getElementById('popupTitle').innerText = `⚠️ Could not play: ${spot.name}`;
+                currentAudio = null;
+                if (backgroundWasPlaying && backgroundAudio) {
+                    setTimeout(() => {
+                        backgroundAudio.play().catch(err => console.log('Resume failed:', err));
+                    }, 1000);
+                }
+                isPlayingWaypoint = false;
+                setTimeout(() => { popup.classList.remove('show'); }, 5000);
+            });
+        });
+        
+        // AUTO-DISMISS AFTER 30 SECONDS IF NOT TAPPED
+        setTimeout(() => {
+            if (document.getElementById('waypoint-play-overlay')) {
+                playButton.remove();
+                if (backgroundWasPlaying && backgroundAudio) {
+                    backgroundAudio.play();
+                }
+                isPlayingWaypoint = false;
+                popup.classList.remove('show');
+            }
+        }, 30000);
+        
+    } else {
+        console.warn(`⚠️ No audio: ${spot.name}`);
+        document.getElementById('popupTitle').innerText = `${spot.name} (No Audio)`;
+        if (backgroundWasPlaying && backgroundAudio) {
             setTimeout(() => {
-                spokenLocations.delete(spot.name);
-            }, 300000);
+                backgroundAudio.play().catch(err => console.log('Resume failed:', err));
+            }, 1000);
         }
+        isPlayingWaypoint = false;
+        setTimeout(() => { popup.classList.remove('show'); }, 3000);
+    }
+
+    setTimeout(() => {
+        spokenLocations.delete(spot.name);
+    }, 300000);
+}
 
         function getDistanceFromLatLonInMeters(lat1, lon1, lat2, lon2) {
             const R = 6371;
