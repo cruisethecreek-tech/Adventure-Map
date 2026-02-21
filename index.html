@@ -431,6 +431,35 @@
             box-shadow: 0 4px 12px rgba(0,0,0,0.3);
             transition: opacity 0.5s ease;
         }
+
+        .mode-toast {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 25px;
+            font-weight: 600;
+            z-index: 4000;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.35);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 0.9rem;
+            transition: opacity 0.4s ease;
+            white-space: nowrap;
+        }
+        .mode-toast .undo-btn {
+            background: rgba(255,255,255,0.25);
+            border: 1px solid rgba(255,255,255,0.5);
+            color: white;
+            border-radius: 12px;
+            padding: 4px 10px;
+            font-size: 0.78rem;
+            font-weight: 700;
+            cursor: pointer;
+        }
 .background-audio-player {
     position: fixed;
     bottom: 90px;
@@ -1236,7 +1265,7 @@ let WAYPOINT_AUDIO_VOLUME = 1.0;
     {
         name: "Virginia J. Axtmann Nature Trail",
         category: "trail", icon: "🥾",
-        lat: 41.08757, lng: -80.67637,
+        lat: 41.0875, lng: -80.6820,
         tags: ["🟢 Easy/Flat", "♿ Accessible"],
         time: "10 mins",
         shortDesc: "Barrier-free tenth-mile paved path with nature signage.",
@@ -2841,36 +2870,82 @@ function stopBackgroundTour() {
             }
         }
 
+        let modeToastTimer = null;
+        let previousMode = null;
+
         function setRouteMode(mode) {
+            if (mode === currentRouteMode) return; // no-op if same mode
+
+            previousMode = currentRouteMode;
             currentRouteMode = mode;
+
+            // 1. Reset "already heard" so nothing gets skipped in the new mode context
+            spokenLocations.clear();
+
+            // 2. Keep current waypoint audio playing — just update future behavior
+            //    (do NOT call stopCurrentAudio or clear the queue)
+
+            // 3. Update button UI
             const trailBtn = document.getElementById('trailModeBtn');
             const bikeBtn = document.getElementById('bikeModeBtn');
             const carBtn = document.getElementById('carModeBtn');
             const modeText = document.getElementById('currentModeText');
             const modeDesc = document.getElementById('modeDescription');
 
-            // Reset all buttons
             trailBtn.style.cssText = 'background:white; color:#6B8E6F; border-color:#6B8E6F; font-size:0.85rem; padding:8px 16px;';
             bikeBtn.style.cssText = 'background:white; color:#D68438; border-color:#D68438; font-size:0.85rem; padding:8px 16px;';
             if (carBtn) carBtn.style.cssText = 'background:white; color:#c0392b; border-color:#c0392b; font-size:0.85rem; padding:8px 16px;';
 
-            if (mode === 'trail') {
-                trailBtn.style.cssText = 'background:#6B8E6F; color:white; border-color:#6B8E6F; font-size:0.85rem; padding:8px 16px;';
-                modeText.style.color = '#6B8E6F';
-                modeText.textContent = 'Scenic Trail Mode';
-                modeDesc.textContent = 'Most scenic routes through the park';
-            } else if (mode === 'bike') {
-                bikeBtn.style.cssText = 'background:#D68438; color:white; border-color:#D68438; font-size:0.85rem; padding:8px 16px;';
-                modeText.style.color = '#D68438';
-                modeText.textContent = 'Bike Route Mode';
-                modeDesc.textContent = 'Google Maps cycling mode — 100m waypoint radius';
-            } else if (mode === 'car') {
-                if (carBtn) carBtn.style.cssText = 'background:#c0392b; color:white; border-color:#c0392b; font-size:0.85rem; padding:8px 16px;';
-                modeText.style.color = '#c0392b';
-                modeText.textContent = '🚗 Car Mode';
-                modeDesc.textContent = '⚠️ Pull over safely before listening to waypoints';
+            const modeConfig = {
+                trail: { btn: trailBtn, color: '#6B8E6F', label: '🚶 Scenic Trail Mode', desc: 'Scenic routes — 25m waypoint radius', bg: 'rgba(107,142,111,0.95)', icon: '🚶' },
+                walk:  { btn: trailBtn, color: '#6B8E6F', label: '🚶 Walk Mode',         desc: 'Walking — 25m waypoint radius',    bg: 'rgba(107,142,111,0.95)', icon: '🚶' },
+                bike:  { btn: bikeBtn,  color: '#D68438', label: '🚴 Bike Route Mode',   desc: 'Cycling — 100m waypoint radius',  bg: 'rgba(214,132,56,0.95)',  icon: '🚴' },
+                car:   { btn: carBtn,   color: '#c0392b', label: '🚗 Car Mode',          desc: '⚠️ Pull over safely before listening', bg: 'rgba(192,57,43,0.95)', icon: '🚗' },
+            };
+
+            const cfg = modeConfig[mode];
+            if (cfg) {
+                cfg.btn.style.cssText = `background:${cfg.color}; color:white; border-color:${cfg.color}; font-size:0.85rem; padding:8px 16px;`;
+                modeText.style.color = cfg.color;
+                modeText.textContent = cfg.label;
+                modeDesc.textContent = cfg.desc;
             }
+
+            // 4. Show undo toast with 2-second window
+            showModeToast(cfg, previousMode);
+
             infoWindow.close();
+        }
+
+        function showModeToast(cfg, prevMode) {
+            // Remove any existing toast
+            const existing = document.getElementById('modeToast');
+            if (existing) existing.remove();
+            if (modeToastTimer) { clearTimeout(modeToastTimer); modeToastTimer = null; }
+
+            const toast = document.createElement('div');
+            toast.id = 'modeToast';
+            toast.className = 'mode-toast';
+            toast.style.background = cfg.bg;
+            toast.innerHTML = `
+                <span>${cfg.icon} Switched to ${cfg.label.replace(/^[^ ]+ /,'')} — waypoints reset</span>
+                <button class="undo-btn" onclick="undoModeSwitch()">Undo</button>
+            `;
+            document.body.appendChild(toast);
+
+            // Auto-dismiss after 4 seconds
+            modeToastTimer = setTimeout(() => {
+                toast.style.opacity = '0';
+                setTimeout(() => toast.remove(), 400);
+                modeToastTimer = null;
+            }, 4000);
+        }
+
+        function undoModeSwitch() {
+            const toast = document.getElementById('modeToast');
+            if (toast) toast.remove();
+            if (modeToastTimer) { clearTimeout(modeToastTimer); modeToastTimer = null; }
+            if (previousMode) setRouteMode(previousMode);
         }
 
         function renderCategoryAccordions() {
