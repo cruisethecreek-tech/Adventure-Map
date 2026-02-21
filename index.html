@@ -837,34 +837,45 @@
             <div class="popup-subtitle">🔊 Audio Guide Playing</div>
         </div>
     </div>
-<div class="background-audio-player" id="backgroundPlayer">
-    <div class="player-header">
-        <div>
-            <div class="player-title">🎙️ Mill Creek History Tour</div>
-            <div class="player-chapter" id="playerChapter">Chapter 1: Welcome to Mill Creek</div>
-        </div>
-        <button class="player-close-btn" onclick="stopBackgroundTour()">Stop Tour</button>
+<div id="backgroundAudioPlayer" style="position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); background: linear-gradient(135deg, #2c3e50, #34495e); color: white; padding: 15px 20px; border-radius: 20px; box-shadow: 0 8px 24px rgba(0,0,0,0.4); z-index: 2500; display: none; min-width: 320px; max-width: 90%;">
+    
+    <!-- Header -->
+    <div style="text-align: center; margin-bottom: 10px;">
+        <div style="font-size: 0.75rem; opacity: 0.7; margin-bottom: 3px;">🎧 MILL CREEK HISTORY TOUR</div>
+        <div id="playerChapter" style="font-weight: 700; font-size: 0.95rem;">Chapter 1: Welcome to Mill Creek</div>
     </div>
     
-    <div class="progress-container">
-        <div class="progress-bar" id="progressBar" onclick="seekAudio(event)">
-            <div class="progress-fill" id="progressFill"></div>
-            <div class="progress-handle" id="progressHandle"></div>
+    <!-- Progress Bar -->
+    <div style="margin-bottom: 12px;">
+        <div id="progressBar" onclick="seekAudio(event)" style="width: 100%; height: 6px; background: rgba(255,255,255,0.2); border-radius: 3px; cursor: pointer; position: relative;">
+            <div id="progressFill" style="width: 0%; height: 100%; background: linear-gradient(90deg, #3498db, #2ecc71); border-radius: 3px; transition: width 0.1s;"></div>
+            <div id="progressHandle" style="position: absolute; top: 50%; right: 0; transform: translate(50%, -50%); width: 12px; height: 12px; background: white; border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.3);"></div>
         </div>
-        <div class="time-display" id="timeDisplay">0:00 / 0:00</div>
+        <div id="timeDisplay" style="display: flex; justify-content: space-between; margin-top: 4px; font-size: 0.7rem; opacity: 0.7;">
+            <span id="currentTime">0:00</span>
+            <span id="totalTime">0:00</span>
+        </div>
     </div>
     
-    <div class="player-controls">
-        <button class="player-btn" onclick="skipBackward()" title="Rewind 10s">⏪</button>
-        <button class="player-btn play-pause" id="playPauseBtn" onclick="togglePlayPause()" title="Play/Pause">▶️</button>
-        <button class="player-btn" onclick="skipForward()" title="Forward 10s">⏩</button>
-        <button class="player-btn" onclick="previousChapter()" title="Previous Chapter">⏮️</button>
-        <button class="player-btn" onclick="nextChapter()" title="Next Chapter">⏭️</button>
-        
-        <div class="volume-control">
-            <span style="font-size: 0.9rem;">🔊</span>
-            <input type="range" class="volume-slider" id="volumeSlider" min="0" max="100" value="50" oninput="adjustVolume(this.value)">
-        </div>
+    <!-- Control Buttons -->
+    <div style="display: flex; justify-content: center; align-items: center; gap: 10px;">
+        <button onclick="previousChapter()" title="Previous Chapter" style="background: rgba(255,255,255,0.1); border: none; color: white; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; font-size: 1.2rem; display: flex; align-items: center; justify-content: center;">⏮️</button>
+        <button onclick="skipBackward()" title="Rewind 10s" style="background: rgba(255,255,255,0.1); border: none; color: white; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; font-size: 1rem; display: flex; align-items: center; justify-content: center;">⏪</button>
+        <button id="playPauseBtn" onclick="togglePlayPause()" title="Play/Pause" style="background: linear-gradient(135deg, #3498db, #2ecc71); border: none; color: white; width: 50px; height: 50px; border-radius: 50%; cursor: pointer; font-size: 1.5rem; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(52, 152, 219, 0.4);">⏸️</button>
+        <button onclick="skipForward()" title="Forward 10s" style="background: rgba(255,255,255,0.1); border: none; color: white; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; font-size: 1rem; display: flex; align-items: center; justify-content: center;">⏩</button>
+        <button onclick="nextChapter()" title="Next Chapter" style="background: rgba(255,255,255,0.1); border: none; color: white; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; font-size: 1.2rem; display: flex; align-items: center; justify-content: center;">⏭️</button>
+    </div>
+    
+    <!-- Volume Control -->
+    <div style="margin-top: 12px; display: flex; align-items: center; gap: 8px;">
+        <span style="font-size: 0.9rem;">🔊</span>
+        <input type="range" id="volumeSlider" min="0" max="100" value="50" oninput="adjustVolume(this.value)" style="flex: 1; height: 4px; background: rgba(255,255,255,0.2); border-radius: 2px; outline: none; cursor: pointer;">
+    </div>
+    
+    <!-- Stop Button -->
+    <button onclick="stopBackgroundTour()" style="background: rgba(231, 76, 60, 0.2); border: 1px solid rgba(231, 76, 60, 0.5); color: #e74c3c; padding: 8px 16px; border-radius: 15px; cursor: pointer; font-size: 0.8rem; font-weight: 600; margin-top: 10px; width: 100%;">⏹️ Stop Tour</button>
+    
+</div>
     </div>
 </div>
     <footer>
