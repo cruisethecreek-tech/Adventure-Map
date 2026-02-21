@@ -1326,25 +1326,13 @@
         <div id="categoryContainer" style="margin-top: 30px;"></div>
 
         <div class="map-wrapper" style="margin-top: 40px;">
-            <div class="map-header">
-                <div class="map-header-controls" style="justify-content: center; margin-top: 0;">
-                    <button class="audio-btn" id="startAudioBtn" onclick="toggleAudioTour()">🎧 Start Audio Tour</button>
-                    <button class="audio-btn" id="pauseBackgroundBtn" onclick="toggleBackgroundAudio()" style="display:none; background:#34495e;">
-                        ⏸️ Pause History Tour
-                    </button>
-                    <button class="audio-btn" id="batteryModeBtn" onclick="toggleBatteryMode()" style="display:none; background:#7f8c8d;">
-                        🔋 Battery Saver
-                    </button>
-                    <span style="font-size: 0.9rem; opacity: 0.9; margin-left: 10px; display: inline-block;">Enable GPS tracking for audio</span>
-                </div>
-            </div>
             <div class="map-controls">
                 <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap; width: 100%;">
                     <button class="filter-btn" id="boundaryBtn" onclick="toggleParkBoundary()" style="background: var(--accent-orange); color: white; border-color: var(--accent-orange); font-size: 1rem; padding: 12px 24px;">
                         🗺️ SHOW SAFE RIDING ZONE
                     </button>
                     <div style="flex: 1; min-width: 200px; text-align: center; padding: 0 15px;">
-                        <span style="font-size: 0.9rem; color: var(--text-dark); font-weight: 600; display: block;">Choose Your Route Style:</span>
+                        <span style="font-size: 0.9rem; color: var(--text-dark); font-weight: 600; display: block;">Step 1 — Choose Your Mode:</span>
                         <div style="display: flex; gap: 8px; margin-top: 8px; justify-content: center;">
                             <button class="filter-btn active" id="trailModeBtn" onclick="setRouteMode('trail')" style="background: #6B8E6F; color: white; border-color: #6B8E6F; font-size: 0.85rem; padding: 8px 16px;">🚶 Walking Route</button>
                             <button class="filter-btn" id="bikeModeBtn" onclick="setRouteMode('bike')" style="background: white; color: #D68438; border-color: #D68438; font-size: 0.85rem; padding: 8px 16px;">🚴 Bike Routes (Faster)</button>
@@ -1355,6 +1343,18 @@
                 <div style="width: 100%; margin-top: 10px; padding: 10px; background: white; border-radius: 8px; font-size: 0.85rem; text-align: center; color: #555;">
                     <strong>Current Mode:</strong> <span id="currentModeText" style="color: #6B8E6F; font-weight: 700;">Scenic Trail Mode</span> - 
                     <span id="modeDescription">Most scenic routes through the park</span>
+                </div>
+            </div>
+            <div class="map-header">
+                <div class="map-header-controls" style="justify-content: center; margin-top: 0;">
+                    <button class="audio-btn" id="startAudioBtn" onclick="toggleAudioTour()">🎧 Step 2 — Start Audio Tour</button>
+                    <button class="audio-btn" id="pauseBackgroundBtn" onclick="toggleBackgroundAudio()" style="display:none; background:#34495e;">
+                        ⏸️ Pause History Tour
+                    </button>
+                    <button class="audio-btn" id="batteryModeBtn" onclick="toggleBatteryMode()" style="display:none; background:#7f8c8d;">
+                        🔋 Battery Saver
+                    </button>
+                    <span style="font-size: 0.9rem; opacity: 0.9; margin-left: 10px; display: inline-block;">Enable GPS tracking for audio</span>
                 </div>
             </div>
             <div class="map-frame-container">
