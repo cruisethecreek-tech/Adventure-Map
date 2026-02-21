@@ -898,44 +898,46 @@
         </div>
         <div class="cp-dismiss" onclick="playerDismiss()">tap to dismiss</div>
     </div>
-<div id="backgroundAudioPlayer" style="position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); background: linear-gradient(135deg, #2c3e50, #34495e); color: white; padding: 15px 20px; border-radius: 20px; box-shadow: 0 8px 24px rgba(0,0,0,0.4); z-index: 2500; display: none; min-width: 320px; max-width: 90%;">
-    
-    <!-- Header -->
-    <div style="text-align: center; margin-bottom: 10px;">
-        <div style="font-size: 0.75rem; opacity: 0.7; margin-bottom: 3px;">🎧 MILL CREEK HISTORY TOUR</div>
-        <div id="playerChapter" style="font-weight: 700; font-size: 0.95rem;">Chapter 1: Welcome to Mill Creek</div>
-    </div>
-    
-    <!-- Progress Bar -->
-    <div style="margin-bottom: 12px;">
-        <div id="progressBar" onclick="seekAudio(event)" style="width: 100%; height: 6px; background: rgba(255,255,255,0.2); border-radius: 3px; cursor: pointer; position: relative;">
-            <div id="progressFill" style="width: 0%; height: 100%; background: linear-gradient(90deg, #3498db, #2ecc71); border-radius: 3px; transition: width 0.1s;"></div>
-            <div id="progressHandle" style="position: absolute; top: 50%; right: 0; transform: translate(50%, -50%); width: 12px; height: 12px; background: white; border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.3);"></div>
+<div id="backgroundAudioPlayer" style="display:none;">
+    <!-- Minimized pill -->
+    <div id="bgPlayerPill" onclick="toggleBgPlayer()" style="position:fixed; bottom:24px; right:16px; background:linear-gradient(135deg,#2c3e50,#34495e); color:white; border-radius:30px; padding:10px 14px; z-index:2600; box-shadow:0 4px 16px rgba(0,0,0,0.4); display:flex; align-items:center; gap:10px; cursor:pointer; min-width:160px; max-width:220px;">
+        <button id="pillPlayPauseBtn" onclick="event.stopPropagation(); togglePlayPause()" style="background:linear-gradient(135deg,#3498db,#2ecc71); border:none; color:white; width:34px; height:34px; border-radius:50%; cursor:pointer; font-size:1rem; display:flex; align-items:center; justify-content:center; flex-shrink:0; box-shadow:0 2px 6px rgba(52,152,219,0.4);">⏸️</button>
+        <div style="flex:1; overflow:hidden; min-width:0;">
+            <div style="font-size:0.62rem; opacity:0.6; text-transform:uppercase; letter-spacing:0.5px;">🎧 History Tour</div>
+            <div id="pillChapter" style="font-size:0.78rem; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">Chapter 1</div>
         </div>
-        <div id="timeDisplay" style="display: flex; justify-content: space-between; margin-top: 4px; font-size: 0.7rem; opacity: 0.7;">
-            <span id="currentTime">0:00</span>
-            <span id="totalTime">0:00</span>
+        <span id="bgExpandIcon" style="font-size:0.75rem; opacity:0.6; flex-shrink:0;">▲</span>
+    </div>
+
+    <!-- Expanded panel -->
+    <div id="bgPlayerExpanded" style="position:fixed; bottom:80px; right:16px; background:linear-gradient(135deg,#2c3e50,#34495e); color:white; border-radius:20px; padding:16px 18px; z-index:2500; box-shadow:0 8px 24px rgba(0,0,0,0.4); width:min(320px,calc(100vw - 32px)); display:none;">
+        <div style="text-align:center; margin-bottom:10px;">
+            <div style="font-size:0.7rem; opacity:0.6; margin-bottom:2px;">🎧 MILL CREEK HISTORY TOUR</div>
+            <div id="playerChapter" style="font-weight:700; font-size:0.9rem; line-height:1.3;">Chapter 1: Welcome to Mill Creek</div>
         </div>
+        <div style="margin-bottom:12px;">
+            <div id="progressBar" onclick="seekAudio(event)" style="width:100%; height:6px; background:rgba(255,255,255,0.2); border-radius:3px; cursor:pointer; position:relative;">
+                <div id="progressFill" style="width:0%; height:100%; background:linear-gradient(90deg,#3498db,#2ecc71); border-radius:3px; transition:width 0.1s;"></div>
+                <div id="progressHandle" style="position:absolute; top:50%; right:0; transform:translate(50%,-50%); width:12px; height:12px; background:white; border-radius:50%; box-shadow:0 2px 4px rgba(0,0,0,0.3);"></div>
+            </div>
+            <div id="timeDisplay" style="display:flex; justify-content:space-between; margin-top:4px; font-size:0.68rem; opacity:0.7;">
+                <span id="currentTime">0:00</span>
+                <span id="totalTime">0:00</span>
+            </div>
+        </div>
+        <div style="display:flex; justify-content:center; align-items:center; gap:8px; margin-bottom:12px;">
+            <button onclick="previousChapter()" style="background:rgba(255,255,255,0.1); border:none; color:white; width:38px; height:38px; border-radius:50%; cursor:pointer; font-size:1.1rem; display:flex; align-items:center; justify-content:center;">⏮️</button>
+            <button onclick="skipBackward()" style="background:rgba(255,255,255,0.1); border:none; color:white; width:38px; height:38px; border-radius:50%; cursor:pointer; font-size:0.95rem; display:flex; align-items:center; justify-content:center;">⏪</button>
+            <button id="playPauseBtn" onclick="togglePlayPause()" style="background:linear-gradient(135deg,#3498db,#2ecc71); border:none; color:white; width:48px; height:48px; border-radius:50%; cursor:pointer; font-size:1.4rem; display:flex; align-items:center; justify-content:center; box-shadow:0 4px 12px rgba(52,152,219,0.4);">⏸️</button>
+            <button onclick="skipForward()" style="background:rgba(255,255,255,0.1); border:none; color:white; width:38px; height:38px; border-radius:50%; cursor:pointer; font-size:0.95rem; display:flex; align-items:center; justify-content:center;">⏩</button>
+            <button onclick="nextChapter()" style="background:rgba(255,255,255,0.1); border:none; color:white; width:38px; height:38px; border-radius:50%; cursor:pointer; font-size:1.1rem; display:flex; align-items:center; justify-content:center;">⏭️</button>
+        </div>
+        <div style="display:flex; align-items:center; gap:8px; margin-bottom:10px;">
+            <span style="font-size:0.85rem;">🔊</span>
+            <input type="range" id="volumeSlider" min="0" max="100" value="50" oninput="adjustVolume(this.value)" style="flex:1; height:4px; background:rgba(255,255,255,0.2); border-radius:2px; outline:none; cursor:pointer;">
+        </div>
+        <button onclick="stopBackgroundTour()" style="background:rgba(231,76,60,0.2); border:1px solid rgba(231,76,60,0.5); color:#e74c3c; padding:7px 14px; border-radius:14px; cursor:pointer; font-size:0.78rem; font-weight:600; width:100%;">⏹️ Stop Tour</button>
     </div>
-    
-    <!-- Control Buttons -->
-    <div style="display: flex; justify-content: center; align-items: center; gap: 10px;">
-        <button onclick="previousChapter()" title="Previous Chapter" style="background: rgba(255,255,255,0.1); border: none; color: white; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; font-size: 1.2rem; display: flex; align-items: center; justify-content: center;">⏮️</button>
-        <button onclick="skipBackward()" title="Rewind 10s" style="background: rgba(255,255,255,0.1); border: none; color: white; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; font-size: 1rem; display: flex; align-items: center; justify-content: center;">⏪</button>
-        <button id="playPauseBtn" onclick="togglePlayPause()" title="Play/Pause" style="background: linear-gradient(135deg, #3498db, #2ecc71); border: none; color: white; width: 50px; height: 50px; border-radius: 50%; cursor: pointer; font-size: 1.5rem; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(52, 152, 219, 0.4);">⏸️</button>
-        <button onclick="skipForward()" title="Forward 10s" style="background: rgba(255,255,255,0.1); border: none; color: white; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; font-size: 1rem; display: flex; align-items: center; justify-content: center;">⏩</button>
-        <button onclick="nextChapter()" title="Next Chapter" style="background: rgba(255,255,255,0.1); border: none; color: white; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; font-size: 1.2rem; display: flex; align-items: center; justify-content: center;">⏭️</button>
-    </div>
-    
-    <!-- Volume Control -->
-    <div style="margin-top: 12px; display: flex; align-items: center; gap: 8px;">
-        <span style="font-size: 0.9rem;">🔊</span>
-        <input type="range" id="volumeSlider" min="0" max="100" value="50" oninput="adjustVolume(this.value)" style="flex: 1; height: 4px; background: rgba(255,255,255,0.2); border-radius: 2px; outline: none; cursor: pointer;">
-    </div>
-    
-    <!-- Stop Button -->
-    <button onclick="stopBackgroundTour()" style="background: rgba(231, 76, 60, 0.2); border: 1px solid rgba(231, 76, 60, 0.5); color: #e74c3c; padding: 8px 16px; border-radius: 15px; cursor: pointer; font-size: 0.8rem; font-weight: 600; margin-top: 10px; width: 100%;">⏹️ Stop Tour</button>
-    
 </div>
     </div>
 </div>
@@ -1009,6 +1011,7 @@
         let spokenLocations = new Set(), userMarker = null;
         let lastBoundaryWarning = 0, isInsidePark = true, hasLeftPark = false;
         let currentAudio = null, backgroundAudio = null, isPlayingWaypoint = false, currentChapterIndex = 0;
+        let playbackGen = 0; // incremented on every stop/skip — stale callbacks check this
         let waypointQueue = [];
         let waypointHistory = []; // stack of spots already played
         let lastPlayedSpot = null; // current/most recent spot
@@ -1062,6 +1065,7 @@ let WAYPOINT_AUDIO_VOLUME = 1.0;
         name: "Cruise The Creek",
         category: "amenity", icon: "🚲",
         lat: 41.0720801, lng: -80.6918451,
+        triggerRadius: { walk: 50, bike: 50, car: 30, trail: 50 },
         tags: ["🏁 Start Here", "🅿️ Parking", "ℹ️ Info"],
         time: "0 mins",
         shortDesc: "Your starting point for an eBike adventure through Mill Creek Park! Over 8,000 riders served since 2022.",
@@ -1112,6 +1116,7 @@ let WAYPOINT_AUDIO_VOLUME = 1.0;
         name: "Chestnut Hill Pavilion Playground",
         category: "playground", icon: "🛝",
         lat: 41.070382, lng: -80.690256,
+        triggerRadius: { walk: 80, bike: 80, car: 30, trail: 80 },
         tags: ["🌄 View", "👨‍👩‍👧‍👦 Family"],
         time: "20 mins",
         shortDesc: "Hilltop pavilion with elevated views over the parkland.",
@@ -1462,6 +1467,7 @@ let WAYPOINT_AUDIO_VOLUME = 1.0;
         name: "Idora Park (Historical)",
         category: "historic", icon: "🎢",
         lat: 41.0708398, lng: -80.6838387,
+        triggerRadius: { walk: 150, bike: 150, car: 150, trail: 150 },
         tags: ["🏛️ Historic", "👻 Ruins"],
         time: "15 mins",
         shortDesc: "Youngstown's Million Dollar Playground (1899–1984).",
@@ -1472,6 +1478,7 @@ let WAYPOINT_AUDIO_VOLUME = 1.0;
         name: "Lanterman's Viewpoint",
         category: "historic", icon: "👁️",
         lat: 41.0669603, lng: -80.6844987,
+        triggerRadius: { walk: 80, bike: 80, car: 30, trail: 80 },
         tags: ["📸 Best View", "🟢 Easy Access"],
         time: "10 mins",
         shortDesc: "The best overlook in Mill Creek Park.",
@@ -1942,17 +1949,21 @@ function updatePlayerDisplay() {
             }, 3000);
         }
 function showBackgroundPlayer() {
-    const player = document.getElementById('backgroundPlayer');
-    if (player) {
-        player.classList.add('active');
-    }
+    document.getElementById('backgroundAudioPlayer').style.display = 'block';
 }
 
 function hideBackgroundPlayer() {
-    const player = document.getElementById('backgroundPlayer');
-    if (player) {
-        player.classList.remove('active');
-    }
+    document.getElementById('backgroundAudioPlayer').style.display = 'none';
+    document.getElementById('bgPlayerExpanded').style.display = 'none';
+}
+
+let bgPlayerExpanded = false;
+function toggleBgPlayer() {
+    bgPlayerExpanded = !bgPlayerExpanded;
+    const expanded = document.getElementById('bgPlayerExpanded');
+    const icon = document.getElementById('bgExpandIcon');
+    expanded.style.display = bgPlayerExpanded ? 'block' : 'none';
+    if (icon) icon.textContent = bgPlayerExpanded ? '▼' : '▲';
 }
 
 function updateProgress() {
@@ -2009,17 +2020,16 @@ function seekAudio(event) {
 
 function togglePlayPause() {
     if (!backgroundAudio) return;
-    
     const btn = document.getElementById('playPauseBtn');
-    
+    const pillBtn = document.getElementById('pillPlayPauseBtn');
     if (backgroundAudio.paused) {
         backgroundAudio.play();
-        btn.textContent = '⏸️';
-        btn.title = 'Pause';
+        if (btn) { btn.textContent = '⏸️'; btn.title = 'Pause'; }
+        if (pillBtn) pillBtn.textContent = '⏸️';
     } else {
         backgroundAudio.pause();
-        btn.textContent = '▶️';
-        btn.title = 'Play';
+        if (btn) { btn.textContent = '▶️'; btn.title = 'Play'; }
+        if (pillBtn) pillBtn.textContent = '▶️';
     }
 }
 
@@ -2085,9 +2095,11 @@ function previousChapter() {
 
 function updatePlayerChapter() {
     const chapterDisplay = document.getElementById('playerChapter');
-    if (chapterDisplay) {
-        chapterDisplay.textContent = `Chapter ${currentChapterIndex + 1}: ${CHAPTER_NAMES[currentChapterIndex]}`;
-    }
+    const pillChapter = document.getElementById('pillChapter');
+    const chapterText = `Chapter ${currentChapterIndex + 1}: ${CHAPTER_NAMES[currentChapterIndex]}`;
+    const pillText = `Ch. ${currentChapterIndex + 1}: ${CHAPTER_NAMES[currentChapterIndex]}`;
+    if (chapterDisplay) chapterDisplay.textContent = chapterText;
+    if (pillChapter) pillChapter.textContent = pillText;
 }
 
 function adjustVolume(value) {
@@ -2108,9 +2120,9 @@ function stopBackgroundTour() {
     hideBackgroundPlayer();
     
     const playPauseBtn = document.getElementById('playPauseBtn');
-    if (playPauseBtn) {
-        playPauseBtn.textContent = '▶️';
-    }
+    if (playPauseBtn) playPauseBtn.textContent = '▶️';
+    const pillBtn = document.getElementById('pillPlayPauseBtn');
+    if (pillBtn) pillBtn.textContent = '▶️';
 }
         function toggleBackgroundAudio() {
             const btn = document.getElementById('pauseBackgroundBtn');
@@ -2244,12 +2256,30 @@ function stopBackgroundTour() {
         }
 
         function checkProximity(lat, lng) {
-            let triggerDistance = 25; // walk default
-            if (currentRouteMode === 'bike') triggerDistance = 100;
-            if (currentRouteMode === 'car') triggerDistance = 125;
+            // Default radius by mode
+            const modeDefaults = { trail: 25, walk: 25, bike: 100, car: 125 };
+            const mode = currentRouteMode;
+            const defaultRadius = modeDefaults[mode] || 25;
+
+            // Category-based radius overrides for trail locations
+            // Trails should have tighter radii — they run alongside roads and can cross-trigger
+            const trailCategoryRadius = { trail: 125, walk: 50, bike: 100, car: 125 };
+
             locations.forEach(spot => {
                 const distance = getDistanceFromLatLonInMeters(lat, lng, spot.lat, spot.lng);
-                if (distance < triggerDistance && !spokenLocations.has(spot.name)) {
+
+                // Determine trigger radius in priority order:
+                // 1. Per-location override  2. Trail category  3. Mode default
+                let radius;
+                if (spot.triggerRadius && spot.triggerRadius[mode] !== undefined) {
+                    radius = spot.triggerRadius[mode];
+                } else if (spot.category === 'trail') {
+                    radius = trailCategoryRadius[mode] || defaultRadius;
+                } else {
+                    radius = defaultRadius;
+                }
+
+                if (distance < radius && !spokenLocations.has(spot.name)) {
                     triggerHotspot(spot);
                 }
             });
@@ -2477,7 +2507,9 @@ function stopBackgroundTour() {
                 if (label) label.textContent = 'WAYPOINT APPROACHING';
                 if (carPlayer) carPlayer.classList.add('show');
             }
+            const myGen = playbackGen;
             fadeAudio(backgroundAudio, 'down', 1200, () => {
+                if (playbackGen !== myGen) return; // skip was triggered during fade
                 backgroundAudio.pause();
                 if (onComplete) onComplete();
             });
@@ -2492,6 +2524,7 @@ function stopBackgroundTour() {
         }
 
         function stopCurrentAudio() {
+            playbackGen++; // invalidate any in-flight onended / setTimeout callbacks
             if (currentAudio) {
                 currentAudio.onended = null;
                 currentAudio.onerror = null;
@@ -2571,13 +2604,15 @@ function stopBackgroundTour() {
             isPlayingWaypoint = true;
             lastPlayedSpot = spot;
             waypointHistory.push(spot); // track history for prev button
+            const myGen = playbackGen; // capture generation for this playback session
 
             if (backgroundAudio && !backgroundAudio.paused) {
                 fadeOutBackground(() => {
-                    // Start waypoint audio after fade completes
+                    if (playbackGen !== myGen) return; // skip happened during fade
                     if (currentRouteMode === 'car') {
                         showPlayer(spot, 'hazard');
                         setTimeout(() => {
+                            if (playbackGen !== myGen) return; // skip happened during hazard delay
                             showPlayer(spot, 'playing');
                             playWaypointAudio(spot);
                         }, 8000);
@@ -2586,12 +2621,13 @@ function stopBackgroundTour() {
                         playWaypointAudio(spot);
                     }
                 });
-                return; // playWaypointAudio called inside callback above
+                return;
             }
 
             if (currentRouteMode === 'car') {
                 showPlayer(spot, 'hazard');
                 setTimeout(() => {
+                    if (playbackGen !== myGen) return; // skip happened during hazard delay
                     showPlayer(spot, 'playing');
                     playWaypointAudio(spot);
                 }, 8000);
@@ -2604,9 +2640,10 @@ function stopBackgroundTour() {
         function replayCurrentWaypoint() { playerReplay(); }
 
         function playWaypointAudio(spot) {
+            const myGen = playbackGen; // capture at start — if it changes, we're stale
             if (!spot.audio) {
                 console.warn('No audio:', spot.name);
-                setTimeout(() => { playNextWaypoint(); }, 2000);
+                setTimeout(() => { if (playbackGen === myGen) playNextWaypoint(); }, 2000);
                 return;
             }
             const audio = new Audio();
@@ -2615,12 +2652,21 @@ function stopBackgroundTour() {
             audio.volume = WAYPOINT_AUDIO_VOLUME;
             audio.src = spot.audio;
             currentAudio = audio;
-            audio.onended = () => { currentAudio = null; setTimeout(() => { playNextWaypoint(); }, 1000); };
-            audio.onerror = () => { currentAudio = null; setTimeout(() => { playNextWaypoint(); }, 1000); };
+            audio.onended = () => {
+                if (playbackGen !== myGen) return; // stale — a skip/stop happened
+                currentAudio = null;
+                setTimeout(() => { if (playbackGen === myGen) playNextWaypoint(); }, 1000);
+            };
+            audio.onerror = () => {
+                if (playbackGen !== myGen) return;
+                currentAudio = null;
+                setTimeout(() => { if (playbackGen === myGen) playNextWaypoint(); }, 1000);
+            };
             audio.play().catch((e) => {
+                if (playbackGen !== myGen) return;
                 console.error('Play failed:', spot.name, e.message);
                 currentAudio = null;
-                setTimeout(() => { playNextWaypoint(); }, 1000);
+                setTimeout(() => { if (playbackGen === myGen) playNextWaypoint(); }, 1000);
             });
         }
 
