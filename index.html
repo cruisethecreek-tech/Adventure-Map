@@ -927,9 +927,11 @@
     <script>
         console.log('📜 Script loaded');
         
-        if (window.self !== window.top) {
-            console.log('🔄 Redirecting from iframe...');
-            window.top.location.href = "https://cruisethecreek-tech.github.io/Adventure-Map/";
+        // Redirect if in iframe
+if (window.self !== window.top) {
+    console.log('🔄 Redirecting from iframe...');
+    window.top.location.href = window.location.href;
+}
         }
 
         let map, markers = [], infoWindow, parkBoundary = null, boundaryVisible = false, currentRouteMode = 'trail';
