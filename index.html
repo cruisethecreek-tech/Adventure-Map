@@ -1814,7 +1814,12 @@ let WAYPOINT_AUDIO_VOLUME = 1.0;
         });
     });
 }
-
+function updatePlayerDisplay() {
+    const chapterEl = document.getElementById('playerChapter');
+    if (chapterEl) {
+        chapterEl.textContent = CHAPTER_NAMES[currentChapterIndex];
+    }
+}
         function playNextChapter() {
     currentChapterIndex++;
     if (currentChapterIndex >= CHAPTER_URLS.length) {
