@@ -928,9 +928,8 @@
         console.log('📜 Script loaded');
         
         // Redirect if in iframe
-if (window.self !== window.top) {
-    console.log('🔄 Redirecting from iframe...');
-    window.top.location.href = window.location.href;
+// Removed iframe check - it was causing SecurityError
+console.log('📜 Script starting normally');
 }
 
         let map, markers = [], infoWindow, parkBoundary = null, boundaryVisible = false, currentRouteMode = 'trail';
