@@ -1430,6 +1430,10 @@
                     <button class="filter-btn" id="boundaryBtn" onclick="toggleParkBoundary()" style="background: var(--accent-orange); color: white; border-color: var(--accent-orange); font-size: 1rem; padding: 12px 24px;">
                         🗺️ SHOW SAFE RIDING ZONE
                     </button>
+                    <button id="weatherBtn" onclick="openWeatherModal()" style="background: linear-gradient(135deg,#1a3a4a,#2c5f7a); color:white; border:none; border-radius:20px; padding:10px 16px; font-size:0.85rem; font-weight:700; cursor:pointer; display:flex; align-items:center; gap:6px; box-shadow:0 2px 8px rgba(0,0,0,0.2);">
+                        <span id="weatherBtnIcon">🌤</span>
+                        <span id="weatherBtnTemp">Weather</span>
+                    </button>
                     <div style="flex: 1; min-width: 200px; text-align: center; padding: 0 15px;">
                         <span style="font-size: 0.9rem; color: var(--text-dark); font-weight: 600; display: block;">Step 1 — Choose Your Mode:</span>
                         <div style="display: flex; gap: 8px; margin-top: 8px; justify-content: center;">
@@ -1761,13 +1765,8 @@ let WAYPOINT_AUDIO_VOLUME = 1.0;
             }
         }
 
-        // Skip onboarding for returning users
-        if (localStorage.getItem('ctc_onboarded')) {
-            const el = document.getElementById('onboardingOverlay');
-            if (el) el.remove();
-            loadSavedPrefs();
-            fetchWeather();
-        }
+        // Skip onboarding for returning users — deferred so fetchWeather is defined first
+        // (handled in initReturningUser() called at bottom of script)
 
         /* ============================================================
            WEATHER — Open-Meteo (free, no API key)
@@ -1867,8 +1866,6 @@ let WAYPOINT_AUDIO_VOLUME = 1.0;
             const category = getWeatherCategory(code, temp, wind);
             const tips = WEATHER_TIPS[category] || WEATHER_TIPS.clear;
 
-            // Banner
-            const banner = document.getElementById('weatherBanner');
             const bannerColors = {
                 rain: 'linear-gradient(135deg,#1a3a4a,#2c5f7a)',
                 cold: 'linear-gradient(135deg,#1a2a3a,#2d4a6a)',
@@ -1877,12 +1874,28 @@ let WAYPOINT_AUDIO_VOLUME = 1.0;
                 fog:  'linear-gradient(135deg,#2a2a3a,#4a4a6a)',
                 wind: 'linear-gradient(135deg,#2a3a1a,#4a6a2d)',
             };
-            banner.style.background = bannerColors[category] || bannerColors.clear;
-            document.getElementById('wbIcon').textContent = wmo.icon;
-            document.getElementById('wbCondition').textContent = wmo.desc;
-            document.getElementById('wbTemp').textContent = temp + '°F';
-            document.getElementById('wbTip').textContent = tips[0].text.replace(/<[^>]+>/g,'');
-            banner.style.display = 'block';
+            const bg = bannerColors[category] || bannerColors.clear;
+
+            // Top banner (visible after onboarding)
+            const banner = document.getElementById('weatherBanner');
+            if (banner) {
+                banner.style.background = bg;
+                document.getElementById('wbIcon').textContent = wmo.icon;
+                document.getElementById('wbCondition').textContent = wmo.desc;
+                document.getElementById('wbTemp').textContent = temp + '°F';
+                document.getElementById('wbTip').textContent = tips[0].text.replace(/<[^>]+>/g,'');
+                banner.style.display = 'block';
+            }
+
+            // Map controls weather button (always visible)
+            const wBtn = document.getElementById('weatherBtn');
+            const wBtnIcon = document.getElementById('weatherBtnIcon');
+            const wBtnTemp = document.getElementById('weatherBtnTemp');
+            if (wBtn) {
+                wBtn.style.background = bg;
+                if (wBtnIcon) wBtnIcon.textContent = wmo.icon;
+                if (wBtnTemp) wBtnTemp.textContent = temp + '°F · ' + wmo.desc;
+            }
 
             // Modal
             document.getElementById('wmIcon').textContent = wmo.icon;
@@ -1894,7 +1907,7 @@ let WAYPOINT_AUDIO_VOLUME = 1.0;
 
             // Trail tips
             const tipsEl = document.getElementById('wmTips');
-            tipsEl.innerHTML = tips.map(t =>
+            if (tipsEl) tipsEl.innerHTML = tips.map(t =>
                 `<div class="weather-tip-item"><span>${t.icon}</span><span>${t.text}</span></div>`
             ).join('');
         }
@@ -4175,6 +4188,19 @@ function stopBackgroundTour() {
         }
 
         console.log('✅ Ready for map');
+
+        // Deferred returning user init — runs after all functions are defined
+        function initReturningUser() {
+            if (localStorage.getItem('ctc_onboarded')) {
+                const el = document.getElementById('onboardingOverlay');
+                if (el) el.remove();
+                loadSavedPrefs();
+                fetchWeather();
+            }
+        }
+        // Small delay ensures all functions are parsed before calling
+        setTimeout(initReturningUser, 0);
+
     </script>
 </body>
 </html>
