@@ -1745,51 +1745,96 @@
             showBackgroundAudioPrompt();
         }
 
-        function showBackgroundAudioPrompt() {
-            const overlay = document.createElement('div');
-            overlay.id = 'audio-start-modal';
-            overlay.style.cssText = `position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 10000; display: flex; align-items: center; justify-content: center;`;
-            
-            overlay.innerHTML = `
-                <div style="background: white; padding: 40px; border-radius: 20px; text-align: center; max-width: 400px; margin: 20px;">
-                    <div style="font-size: 64px; margin-bottom: 20px;">🎧</div>
-                    <h2 style="margin-bottom: 15px; color: #2c3e50;">Start Mill Creek History Tour?</h2>
-                    <p style="margin-bottom: 25px; color: #666; line-height: 1.6;">Rachel will narrate the 50-minute history of Mill Creek Park as you ride. The background audio will automatically pause when you reach specific landmarks.</p>
-                    <button id="start-background-btn" style="background: linear-gradient(135deg, #4a6741 0%, #5d7a52 100%); color: white; padding: 15px 40px; border: none; border-radius: 50px; font-size: 18px; font-weight: 700; cursor: pointer; box-shadow: 0 4px 15px rgba(74, 103, 65, 0.3); margin-bottom: 10px;">🎙️ Start History Tour</button>
-                    <button id="skip-background-btn" style="background: transparent; color: #666; padding: 10px 20px; border: none; font-size: 14px; cursor: pointer; display: block; margin: 15px auto 0;">Skip (waypoints only)</button>
-                </div>
-            `;
-            
-            document.body.appendChild(overlay);
-            
-            if (!backgroundAudio) {
-                backgroundAudio = new Audio();
-                backgroundAudio.preload = "auto";
-                backgroundAudio.volume = BACKGROUND_AUDIO_VOLUME;
-                backgroundAudio.addEventListener('ended', playNextChapter);
-                backgroundAudio.addEventListener('error', function() {
-                    console.error('Background audio failed to load');
-                    showChapterNotification('⚠️ Background audio unavailable - waypoints still work!');
-                });
-                backgroundAudio.src = CHAPTER_URLS[0];
-                backgroundAudio.load();
-            }
-            
-            document.getElementById('start-background-btn').addEventListener('click', function() {
-                currentChapterIndex = 0;
-                backgroundAudio.play().then(() => {
-                    showChapterNotification(CHAPTER_NAMES[currentChapterIndex]);
-                }).catch(err => {
-                    console.error('Could not play background audio:', err);
-                    alert('Could not start background audio. Waypoint audio will still work!');
-                });
-                document.getElementById('audio-start-modal').remove();
-            });
-            
-            document.getElementById('skip-background-btn').addEventListener('click', function() {
-                document.getElementById('audio-start-modal').remove();
-            });
-        }
+       function showBackgroundAudioPrompt() {
+    const overlay = document.createElement('div');
+    overlay.id = 'audio-start-modal';
+    overlay.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.85);
+        z-index: 10000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    `;
+    
+    overlay.innerHTML = `
+        <div style="background: white; padding: 40px; border-radius: 20px; text-align: center; max-width: 400px; margin: 20px;">
+            <div style="font-size: 64px; margin-bottom: 20px;">🎧</div>
+            <h2 style="margin-bottom: 15px; color: #2c3e50;">Start Mill Creek History Tour?</h2>
+            <p style="margin-bottom: 25px; color: #666; line-height: 1.6;">
+                Rachel will narrate the 50-minute history of Mill Creek Park as you ride. 
+                The background audio will automatically pause when you reach specific landmarks.
+            </p>
+            <button id="start-background-btn" style="
+                background: linear-gradient(135deg, #4a6741 0%, #5d7a52 100%);
+                color: white;
+                padding: 15px 40px;
+                border: none;
+                border-radius: 50px;
+                font-size: 18px;
+                font-weight: 700;
+                cursor: pointer;
+                box-shadow: 0 4px 15px rgba(74, 103, 65, 0.3);
+                margin-bottom: 10px;
+            ">
+                🎙️ Start History Tour
+            </button>
+            <button id="skip-background-btn" style="
+                background: transparent;
+                color: #666;
+                padding: 10px 20px;
+                border: none;
+                font-size: 14px;
+                cursor: pointer;
+                display: block;
+                margin: 15px auto 0;
+            ">
+                Skip (waypoints only)
+            </button>
+        </div>
+    `;
+    
+    document.body.appendChild(overlay);
+    
+    if (!backgroundAudio) {
+        backgroundAudio = new Audio();
+        backgroundAudio.preload = "auto";
+        backgroundAudio.volume = BACKGROUND_AUDIO_VOLUME;
+        backgroundAudio.addEventListener('ended', playNextChapter);
+        backgroundAudio.addEventListener('error', function() {
+            console.error('Background audio failed to load');
+            showChapterNotification('⚠️ Background audio unavailable - waypoints still work!');
+        });
+        
+        // Add time update listener for progress bar
+        backgroundAudio.addEventListener('timeupdate', updateProgress);
+        backgroundAudio.addEventListener('loadedmetadata', updateDuration);
+        
+        backgroundAudio.src = CHAPTER_URLS[0];
+        backgroundAudio.load();
+    }
+    
+    document.getElementById('start-background-btn').addEventListener('click', function() {
+        currentChapterIndex = 0;
+        backgroundAudio.play().then(() => {
+            showChapterNotification(CHAPTER_NAMES[currentChapterIndex]);
+            showBackgroundPlayer();
+            updatePlayerChapter();
+        }).catch(err => {
+            console.error('Could not play background audio:', err);
+            alert('Could not start background audio. Check your browser settings. Waypoint audio will still work!');
+        });
+        document.getElementById('audio-start-modal').remove();
+    });
+    
+    document.getElementById('skip-background-btn').addEventListener('click', function() {
+        document.getElementById('audio-start-modal').remove();
+    });
+}
 
         function playNextChapter() {
             currentChapterIndex++;
