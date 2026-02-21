@@ -1837,15 +1837,18 @@
 }
 
         function playNextChapter() {
-            currentChapterIndex++;
-            if (currentChapterIndex >= CHAPTER_URLS.length) currentChapterIndex = 0;
-            backgroundAudio.src = CHAPTER_URLS[currentChapterIndex];
-            backgroundAudio.play().then(() => {
-                showChapterNotification(CHAPTER_NAMES[currentChapterIndex]);
-            }).catch(err => {
-                console.error('Chapter playback error:', err);
-            });
-        }
+    currentChapterIndex++;
+    if (currentChapterIndex >= CHAPTER_URLS.length) {
+        currentChapterIndex = 0;
+    }
+    backgroundAudio.src = CHAPTER_URLS[currentChapterIndex];
+    backgroundAudio.play().then(() => {
+        showChapterNotification(CHAPTER_NAMES[currentChapterIndex]);
+        updatePlayerChapter();
+    }).catch(err => {
+        console.error('Chapter playback error:', err);
+    });
+}
 
         function showChapterNotification(chapterName) {
             const notification = document.createElement('div');
